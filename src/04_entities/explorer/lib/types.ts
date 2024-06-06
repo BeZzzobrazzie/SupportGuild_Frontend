@@ -2,7 +2,8 @@
 
 export type entityType = {
   id: number,
-  type: string,
+  type: "file" | "folder",
   name: string,
   parent: number,
+  isOpen?: boolean,
 }
