@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { contextMenuModel } from 'src/04_entities/contextmenu'
+import { explorerModel } from 'src/04_entities/explorer'
 
 export const store = configureStore({
   reducer: {
-    contextMenu: contextMenuModel.reducer
+    contextMenu: contextMenuModel.reducer,
+    explorer: explorerModel.reducer,
   },
 })
 
