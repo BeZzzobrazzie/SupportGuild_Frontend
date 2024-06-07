@@ -4,6 +4,8 @@ import { entityType } from "../../lib/types";
 import { RootState } from "src/00_app/store";
 import classes from "./classes.module.css";
 import { explorerModel } from "../..";
+import { contextMenuModel } from "src/04_entities/contextmenu";
+import { ContextMenu } from "src/02_widgets/context-menu";
 
 interface EntityProps {
   entity: entityType;
@@ -26,11 +28,29 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     else dispatch(explorerModel.openFolder(entity.id));
   }
 
+  function handleContextMenu(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) {
+    dispatch(contextMenuModel.showContextMenu());
+    dispatch(
+      contextMenuModel.setCoords({ x: event.clientX, y: event.clientY })
+    );
+    event.preventDefault();
+  }
+
+  let result = <></>;
+
   switch (entity.type) {
     case "folder":
-      return (
+      result = (
         <li>
-          <div className={classes["entity_header"]} onClick={handleFolderClick}>
+          <div
+            className={classes["entity_header"]}
+            onClick={handleFolderClick}
+            onContextMenu={(
+              event: React.MouseEvent<HTMLDivElement, MouseEvent>
+            ) => handleContextMenu(event)}
+          >
             {indent}
             <IconFolder />
             {entity.name}
@@ -50,9 +70,14 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       );
       break;
     case "file":
-      return (
+      result = (
         <li>
-          <div className={classes["entity_header"]}>
+          <div
+            className={classes["entity_header"]}
+            onContextMenu={(
+              event: React.MouseEvent<HTMLDivElement, MouseEvent>
+            ) => handleContextMenu(event)}
+          >
             {indent}
             <IconFile />
             {entity.name}
@@ -65,5 +90,10 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     //   break;
   }
 
-  return <></>;
+  return (
+    <>
+      {result}
+      <ContextMenu />
+    </>
+  );
 }
