@@ -1,18 +1,18 @@
 import { IconFolder, IconFile } from "@tabler/icons-react";
-import { useDispatch, useSelector } from "react-redux";
 import { entityType } from "../../lib/types";
 import { RootState } from "src/00_app/store";
 import classes from "./classes.module.css";
 import { explorerModel } from "../..";
-import { contextMenuModel } from "src/04_entities/contextmenu";
+import { useContextMenu } from "mantine-contextmenu";
+import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 
 interface EntityProps {
   entity: entityType;
   nestingLevel: number;
 }
 export function Entity({ entity, nestingLevel }: EntityProps) {
-  const dispatch = useDispatch();
-  const children = useSelector((state: RootState) =>
+  const dispatch = useAppDispatch();
+  const children = useAppSelector((state: RootState) =>
     state.explorer.filter((item) => item.parent === entity.id)
   );
 
@@ -27,15 +27,89 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     else dispatch(explorerModel.openFolder(entity.id));
   }
 
-  function handleContextMenu(
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) {
-    dispatch(contextMenuModel.showContextMenu());
-    dispatch(
-      contextMenuModel.setCoords({ x: event.clientX, y: event.clientY })
-    );
-    event.preventDefault();
-  }
+  const { showContextMenu } = useContextMenu();
+
+  const fileOptions = [
+    {
+      key: "cut",
+      onClick: () => console.log("cut"),
+      disabled: true,
+    },
+    {
+      key: "copy",
+      title: "Copy",
+      onClick: () => console.log("copy"),
+      disabled: true,
+    },
+    { key: "divider-1" },
+    {
+      key: "rename",
+      onClick: () => {
+        console.log("rename");
+        // explorerModel.unitRenamingStarted(unit);
+      },
+    },
+    {
+      key: "delete",
+      onClick: () => {
+        console.log("delete");
+        dispatch(explorerModel.deleteEntity(entity.id));
+      },
+    },
+  ];
+  const folderOptions = [
+    {
+      key: "new file",
+      onClick: () => {
+        console.log("new file");
+        // if (!isOpen) {
+        //   explorerModel.clickedOnDirectory(unit.id);
+        // }
+        // explorerModel.unitCreatingStarted({ parent: unit, type: "file" });
+      },
+    },
+    {
+      key: "new folder",
+      onClick: () => {
+        console.log("new folder");
+        // if (!isOpen) explorerModel.clickedOnDirectory(unit.id);
+        // explorerModel.unitCreatingStarted({ parent: unit, type: "directory" });
+      },
+    },
+    { key: "divider-1" },
+    {
+      key: "cut",
+      onClick: () => console.log("cut"),
+      disabled: true,
+    },
+    {
+      key: "copy",
+      title: "Copy",
+      onClick: () => console.log("copy"),
+      disabled: true,
+    },
+    {
+      key: "past",
+      title: "Past",
+      onClick: () => console.log("past"),
+      disabled: true,
+    },
+    { key: "divider-2" },
+    {
+      key: "rename",
+      onClick: () => {
+        console.log("rename");
+        // explorerModel.unitRenamingStarted(unit);
+      },
+    },
+    {
+      key: "delete",
+      onClick: () => {
+        console.log("delete");
+        dispatch(explorerModel.deleteEntity(entity.id));
+      },
+    },
+  ];
 
   let result = <></>;
 
@@ -46,7 +120,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
           <div
             className={classes["entity_header"]}
             onClick={handleFolderClick}
-            onContextMenu={handleContextMenu}
+            onContextMenu={showContextMenu(folderOptions)}
           >
             {indent}
             <IconFolder />
@@ -71,9 +145,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
         <li>
           <div
             className={classes["entity_header"]}
-            onContextMenu={(
-              event: React.MouseEvent<HTMLDivElement, MouseEvent>
-            ) => handleContextMenu(event)}
+            onContextMenu={showContextMenu(fileOptions)}
           >
             {indent}
             <IconFile />

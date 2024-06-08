@@ -1,10 +1,9 @@
-import { useSelector } from "react-redux";
-import { RootState } from "src/00_app/store";
 import { Entity } from "../../entity";
 import classes from "./classes.module.css";
+import { useAppSelector } from "src/05_shared/lib/hooks";
 
 export function Root() {
-  const rootChildren = useSelector((state: RootState) => state.explorer).filter(
+  const rootChildren = useAppSelector((state) => state.explorer).filter(
     (item) => item.parent === -1
   );
 

@@ -40,7 +40,7 @@ export const explorerSlice = createSlice({
   name: "explorer",
   initialState,
   reducers: {
-    openFolder: (state, action) => {
+    openFolder: (state, action: PayloadAction<number>) => {
       const folderId = action.payload;
 
       const targetFolder = state.find((entity) => entity.id === folderId);
@@ -48,13 +48,20 @@ export const explorerSlice = createSlice({
         targetFolder.isOpen = true;
       }
     },
-    closeFolder: (state, action) => {
+    closeFolder: (state, action: PayloadAction<number>) => {
       const folderId = action.payload;
 
       const targetFolder = state.find((entity) => entity.id === folderId);
       if (targetFolder && targetFolder.type === "folder") {
         targetFolder.isOpen = false;
       }
+    },
+    deleteEntity: (state, action: PayloadAction<number>) => {
+      const entityId = action.payload;
+      const indexTargetEntity = state.findIndex(
+        (entity) => entity.id === entityId
+      );
+      state.splice(indexTargetEntity, 1);
     },
 
     // showContextMenu: (state, action: PayloadAction<{x: number, y: number}>) => {
@@ -71,5 +78,5 @@ export const explorerSlice = createSlice({
   },
 });
 
-export const { openFolder, closeFolder } = explorerSlice.actions;
+export const { openFolder, closeFolder, deleteEntity } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;
