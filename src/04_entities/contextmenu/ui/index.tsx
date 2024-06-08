@@ -4,6 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import classes from "./classes.module.css";
 import { RootState } from "src/00_app/store";
 import { contextMenuModel } from "src/04_entities/contextmenu";
+import { useCoordsContextMenu, useHideContextMenu } from "../lib/hooks";
+
+
+interface OptionData {
+  key: string;
+  name: string;
+  onClick: React.MouseEventHandler<HTMLButtonElement> | undefined;
+}
 
 export function ContextMenu() {
   const dispatch = useDispatch();
@@ -14,44 +22,11 @@ export function ContextMenu() {
     };
   });
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
-  // const [position, setPosition] = useState<{x: number, y: number}>({x: mouseCoordsX, y: mouseCoordsY})
 
-  useEffect(() => {
-    if (isShowed && contextMenuRef.current) {
-      const { x, y } = position;
-      const rootW = contextMenuRef.current.offsetWidth;
-      const rootH = contextMenuRef.current.offsetHeight;
-      const screenW = window.innerWidth;
-      const screenH = window.innerHeight;
+  useCoordsContextMenu({ isShowed, contextMenuRef, position });
+  useHideContextMenu();
 
-      let newX = x;
-      let newY = y;
 
-      if (x + rootW > screenW) {
-        newX = screenW - rootW;
-      }
-
-      if (y + rootH > screenH) {
-        newY = screenH - rootH;
-      }
-
-      if (newX !== x || newY !== y) {
-        dispatch(contextMenuModel.setCoords({ x: newX, y: newY }));
-      }
-    }
-  });
-
-  useEffect(() => {
-    const handleClick = () => dispatch(contextMenuModel.hideContextMenu());
-    const handleWindowBlur = () => dispatch(contextMenuModel.hideContextMenu());
-    document.addEventListener("click", handleClick);
-    window.addEventListener("blur", handleWindowBlur);
-
-    return () => {
-      document.removeEventListener("click", handleClick);
-      window.removeEventListener("blur", handleWindowBlur);
-    };
-  }, []);
 
   return (
     <>
