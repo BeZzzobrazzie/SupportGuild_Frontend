@@ -13,7 +13,7 @@ interface EntityProps {
 export function Entity({ entity, nestingLevel }: EntityProps) {
   const dispatch = useAppDispatch();
   const children = useAppSelector((state: RootState) =>
-    state.explorer.filter((item) => item.parent === entity.id)
+    state.explorer.entities.filter((item) => item.parent === entity.id)
   );
 
   const indent = Array(nestingLevel)

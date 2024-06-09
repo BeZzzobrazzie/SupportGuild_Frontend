@@ -14,6 +14,7 @@
     "@mantine/hooks": "^7.10.1",
     "@reduxjs/toolkit": "^2.2.5",
     "@tabler/icons-react": "^3.5.0",
+    "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "mantine-contextmenu": "^7.10.1",
     "react": "^18.2.0",
