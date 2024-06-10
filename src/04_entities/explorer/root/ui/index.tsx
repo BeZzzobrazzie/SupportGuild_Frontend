@@ -8,7 +8,7 @@ export function Root() {
   const dispatch = useAppDispatch();
   const rootChildren = useAppSelector(
     (state) => state.explorer.entities
-  ).filter((item) => item.parent === -1);
+  ).filter((item) => true);
   console.log(rootChildren);
 
   const entityStatus = useAppSelector((state) => state.explorer.status);

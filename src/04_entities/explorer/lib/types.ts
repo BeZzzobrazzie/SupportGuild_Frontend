@@ -1,8 +1,12 @@
+
+export type entityCategoryType = "file" | "folder" | null;
+export type parentIdType = number | null;
+
 export type entityType = {
   id: number;
-  type: "file" | "folder";
+  category: entityCategoryType;
   name: string;
-  parent: number;
+  parentId: parentIdType;
   isOpen?: boolean;
 };
 
@@ -10,4 +14,9 @@ export type explorerSliceType = {
   entities: entityType[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null | undefined;
+  entityCreation: {
+    status: boolean;
+    parentId: parentIdType;
+    category: entityCategoryType;
+  }
 };

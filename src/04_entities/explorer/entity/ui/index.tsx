@@ -5,6 +5,7 @@ import classes from "./classes.module.css";
 import { explorerModel } from "../..";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
+import { EntityCreator } from "../../entity-creator";
 
 interface EntityProps {
   entity: entityType;
@@ -12,8 +13,11 @@ interface EntityProps {
 }
 export function Entity({ entity, nestingLevel }: EntityProps) {
   const dispatch = useAppDispatch();
-  const children = useAppSelector((state: RootState) =>
-    state.explorer.entities.filter((item) => item.parent === entity.id)
+  const children = useAppSelector((state) =>
+    state.explorer.entities.filter((item) => item.parentId === entity.id)
+  );
+  const isParentOfCreatedEntity = useAppSelector(
+    (state) => state.explorer.entityCreation.parentId === entity.id
   );
 
   const indent = Array(nestingLevel)
@@ -62,10 +66,12 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "new file",
       onClick: () => {
         console.log("new file");
-        // if (!isOpen) {
-        //   explorerModel.clickedOnDirectory(unit.id);
-        // }
-        // explorerModel.unitCreatingStarted({ parent: unit, type: "file" });
+        dispatch(
+          explorerModel.addEntityCreator({
+            parentId: entity.id,
+            category: "file",
+          })
+        );
       },
     },
     {
@@ -113,7 +119,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
 
   let result = <></>;
 
-  switch (entity.type) {
+  switch (entity.category) {
     case "folder":
       result = (
         <li>
@@ -127,15 +133,23 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
             {entity.name}
           </div>
           {entity.isOpen && (
-            <ul className={classes["children-list"]}>
-              {children.map((child) => (
-                <Entity
-                  key={child.id}
-                  entity={child}
+            <>
+              {isParentOfCreatedEntity && (
+                <EntityCreator
+                  parentId={entity.id}
                   nestingLevel={nestingLevel + 1}
                 />
-              ))}
-            </ul>
+              )}
+              <ul className={classes["children-list"]}>
+                {children.map((child) => (
+                  <Entity
+                    key={child.id}
+                    entity={child}
+                    nestingLevel={nestingLevel + 1}
+                  />
+                ))}
+              </ul>
+            </>
           )}
         </li>
       );

@@ -1,0 +1,13 @@
+
+
+.entity_header {
+  display: flex;
+  border: 1px solid black;
+}
+.entity_indent {
+  width: 24px;
+}
+.children-list {
+  list-style-type: none;
+  padding-left: 0;
+}
