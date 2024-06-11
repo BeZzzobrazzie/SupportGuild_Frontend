@@ -20,3 +20,9 @@ export type explorerSliceType = {
     category: entityCategoryType;
   }
 };
+
+export type initialEntityType = {
+  name: string,
+  category: entityCategoryType,
+  parent: parentIdType,
+}

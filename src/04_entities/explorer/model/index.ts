@@ -1,5 +1,11 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { entityCategoryType, entityType, explorerSliceType, parentIdType } from "../lib/types";
+import {
+  entityCategoryType,
+  entityType,
+  explorerSliceType,
+  initialEntityType,
+  parentIdType,
+} from "../lib/types";
 
 const initialState: explorerSliceType = {
   entities: [],
@@ -22,6 +28,23 @@ export const fetchEntities = createAsyncThunk(
     console.log("fetch");
     console.log(data);
     return data;
+  }
+);
+
+export const addNewEntity = createAsyncThunk(
+  "explorer/addNewEntity",
+  async (initialEntity: initialEntityType) => {
+    const response = await fetch(
+      "http://localhost:5000/api/template-manager/explorer-entities",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify(initialEntity),
+      }
+    );
+    return await response.json();
   }
 );
 
@@ -91,12 +114,23 @@ export const explorerSlice = createSlice({
       );
       state.entities.splice(indexTargetEntity, 1);
     },
-    addEntityCreator: (state, action: PayloadAction<{parentId: parentIdType, category: entityCategoryType}>) => {
-      const {parentId, category} = action.payload;
-      state.entityCreation.category = category;
-      state.entityCreation.parentId = parentId;
+    addEntityCreator: (
+      state,
+      action: PayloadAction<{
+        parentId: parentIdType;
+        category: entityCategoryType;
+      }>
+    ) => {
+      const { parentId, category } = action.payload;
       state.entityCreation.status = true;
-    }
+      state.entityCreation.parentId = parentId;
+      state.entityCreation.category = category;
+    },
+    removeEntityCreator: (state) => {
+      state.entityCreation.status = false;
+      state.entityCreation.parentId = null;
+      state.entityCreation.category = null;
+    },
   },
   extraReducers(builder) {
     builder
@@ -108,14 +142,23 @@ export const explorerSlice = createSlice({
         // Add any fetched posts to the array
         console.log("succeeded");
         console.log(action.payload);
-        state.entities = state.entities.concat(action.payload);
+        state.entities = action.payload;
       })
       .addCase(fetchEntities.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addNewEntity.fulfilled, (state, action) => {
+        state.entities.push(action.payload);
       });
   },
 });
 
-export const { openFolder, closeFolder, deleteEntity, addEntityCreator } = explorerSlice.actions;
+export const {
+  openFolder,
+  closeFolder,
+  deleteEntity,
+  addEntityCreator,
+  removeEntityCreator,
+} = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

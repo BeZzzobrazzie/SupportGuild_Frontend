@@ -1,7 +1,9 @@
 import { IconFile, IconFolder } from "@tabler/icons-react";
 import { entityCategoryType, parentIdType } from "../../lib/types";
 import classes from "./classes.module.css";
-import { useAppSelector } from "src/05_shared/lib/hooks";
+import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
+import { useState } from "react";
+import { explorerModel } from "../..";
 
 type EntityCreatorType = {
   // category: entityCategoryType;
@@ -19,7 +21,9 @@ export function EntityCreator({
     .map((_, index) => (
       <div key={index} className={classes["entity_indent"]}></div>
     ));
-  const category = useAppSelector((state) => state.explorer.entityCreation.category);
+  const category = useAppSelector(
+    (state) => state.explorer.entityCreation.category
+  );
   let result = <></>;
 
   switch (category) {
@@ -47,7 +51,7 @@ export function EntityCreator({
           >
             {indent}
             <IconFile />
-            name
+            <EntityCreatorInput category={category} parentId={parentId}/>
           </div>
         </li>
       );
@@ -58,4 +62,45 @@ export function EntityCreator({
   }
 
   return <>{result}</>;
+}
+
+function EntityCreatorInput({category, parentId} : {category: entityCategoryType, parentId: parentIdType}) {
+  const dispatch = useAppDispatch();
+  const [inputValue, setInputValue] = useState("");
+  const initialEntity = {
+    name: inputValue,
+    category: category,
+    parent: parentId,
+  }
+
+  function handleBlur() {
+    dispatch(explorerModel.removeEntityCreator());
+  }
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    console.log('submit')
+    try {
+      await dispatch(explorerModel.addNewEntity(initialEntity)).unwrap()
+      dispatch(explorerModel.removeEntityCreator())
+    } catch (err) {
+      console.error('Failed to save the entity: ', err)
+    }
+
+
+  }
+
+  return (
+    <>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          autoFocus
+          required
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onBlur={handleBlur}
+        ></input>
+      </form>
+    </>
+  );
 }

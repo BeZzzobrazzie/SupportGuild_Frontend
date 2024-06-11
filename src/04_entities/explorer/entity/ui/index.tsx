@@ -6,6 +6,7 @@ import { explorerModel } from "../..";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
+import { useState } from "react";
 
 interface EntityProps {
   entity: entityType;
@@ -134,13 +135,13 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
           </div>
           {entity.isOpen && (
             <>
-              {isParentOfCreatedEntity && (
-                <EntityCreator
-                  parentId={entity.id}
-                  nestingLevel={nestingLevel + 1}
-                />
-              )}
               <ul className={classes["children-list"]}>
+                {isParentOfCreatedEntity && (
+                  <EntityCreator
+                    parentId={entity.id}
+                    nestingLevel={nestingLevel + 1}
+                  />
+                )}
                 {children.map((child) => (
                   <Entity
                     key={child.id}
