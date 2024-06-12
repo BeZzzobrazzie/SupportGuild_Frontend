@@ -1,6 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   entityCategoryType,
+  entityFromServerType,
   entityType,
   explorerSliceType,
   initialEntityType,
@@ -25,9 +26,9 @@ export const fetchEntities = createAsyncThunk(
       "http://localhost:5000/api/template-manager/explorer-entities"
     );
     const data = await response.json();
-    console.log("fetch");
-    console.log(data);
-    return data;
+    // console.log("fetch");
+    // console.log(data);
+    return data as entityFromServerType[];
   }
 );
 
@@ -44,7 +45,9 @@ export const addNewEntity = createAsyncThunk(
         body: JSON.stringify(initialEntity),
       }
     );
-    return await response.json();
+    const data = await response.json();
+    console.log(data);
+    return data as entityFromServerType;
   }
 );
 
@@ -139,7 +142,6 @@ export const explorerSlice = createSlice({
       })
       .addCase(fetchEntities.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Add any fetched posts to the array
         console.log("succeeded");
         console.log(action.payload);
         state.entities = action.payload;
@@ -148,9 +150,18 @@ export const explorerSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
+
+      .addCase(addNewEntity.pending, (state, action) => {
+        state.status = "loading";
+      })
       .addCase(addNewEntity.fulfilled, (state, action) => {
+        state.status = "succeeded"
         state.entities.push(action.payload);
-      });
+      })
+      .addCase(addNewEntity.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
   },
 });
 

@@ -24,5 +24,15 @@ export type explorerSliceType = {
 export type initialEntityType = {
   name: string,
   category: entityCategoryType,
-  parent: parentIdType,
+  parentId: parentIdType,
+}
+
+export type entityFromServerType = {
+  id: number,
+  name: string,
+  category: entityCategoryType,
+  parent: entityFromServerType | null,
+  parentId: parentIdType,
+  createdAt: string,
+  updatedAt: string,
 }

@@ -70,7 +70,7 @@ function EntityCreatorInput({category, parentId} : {category: entityCategoryType
   const initialEntity = {
     name: inputValue,
     category: category,
-    parent: parentId,
+    parentId: parentId,
   }
 
   function handleBlur() {
@@ -79,6 +79,7 @@ function EntityCreatorInput({category, parentId} : {category: entityCategoryType
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     console.log('submit')
+    console.log(initialEntity);
     try {
       await dispatch(explorerModel.addNewEntity(initialEntity)).unwrap()
       dispatch(explorerModel.removeEntityCreator())
