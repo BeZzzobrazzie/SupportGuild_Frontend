@@ -51,40 +51,24 @@ export const addNewEntity = createAsyncThunk(
   }
 );
 
-// {[
-//   {
-//     id: 0,
-//     type: "file",
-//     name: "first",
-//     parent: -1,
-//   },
-//   {
-//     id: 1,
-//     type: "folder",
-//     name: "second",
-//     parent: -1,
-//     isOpen: false,
-//   },
-//   {
-//     id: 2,
-//     type: "folder",
-//     name: "third",
-//     parent: 1,
-//     isOpen: false,
-//   },
-//   {
-//     id: 3,
-//     type: "file",
-//     name: "forth",
-//     parent: 2,
-//   },
-//   {
-//     id: 4,
-//     type: "file",
-//     name: "fifth",
-//     parent: -1,
-//   },
-// ]}
+export const deleteEntity = createAsyncThunk(
+  "explorer/deleteEntity",
+  async (id: number) => {
+    const response = await fetch(
+      "http://localhost:5000/api/template-manager/explorer-entities",
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({ id }),
+      }
+    );
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  }
+);
 
 export const explorerSlice = createSlice({
   name: "explorer",
@@ -110,13 +94,13 @@ export const explorerSlice = createSlice({
         targetFolder.isOpen = false;
       }
     },
-    deleteEntity: (state, action: PayloadAction<number>) => {
-      const entityId = action.payload;
-      const indexTargetEntity = state.entities.findIndex(
-        (entity) => entity.id === entityId
-      );
-      state.entities.splice(indexTargetEntity, 1);
-    },
+    // deleteEntity: (state, action: PayloadAction<number>) => {
+    //   const entityId = action.payload;
+    //   const indexTargetEntity = state.entities.findIndex(
+    //     (entity) => entity.id === entityId
+    //   );
+    //   state.entities.splice(indexTargetEntity, 1);
+    // },
     addEntityCreator: (
       state,
       action: PayloadAction<{
@@ -137,38 +121,57 @@ export const explorerSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(fetchEntities.pending, (state, action) => {
+      .addCase(fetchEntities.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchEntities.fulfilled, (state, action) => {
-        state.status = "succeeded";
         console.log("succeeded");
         console.log(action.payload);
         state.entities = action.payload;
+
+        state.status = "succeeded";
       })
       .addCase(fetchEntities.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
-      })
-
-      .addCase(addNewEntity.pending, (state, action) => {
+      });
+    builder
+      .addCase(addNewEntity.pending, (state) => {
         state.status = "loading";
       })
       .addCase(addNewEntity.fulfilled, (state, action) => {
-        state.status = "succeeded"
         state.entities.push(action.payload);
+
+        state.status = "succeeded";
       })
       .addCase(addNewEntity.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      });
+    builder
+      .addCase(deleteEntity.pending, (state) => {
+        state.status = "loading";
       })
+      .addCase(deleteEntity.fulfilled, (state, action) => {
+        const entityId = action.payload;
+        const entityIndex = state.entities.findIndex(
+          (entity) => entity.id === entityId
+        );
+        state.entities.splice(entityIndex, 1);
+
+        state.status = "succeeded";
+      })
+      .addCase(deleteEntity.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      });
   },
 });
 
 export const {
   openFolder,
   closeFolder,
-  deleteEntity,
+  // deleteEntity,
   addEntityCreator,
   removeEntityCreator,
 } = explorerSlice.actions;

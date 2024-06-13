@@ -1,4 +1,4 @@
-import { IconFile, IconFolder } from "@tabler/icons-react";
+import { IconChevronRight, IconFile, IconFolder } from "@tabler/icons-react";
 import { entityCategoryType, parentIdType } from "../../lib/types";
 import classes from "./classes.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
@@ -36,8 +36,10 @@ export function EntityCreator({
             // onContextMenu={showContextMenu(folderOptions)}
           >
             {indent}
-            <IconFolder />
-            name
+            <IconChevronRight />
+            {/* <IconFolder /> */}
+            <EntityCreatorInput category={category} parentId={parentId} />
+
           </div>
         </li>
       );
@@ -51,7 +53,7 @@ export function EntityCreator({
           >
             {indent}
             <IconFile />
-            <EntityCreatorInput category={category} parentId={parentId}/>
+            <EntityCreatorInput category={category} parentId={parentId} />
           </div>
         </li>
       );
@@ -64,30 +66,34 @@ export function EntityCreator({
   return <>{result}</>;
 }
 
-function EntityCreatorInput({category, parentId} : {category: entityCategoryType, parentId: parentIdType}) {
+function EntityCreatorInput({
+  category,
+  parentId,
+}: {
+  category: entityCategoryType;
+  parentId: parentIdType;
+}) {
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
   const initialEntity = {
     name: inputValue,
     category: category,
     parentId: parentId,
-  }
+  };
 
   function handleBlur() {
     dispatch(explorerModel.removeEntityCreator());
   }
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log('submit')
+    console.log("submit");
     console.log(initialEntity);
     try {
-      await dispatch(explorerModel.addNewEntity(initialEntity)).unwrap()
-      dispatch(explorerModel.removeEntityCreator())
+      await dispatch(explorerModel.addNewEntity(initialEntity)).unwrap();
+      dispatch(explorerModel.removeEntityCreator());
     } catch (err) {
-      console.error('Failed to save the entity: ', err)
+      console.error("Failed to save the entity: ", err);
     }
-
-
   }
 
   return (
