@@ -21,6 +21,18 @@ export type explorerSliceType = {
   }
 };
 
+export type explorerSliceTypeTwo = {
+  // entitiesIsOpen: {
+  //   id: number,
+  //   isOpen: boolean,
+  // }[],
+  entityCreation: {
+    status: boolean;
+    parentId: parentIdType;
+    category: entityCategoryType;
+  }
+}
+
 export type initialEntityType = {
   name: string,
   category: entityCategoryType,

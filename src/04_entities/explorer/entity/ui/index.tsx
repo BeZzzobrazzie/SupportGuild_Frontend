@@ -5,28 +5,27 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react";
 import { entityType } from "../../lib/types";
-import { RootState } from "src/00_app/store";
 import classes from "./classes.module.css";
-import { explorerModel } from "../..";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { useState } from "react";
-import { useGetEntitiesQuery } from "../../model/explorerApi";
+import { useGetEntitiesQuery } from "src/05_shared/api/apiSlice";
 
 interface EntityProps {
   entity: entityType;
   nestingLevel: number;
 }
 export function Entity({ entity, nestingLevel }: EntityProps) {
-  const dispatch = useAppDispatch();
-  // const children = useAppSelector((state) =>
-  //   state.explorer.entities.filter((item) => item.parentId === entity.id)
-  // );
+  const { showContextMenu } = useContextMenu();
+
+  const [isOpen, setIsOpen] = useState(false);
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === entity.id
   );
-  const result = useGetEntitiesQuery();
+  const entities = useGetEntitiesQuery();
+  // const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
+  //   useRemoveEntityMutation();
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -35,11 +34,10 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     ));
 
   function handleFolderClick() {
-    if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
-    else dispatch(explorerModel.openFolder(entity.id));
+    // if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
+    // else dispatch(explorerModel.openFolder(entity.id));
+    setIsOpen(!isOpen);
   }
-
-  const { showContextMenu } = useContextMenu();
 
   const fileOptions = [
     {
@@ -65,8 +63,18 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        // dispatch(explorerModel.deleteEntity(entity.id));
+        // if (!isLoading) {
+        //   const removeEntityQuery = async () => {
+        //     try {
+        //       await removeEntity(entity.id);
+        //     } catch (err) {
+        //       console.error("Failed to remove the entity: ", err);
+        //     }
+        //   };
+        //   removeEntityQuery();
+        // }
       },
+      // disabled: isLoading,
     },
   ];
   const folderOptions = [
@@ -124,16 +132,29 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(explorerModel.deleteEntity(entity.id));
+        // if (!isLoading) {
+        //   const removeEntityQuery = async () => {
+        //     try {
+        //       await removeEntity(entity.id);
+        //     } catch (err) {
+        //       console.error("Failed to remove the entity: ", err);
+        //     }
+        //   };
+        //   removeEntityQuery();
+        // }
       },
+      // disabled: isLoading,
     },
   ];
 
   let content = <></>;
 
-  if (result.isLoading) {
-  } else if (result.isSuccess) {
-    const children = result.data.filter((item) => item.parentId === entity.id);
+  if (entities.isLoading) {
+    content = <div>Loading...</div>;
+  } else if (entities.isSuccess) {
+    const children = entities.data.filter(
+      (item) => item.parentId === entity.id
+    );
 
     switch (entity.category) {
       case "folder":
@@ -145,11 +166,12 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
               onContextMenu={showContextMenu(folderOptions)}
             >
               {indent}
-              {entity.isOpen ? <IconChevronDown /> : <IconChevronRight />}
+              {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {entity.name}
+              {/* {isLoading && <div>Loading...</div>} */}
             </div>
-            {entity.isOpen && (
+            {isOpen && (
               <>
                 <ul className={classes["children-list"]}>
                   {isParentOfCreatedEntity && (
@@ -181,6 +203,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
               {indent}
               <IconFile />
               {entity.name}
+              {/* {isLoading && <div>Loading...</div>} */}
             </div>
           </li>
         );

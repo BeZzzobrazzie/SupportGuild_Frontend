@@ -4,6 +4,7 @@ import classes from "./classes.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
 import { explorerModel } from "../..";
+import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
   // category: entityCategoryType;
@@ -30,16 +31,11 @@ export function EntityCreator({
     case "folder":
       result = (
         <li>
-          <div
-            className={classes["entity_header"]}
-            // onClick={handleFolderClick}
-            // onContextMenu={showContextMenu(folderOptions)}
-          >
+          <div className={classes["entity_header"]}>
             {indent}
             <IconChevronRight />
             {/* <IconFolder /> */}
             <EntityCreatorInput category={category} parentId={parentId} />
-
           </div>
         </li>
       );
@@ -47,22 +43,15 @@ export function EntityCreator({
     case "file":
       result = (
         <li>
-          <div
-            className={classes["entity_header"]}
-            // onContextMenu={showContextMenu(fileOptions)}
-          >
+          <div className={classes["entity_header"]}>
             {indent}
             <IconFile />
             <EntityCreatorInput category={category} parentId={parentId} />
           </div>
         </li>
       );
-
       break;
-    // case "heading":
-    //   break;
   }
-
   return <>{result}</>;
 }
 
@@ -81,18 +70,25 @@ function EntityCreatorInput({
     parentId: parentId,
   };
 
+  const [addEntity, { error: addEntityError, isLoading, isSuccess }] =
+    useAddEntityMutation();
+
   function handleBlur() {
-    dispatch(explorerModel.removeEntityCreator());
+    if (canSave) {
+      dispatch(explorerModel.removeEntityCreator());
+    }
   }
+
+  const canSave = initialEntity && !isLoading;
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log("submit");
-    console.log(initialEntity);
-    try {
-      await dispatch(explorerModel.addNewEntity(initialEntity)).unwrap();
-      dispatch(explorerModel.removeEntityCreator());
-    } catch (err) {
-      console.error("Failed to save the entity: ", err);
+    if (canSave) {
+      try {
+        await addEntity(initialEntity).unwrap();
+        dispatch(explorerModel.removeEntityCreator());
+      } catch (err) {
+        console.error("Failed to save the entity: ", err);
+      }
     }
   }
 
@@ -106,7 +102,9 @@ function EntityCreatorInput({
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           onBlur={handleBlur}
-        ></input>
+          disabled={!canSave}
+        />
+        {isLoading && <div>Loading...</div>}
       </form>
     </>
   );
