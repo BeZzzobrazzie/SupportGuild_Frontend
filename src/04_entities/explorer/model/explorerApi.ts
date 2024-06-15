@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { entityFromServerType, initialEntityType } from "../lib/types";
+import { apiSlice } from "src/05_shared/api/apiSlice";
 
 const explorerApi = createApi({
   reducerPath: "entities",
@@ -27,6 +28,9 @@ const explorerApi = createApi({
         body: {id},
       }),
       invalidatesTags: ["entity"],
+      
+
+
     }),
   }),
 });

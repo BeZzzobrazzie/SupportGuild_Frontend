@@ -10,7 +10,10 @@ import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { useState } from "react";
-import { useGetEntitiesQuery } from "src/05_shared/api/apiSlice";
+import {
+  useGetEntitiesQuery,
+  useRemoveEntityMutation,
+} from "src/05_shared/api/apiSlice";
 
 interface EntityProps {
   entity: entityType;
@@ -24,8 +27,8 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     (state) => state.explorer.entityCreation.parentId === entity.id
   );
   const entities = useGetEntitiesQuery();
-  // const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
-  //   useRemoveEntityMutation();
+  const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
+    useRemoveEntityMutation();
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -63,18 +66,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        // if (!isLoading) {
-        //   const removeEntityQuery = async () => {
-        //     try {
-        //       await removeEntity(entity.id);
-        //     } catch (err) {
-        //       console.error("Failed to remove the entity: ", err);
-        //     }
-        //   };
-        //   removeEntityQuery();
-        // }
+        removeEntity(entity.id);
       },
-      // disabled: isLoading,
+      disabled: isLoading,
     },
   ];
   const folderOptions = [
@@ -132,18 +126,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        // if (!isLoading) {
-        //   const removeEntityQuery = async () => {
-        //     try {
-        //       await removeEntity(entity.id);
-        //     } catch (err) {
-        //       console.error("Failed to remove the entity: ", err);
-        //     }
-        //   };
-        //   removeEntityQuery();
-        // }
+        removeEntity(entity.id);
       },
-      // disabled: isLoading,
+      disabled: isLoading,
     },
   ];
 
