@@ -14,6 +14,7 @@ import {
   useGetEntitiesQuery,
   useRemoveEntityMutation,
 } from "src/05_shared/api/apiSlice";
+import { explorerModel } from "../..";
 
 interface EntityProps {
   entity: entityType;
@@ -21,7 +22,7 @@ interface EntityProps {
 }
 export function Entity({ entity, nestingLevel }: EntityProps) {
   const { showContextMenu } = useContextMenu();
-
+  const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === entity.id
@@ -76,24 +77,24 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "new file",
       onClick: () => {
         console.log("new file");
-        // dispatch(
-        //   explorerModel.addEntityCreator({
-        //     parentId: entity.id,
-        //     category: "file",
-        //   })
-        // );
+        dispatch(
+          explorerModel.addEntityCreator({
+            parentId: entity.id,
+            category: "file",
+          })
+        );
       },
     },
     {
       key: "new folder",
       onClick: () => {
         console.log("new folder");
-        // dispatch(
-        //   explorerModel.addEntityCreator({
-        //     parentId: entity.id,
-        //     category: "folder",
-        //   })
-        // );
+        dispatch(
+          explorerModel.addEntityCreator({
+            parentId: entity.id,
+            category: "folder",
+          })
+        );
       },
     },
     { key: "divider-1" },

@@ -18,6 +18,7 @@ export function Root() {
     isError,
     error,
   } = useGetEntitiesQuery();
+  console.log(entities);
 
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === null

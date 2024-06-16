@@ -21,6 +21,18 @@ export const apiSlice = createApi({
         body: initialEntity,
       }),
       invalidatesTags: ["entity"],
+      // async onQueryStarted(initialEntity, { dispatch, queryFulfilled }) {
+      //   const pathResult = dispatch(
+      //     apiSlice.util.updateQueryData("getEntities", undefined, (draft) => {
+            
+      //     })
+      //   );
+      //   try {
+      //     await queryFulfilled;
+      //   } catch {
+      //     pathResult.undo();
+      //   }
+      // },
     }),
     removeEntity: builder.mutation({
       query: (id: number) => ({
@@ -32,10 +44,20 @@ export const apiSlice = createApi({
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
         const pathResult = dispatch(
           apiSlice.util.updateQueryData("getEntities", undefined, (draft) => {
-            const entityIndex = draft.findIndex((entity) => entity.id === id);
-            if (entityIndex) {
-              draft.splice(entityIndex, 1);
+            let entitiesToRemove: entityFromServerType[] = [];
+            function createEntitiesToRemove(parent: entityFromServerType) {
+              entitiesToRemove = entitiesToRemove.concat(parent);
+              const children = draft.filter(
+                (entity) => entity.parentId === parent.id
+              );
+              children.forEach((child) => createEntitiesToRemove(child));
             }
+
+            const parent = draft.find((entity) => entity.id === id);
+            if (parent) {
+              createEntitiesToRemove(parent);
+            }
+            return draft.filter((elem) => !entitiesToRemove.includes(elem));
           })
         );
         try {
