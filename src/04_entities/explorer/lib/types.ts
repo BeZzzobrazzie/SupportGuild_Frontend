@@ -8,6 +8,7 @@ export type entityType = {
   name: string;
   parentId: parentIdType;
   isOpen?: boolean;
+  draft: boolean;
 };
 
 export type explorerSliceType = {
@@ -47,4 +48,5 @@ export type entityFromServerType = {
   parentId: parentIdType,
   createdAt: string,
   updatedAt: string,
+  draft: boolean
 }

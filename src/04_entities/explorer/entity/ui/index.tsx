@@ -40,7 +40,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
   function handleFolderClick() {
     // if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
     // else dispatch(explorerModel.openFolder(entity.id));
-    setIsOpen(!isOpen);
+    if (!entity.draft) {
+      setIsOpen(!isOpen);
+    }
   }
 
   const fileOptions = [
@@ -155,7 +157,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
               {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {entity.name}
-              {/* {isLoading && <div>Loading...</div>} */}
+              {entity.draft && <div>Loading...</div>}
             </div>
             {isOpen && (
               <>
