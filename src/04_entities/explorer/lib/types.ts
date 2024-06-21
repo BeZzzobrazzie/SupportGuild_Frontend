@@ -3,12 +3,11 @@ export type entityCategoryType = "file" | "folder" | null;
 export type parentIdType = number | null;
 
 export type entityType = {
-  id: number | null;
+  id: number;
   category: entityCategoryType;
   name: string;
   parentId: parentIdType;
   isOpen?: boolean;
-  draft: boolean;
 };
 
 export type explorerSliceType = {
@@ -48,5 +47,4 @@ export type entityFromServerType = {
   parentId: parentIdType,
   createdAt: string,
   updatedAt: string,
-  draft: boolean
 }

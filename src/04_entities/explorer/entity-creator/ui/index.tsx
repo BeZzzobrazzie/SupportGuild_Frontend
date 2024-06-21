@@ -7,13 +7,11 @@ import { explorerModel } from "../..";
 import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
-  // category: entityCategoryType;
   parentId: parentIdType;
   nestingLevel: number;
 };
 
 export function EntityCreator({
-  // category,
   parentId,
   nestingLevel,
 }: EntityCreatorType) {

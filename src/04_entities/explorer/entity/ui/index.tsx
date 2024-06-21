@@ -40,9 +40,8 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
   function handleFolderClick() {
     // if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
     // else dispatch(explorerModel.openFolder(entity.id));
-    if (!entity.draft) {
-      setIsOpen(!isOpen);
-    }
+    setIsOpen(!isOpen);
+
   }
 
   const fileOptions = [
@@ -69,7 +68,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (entity.id !== null) removeEntity(entity.id);
+        removeEntity(entity.id);
       },
       disabled: isLoading,
     },
@@ -129,7 +128,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (entity.id !== null) removeEntity(entity.id);
+        removeEntity(entity.id);
       },
       disabled: isLoading,
     },
@@ -137,9 +136,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
 
   let content = <></>;
 
-  if (entity.draft) {
-    content = <div>Draft. Loading...</div>;
-  }
+
   if (entities.isLoading) {
     content = <div>Loading...</div>;
   } else if (entities.isSuccess) {
@@ -160,7 +157,6 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
               {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {entity.name}
-              {entity.draft && <div>Loading...</div>}
             </div>
             {isOpen && (
               <>

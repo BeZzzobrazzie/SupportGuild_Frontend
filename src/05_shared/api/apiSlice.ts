@@ -13,12 +13,6 @@ export const apiSlice = createApi({
     getEntities: builder.query<entityFromServerType[], void>({
       query: () => "/template-manager/explorer-entities",
       providesTags: ["entity"],
-      transformResponse: (response: entityFromServerType[]) => {
-        return response.map((item) => {
-          item.draft = false;
-          return item;
-        });
-      },
     }),
     addEntity: builder.mutation<entityFromServerType, initialEntityType>({
       query: (initialEntity) => ({
