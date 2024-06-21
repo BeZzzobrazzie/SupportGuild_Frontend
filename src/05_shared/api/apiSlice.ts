@@ -20,25 +20,23 @@ export const apiSlice = createApi({
         });
       },
     }),
-    addEntity: builder.mutation<initialEntityType, Partial<initialEntityType>>({
+    addEntity: builder.mutation<entityFromServerType, initialEntityType>({
       query: (initialEntity) => ({
         url: "/template-manager/explorer-entities",
         method: "POST",
         body: initialEntity,
       }),
-      invalidatesTags: ["entity"],
-      // async onQueryStarted(initialEntity, { dispatch, queryFulfilled }) {
-      //   const pathResult = dispatch(
-      //     apiSlice.util.updateQueryData("getEntities", undefined, (draft) => {
-
-      //     })
-      //   );
-      //   try {
-      //     await queryFulfilled;
-      //   } catch {
-      //     pathResult.undo();
-      //   }
-      // },
+      // invalidatesTags: ["entity"],
+      async onQueryStarted(initialEntity, { dispatch, queryFulfilled }) {
+        try {
+          const {data: createdEntity} = await queryFulfilled;
+          const pathResult = dispatch(
+            apiSlice.util.updateQueryData('getEntities', undefined, (draft) => {
+              draft.push(createdEntity)
+            })
+          )
+        } catch {}
+      }
     }),
     removeEntity: builder.mutation({
       query: (id: number) => ({

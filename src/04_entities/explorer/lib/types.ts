@@ -3,7 +3,7 @@ export type entityCategoryType = "file" | "folder" | null;
 export type parentIdType = number | null;
 
 export type entityType = {
-  id: number;
+  id: number | null;
   category: entityCategoryType;
   name: string;
   parentId: parentIdType;

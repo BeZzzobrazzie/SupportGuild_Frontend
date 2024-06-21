@@ -69,7 +69,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        removeEntity(entity.id);
+        if (entity.id !== null) removeEntity(entity.id);
       },
       disabled: isLoading,
     },
@@ -129,7 +129,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        removeEntity(entity.id);
+        if (entity.id !== null) removeEntity(entity.id);
       },
       disabled: isLoading,
     },
@@ -137,6 +137,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
 
   let content = <></>;
 
+  if (entity.draft) {
+    content = <div>Draft. Loading...</div>;
+  }
   if (entities.isLoading) {
     content = <div>Loading...</div>;
   } else if (entities.isSuccess) {
