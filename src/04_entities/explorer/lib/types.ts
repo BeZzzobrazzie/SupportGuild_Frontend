@@ -1,9 +1,10 @@
 
 export type entityCategoryType = "file" | "folder" | null;
 export type parentIdType = number | null;
+export type entityIdType = number;
 
 export type entityType = {
-  id: number;
+  id: entityIdType;
   category: entityCategoryType;
   name: string;
   parentId: parentIdType;
@@ -12,7 +13,9 @@ export type entityType = {
 
 export type explorerSliceType = {
   entities: entityType[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  fetchEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
+  addEntityStatus: 'idle' | 'pending' | 'success' | 'failed';
+  removeEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
   error: string | null | undefined;
   entityCreation: {
     status: boolean;
@@ -40,7 +43,7 @@ export type initialEntityType = {
 }
 
 export type entityFromServerType = {
-  id: number,
+  id: entityIdType,
   name: string,
   category: entityCategoryType,
   parent: entityFromServerType | null,

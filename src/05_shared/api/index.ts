@@ -1,40 +1,58 @@
-import axios from "axios";
+// import axios from "axios";
 
+import { entityIdType, initialEntityType } from "src/04_entities/explorer/lib/types";
 
-const host = axios.create({
-  baseURL: "http://localhost:5000",
-});
+// const host = axios.create({
+//   baseURL: "http://localhost:5000",
+// });
 
-const explorerEntitiesURL = "api/template-manager/explorer-entities";
+// const explorerEntitiesURL = "api/template-manager/explorer-entities";
 
-export const getExplorerUnits = async () => {
-  const response = await host.get(explorerEntitiesURL, {});
-  return response.data;
-}
+// export const getExplorerUnits = async () => {
+//   const response = await host.get(explorerEntitiesURL, {});
+//   return response.data;
+// }
 
-export const createExplorerUnit = async (path: string, name: string, isDirectory: boolean, parent: number | null) => {
-  const response = await host.post(explorerEntitiesURL, {path, name, isDirectory, parent});
-  return response;
-}
+// export const createExplorerUnit = async (path: string, name: string, isDirectory: boolean, parent: number | null) => {
+//   const response = await host.post(explorerEntitiesURL, {path, name, isDirectory, parent});
+//   return response;
+// }
 
-export const deleteExplorerUnit = async (id: number) => {
-  const response = await host.delete(explorerEntitiesURL, {data: {id}});
-  return response;
-};
+// export const deleteExplorerUnit = async (id: number) => {
+//   const response = await host.delete(explorerEntitiesURL, {data: {id}});
+//   return response;
+// };
 
-export const patchExplorerUnit = async (id: number, key: string, value:any) => {
-  const response = await host.patch(explorerEntitiesURL, {id, [key]: value});
-  return response;
-}
-
+// export const patchExplorerUnit = async (id: number, key: string, value:any) => {
+//   const response = await host.patch(explorerEntitiesURL, {id, [key]: value});
+//   return response;
+// }
 
 //------------------------
 
-// const baseURL = "http://localhost:5000/";
-// const explorerEntitiesURL = `${baseURL}api/template-manager/explorer-entities`;
+const baseURL = "http://localhost:5000/";
+const explorerEntitiesURL = `${baseURL}api/template-manager/explorer-entities`;
 
-// export async function getExplorerEntities() {
-//   const response = await fetch(explorerEntitiesURL);
-//   const data = await response.json();
-//   return data;
-// }
+export async function getExplorerEntities() {
+  const response = await fetch(explorerEntitiesURL);
+  const data = await response.json();
+  return data;
+}
+
+export async function addExplorerEntity(initialEntity: initialEntityType) {
+  const response = await fetch(explorerEntitiesURL, {
+    method: "POST",
+    body: JSON.stringify(initialEntity),
+  });
+  const data = await response.json();
+  return data;
+}
+
+export async function removeExplorerEntity(id: entityIdType) {
+  const response = await fetch(explorerEntitiesURL, {
+    method: "DELETE",
+    body: JSON.stringify({id}),
+  });
+  const data = await response.json();
+  return data;
+}

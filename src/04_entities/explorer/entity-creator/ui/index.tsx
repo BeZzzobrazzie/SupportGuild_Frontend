@@ -4,7 +4,8 @@ import classes from "./classes.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
 import { explorerModel } from "../..";
-import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
+import { addEntity, explorerSlice } from "../../model";
+// import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
   parentId: parentIdType;
@@ -68,8 +69,11 @@ function EntityCreatorInput({
     parentId: parentId,
   };
 
-  const [addEntity, { error: addEntityError, isLoading, isSuccess }] =
-    useAddEntityMutation();
+  // const [addEntity, { error: addEntityError, isLoading, isSuccess }] =
+  //   useAddEntityMutation();
+  const isAddEntitiesPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsAddEntitiesPending(state)
+  );
 
   function handleBlur() {
     if (canSave) {
@@ -77,12 +81,12 @@ function EntityCreatorInput({
     }
   }
 
-  const canSave = initialEntity && !isLoading;
+  const canSave = initialEntity && !isAddEntitiesPending;
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (canSave) {
       try {
-        await addEntity(initialEntity).unwrap();
+        await dispatch(addEntity(initialEntity)).unwrap();
         dispatch(explorerModel.removeEntityCreator());
       } catch (err) {
         console.error("Failed to save the entity: ", err);
@@ -102,7 +106,7 @@ function EntityCreatorInput({
           onBlur={handleBlur}
           disabled={!canSave}
         />
-        {isLoading && <div>Loading...</div>}
+        {isAddEntitiesPending && <div>Loading...</div>}
       </form>
     </>
   );

@@ -68,8 +68,8 @@ export const apiSlice = createApi({
   }),
 });
 
-export const {
-  useGetEntitiesQuery,
-  useAddEntityMutation,
-  useRemoveEntityMutation,
-} = apiSlice;
+// export const {
+//   useGetEntitiesQuery,
+//   useAddEntityMutation,
+//   useRemoveEntityMutation,
+// } = apiSlice;

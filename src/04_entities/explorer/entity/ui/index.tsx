@@ -10,11 +10,12 @@ import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { useState } from "react";
-import {
-  useGetEntitiesQuery,
-  useRemoveEntityMutation,
-} from "src/05_shared/api/apiSlice";
+// import {
+//   useGetEntitiesQuery,
+//   useRemoveEntityMutation,
+// } from "src/05_shared/api/apiSlice";
 import { explorerModel } from "../..";
+import { explorerSlice } from "../../model";
 
 interface EntityProps {
   entity: entityType;
@@ -27,9 +28,16 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === entity.id
   );
-  const entities = useGetEntitiesQuery();
-  const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
-    useRemoveEntityMutation();
+  // const entities = useGetEntitiesQuery();
+  // const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
+  //   useRemoveEntityMutation();
+
+  const entities = useAppSelector((state) =>
+    explorerSlice.selectors.selectEntities(state)
+  );
+  const isFetchEntitiesPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsFetchEntitiesPending(state)
+  );
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -68,9 +76,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        removeEntity(entity.id);
+        // removeEntity(entity.id);
       },
-      disabled: isLoading,
+      // disabled: isLoading,
     },
   ];
   const folderOptions = [
@@ -128,19 +136,19 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        removeEntity(entity.id);
+        // removeEntity(entity.id);
       },
-      disabled: isLoading,
+      // disabled: isLoading,
     },
   ];
 
   let content = <></>;
 
 
-  if (entities.isLoading) {
+  if (isFetchEntitiesPending) {
     content = <div>Loading...</div>;
-  } else if (entities.isSuccess) {
-    const children = entities.data.filter(
+  } else if (true) {
+    const children = entities.filter(
       (item) => item.parentId === entity.id
     );
 
