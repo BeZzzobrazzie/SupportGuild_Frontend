@@ -1,13 +1,12 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
-  entityCategoryType,
   entityFromServerType,
-  entityIdType,
-  entityType,
+  explorerItemCategoryType,
+  explorerItemId,
+  explorerItemParentId,
+  explorerItemsById,
   explorerSliceType,
-  explorerSliceTypeTwo,
   initialEntityType,
-  parentIdType,
 } from "../lib/types";
 import { apiSlice } from "src/05_shared/api/apiSlice";
 import {
@@ -17,7 +16,12 @@ import {
 } from "src/05_shared/api";
 
 const initialState: explorerSliceType = {
-  entities: [],
+  entities: {
+    explorerItems: {
+      byId: {},
+      ids: [],
+    },
+  },
   fetchEntitiesStatus: "idle",
   addEntityStatus: "idle",
   removeEntitiesStatus: "idle",
@@ -33,18 +37,18 @@ export const explorerSlice = createSlice({
   name: "explorer",
   initialState,
   selectors: {
-    selectEntities: (state) => state.entities,
+    selectEntities: (state) => state.entities.explorerItems,
     selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
-    selectIsFetchEntitiesPending: (state) => state.fetchEntitiesStatus === "pending",
+    selectIsFetchEntitiesPending: (state) =>
+      state.fetchEntitiesStatus === "pending",
     selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
-
   },
   reducers: {
     addEntityCreator: (
       state,
       action: PayloadAction<{
-        parentId: parentIdType;
-        category: entityCategoryType;
+        parentId: explorerItemParentId;
+        category: explorerItemCategoryType;
       }>
     ) => {
       const { parentId, category } = action.payload;
@@ -62,10 +66,19 @@ export const explorerSlice = createSlice({
     builder.addCase(fetchEntities.pending, (state) => {
       state.fetchEntitiesStatus = "pending";
     });
-    builder.addCase(fetchEntities.fulfilled, (state, action) => {
-      state.fetchEntitiesStatus = "success";
-      state.entities = action.payload;
-    });
+    builder.addCase(
+      fetchEntities.fulfilled,
+      (state, action: PayloadAction<entityFromServerType[]>) => {
+        const items = action.payload;
+        const byId = action.payload.reduce((byId: explorerItemsById, item) => {
+          byId[item.id] = item;
+          return byId;
+        }, {});
+        state.entities.explorerItems.byId = byId;
+        state.entities.explorerItems.ids = items.map((item) => item.id);
+        state.fetchEntitiesStatus = "success";
+      }
+    );
     builder.addCase(fetchEntities.rejected, (state) => {
       state.fetchEntitiesStatus = "failed";
     });
@@ -73,10 +86,14 @@ export const explorerSlice = createSlice({
     builder.addCase(addEntity.pending, (state) => {
       state.addEntityStatus = "pending";
     });
-    builder.addCase(addEntity.fulfilled, (state, action) => {
-      state.entities.push(action.payload);
-      state.addEntityStatus = "success";
-    });
+    builder.addCase(
+      addEntity.fulfilled,
+      (state, action: PayloadAction<entityFromServerType>) => {
+        state.entities.explorerItems.byId[action.payload.id] = action.payload;
+        state.entities.explorerItems.ids.push(action.payload.id);
+        state.addEntityStatus = "success";
+      }
+    );
     builder.addCase(addEntity.rejected, (state) => {
       state.addEntityStatus = "failed";
     });
@@ -84,12 +101,17 @@ export const explorerSlice = createSlice({
     builder.addCase(removeEntity.pending, (state) => {
       state.removeEntitiesStatus = "pending";
     });
-    builder.addCase(removeEntity.fulfilled, (state, action) => {
-      state.entities = state.entities.filter(
-        (entity) => entity.id !== action.payload
-      );
-      state.removeEntitiesStatus = "success";
-    });
+    builder.addCase(
+      removeEntity.fulfilled,
+      (state, action: PayloadAction<explorerItemId>) => {
+        delete state.entities.explorerItems.byId[action.payload];
+        state.entities.explorerItems.ids =
+          state.entities.explorerItems.ids.filter(
+            (id) => id !== action.payload
+          );
+        state.removeEntitiesStatus = "success";
+      }
+    );
     builder.addCase(removeEntity.rejected, (state) => {
       state.removeEntitiesStatus = "failed";
     });
@@ -112,7 +134,7 @@ export const addEntity = createAsyncThunk(
 );
 export const removeEntity = createAsyncThunk(
   "explorer/removeEntity",
-  async (id: entityIdType) => {
+  async (id: explorerItemId) => {
     const response = await removeExplorerEntity(id);
     return response;
   }

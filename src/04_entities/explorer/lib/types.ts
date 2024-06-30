@@ -1,53 +1,75 @@
 
-export type entityCategoryType = "file" | "folder" | null;
-export type parentIdType = number | null;
-export type entityIdType = number;
+export type explorerItemCategoryType = "file" | "folder" | null;
+export type explorerItemId = number;
+export type explorerItemParentId = number | null;
 
-export type entityType = {
-  id: entityIdType;
-  category: entityCategoryType;
+// export type parentIdType = number | null;
+// export type entityIdType = number;
+
+// export type entityType = {
+//   id: entityIdType;
+//   category: entityCategoryType;
+//   name: string;
+//   parentId: parentIdType;
+//   isOpen?: boolean;
+// };
+
+
+type explorerItem = {
+  id: explorerItemId;
+  category: explorerItemCategoryType;
   name: string;
-  parentId: parentIdType;
+  parentId: explorerItemParentId;
   isOpen?: boolean;
-};
+}
+export type explorerItemsById = Record<explorerItemId, explorerItem | undefined>;
+type explorerItems = {
+  byId: explorerItemsById;
+  ids: explorerItemId[];
+}
+type entitiesType = {
+  explorerItems: explorerItems;
+}
 
 export type explorerSliceType = {
-  entities: entityType[];
+  entities: entitiesType;
   fetchEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
   addEntityStatus: 'idle' | 'pending' | 'success' | 'failed';
   removeEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
   error: string | null | undefined;
   entityCreation: {
     status: boolean;
-    parentId: parentIdType;
-    category: entityCategoryType;
+    parentId: explorerItemParentId;
+    category: explorerItemCategoryType;
   }
 };
 
-export type explorerSliceTypeTwo = {
-  // entitiesIsOpen: {
-  //   id: number,
-  //   isOpen: boolean,
-  // }[],
-  entityCreation: {
-    status: boolean;
-    parentId: parentIdType;
-    category: entityCategoryType;
-  }
-}
+
+
+// export type explorerSliceTypeTwo = {
+//   // entitiesIsOpen: {
+//   //   id: number,
+//   //   isOpen: boolean,
+//   // }[],
+//   entityCreation: {
+//     status: boolean;
+//     parentId: parentIdType;
+//     category: entityCategoryType;
+//   }
+// }
 
 export type initialEntityType = {
   name: string,
-  category: entityCategoryType,
-  parentId: parentIdType,
+  category: explorerItemCategoryType,
+  parentId: explorerItemParentId,
 }
 
 export type entityFromServerType = {
-  id: entityIdType,
+  id: explorerItemId,
   name: string,
-  category: entityCategoryType,
+  category: explorerItemCategoryType,
   parent: entityFromServerType | null,
-  parentId: parentIdType,
+  parentId: explorerItemParentId,
   createdAt: string,
   updatedAt: string,
 }

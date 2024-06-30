@@ -49,7 +49,6 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     // if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
     // else dispatch(explorerModel.openFolder(entity.id));
     setIsOpen(!isOpen);
-
   }
 
   const fileOptions = [
@@ -76,7 +75,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        // removeEntity(entity.id);
+        dispatch(explorerModel.removeEntity(entity.id));
       },
       // disabled: isLoading,
     },
@@ -136,7 +135,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        // removeEntity(entity.id);
+        dispatch(explorerModel.removeEntity(entity.id));
       },
       // disabled: isLoading,
     },
@@ -144,13 +143,10 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
 
   let content = <></>;
 
-
   if (isFetchEntitiesPending) {
     content = <div>Loading...</div>;
   } else if (true) {
-    const children = entities.filter(
-      (item) => item.parentId === entity.id
-    );
+    const children = entities.filter((item) => item.parentId === entity.id);
 
     switch (entity.category) {
       case "folder":

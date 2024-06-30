@@ -1,6 +1,9 @@
 // import axios from "axios";
 
-import { entityIdType, initialEntityType } from "src/04_entities/explorer/lib/types";
+import {
+  entityIdType,
+  initialEntityType,
+} from "src/04_entities/explorer/lib/types";
 
 // const host = axios.create({
 //   baseURL: "http://localhost:5000",
@@ -42,6 +45,9 @@ export async function getExplorerEntities() {
 export async function addExplorerEntity(initialEntity: initialEntityType) {
   const response = await fetch(explorerEntitiesURL, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
     body: JSON.stringify(initialEntity),
   });
   const data = await response.json();
@@ -49,9 +55,13 @@ export async function addExplorerEntity(initialEntity: initialEntityType) {
 }
 
 export async function removeExplorerEntity(id: entityIdType) {
+  console.log(id);
   const response = await fetch(explorerEntitiesURL, {
     method: "DELETE",
-    body: JSON.stringify({id}),
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify({ id }),
   });
   const data = await response.json();
   return data;
