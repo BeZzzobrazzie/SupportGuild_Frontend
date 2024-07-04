@@ -1,14 +1,14 @@
 import { IconChevronRight, IconFile, IconFolder } from "@tabler/icons-react";
-import { entityCategoryType, parentIdType } from "../../lib/types";
 import classes from "./classes.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
 import { explorerModel } from "../..";
 import { addEntity, explorerSlice } from "../../model";
+import { explorerItemCategoryType, explorerItemParentId } from "../../lib/types";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
-  parentId: parentIdType;
+  parentId: explorerItemParentId;
   nestingLevel: number;
 };
 
@@ -58,8 +58,8 @@ function EntityCreatorInput({
   category,
   parentId,
 }: {
-  category: entityCategoryType;
-  parentId: parentIdType;
+  category: explorerItemCategoryType;
+  parentId: explorerItemParentId;
 }) {
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");

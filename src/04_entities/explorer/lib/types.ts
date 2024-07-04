@@ -15,12 +15,13 @@ export type explorerItemParentId = number | null;
 // };
 
 
-type explorerItem = {
+export type explorerItem = {
   id: explorerItemId;
   category: explorerItemCategoryType;
   name: string;
   parentId: explorerItemParentId;
   isOpen?: boolean;
+  isRemoval: boolean;
 }
 export type explorerItemsById = Record<explorerItemId, explorerItem | undefined>;
 type explorerItems = {

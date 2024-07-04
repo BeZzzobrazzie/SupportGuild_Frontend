@@ -1,43 +1,38 @@
 import {
-  IconFolder,
   IconFile,
   IconChevronDown,
   IconChevronRight,
 } from "@tabler/icons-react";
-import { entityType } from "../../lib/types";
 import classes from "./classes.module.css";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { useState } from "react";
-// import {
-//   useGetEntitiesQuery,
-//   useRemoveEntityMutation,
-// } from "src/05_shared/api/apiSlice";
 import { explorerModel } from "../..";
 import { explorerSlice } from "../../model";
+import { explorerItemId } from "../../lib/types";
 
 interface EntityProps {
-  entity: entityType;
+  explorerItemId: explorerItemId;
   nestingLevel: number;
 }
-export function Entity({ entity, nestingLevel }: EntityProps) {
+export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const isParentOfCreatedEntity = useAppSelector(
-    (state) => state.explorer.entityCreation.parentId === entity.id
-  );
-  // const entities = useGetEntitiesQuery();
-  // const [removeEntity, { error: removeEntityError, isLoading, isSuccess }] =
-  //   useRemoveEntityMutation();
-
-  const entities = useAppSelector((state) =>
-    explorerSlice.selectors.selectEntities(state)
+    (state) => state.explorer.entityCreation.parentId === explorerItemId
   );
   const isFetchEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchEntitiesPending(state)
   );
+  const isRemoveItemPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsRemoveItemPending(state)
+  );
+  const explorerItem = useAppSelector((state) =>
+    explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
+  );
+  console.log(explorerItem)
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -50,6 +45,10 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
     // else dispatch(explorerModel.openFolder(entity.id));
     setIsOpen(!isOpen);
   }
+
+  const children = useAppSelector((state) =>
+    explorerSlice.selectors.selectChildren(state, explorerItemId)
+  );
 
   const fileOptions = [
     {
@@ -75,9 +74,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(explorerModel.removeEntity(entity.id));
+        dispatch(explorerModel.removeEntity(explorerItemId));
       },
-      // disabled: isLoading,
+      disabled: explorerItem?.isRemoval,
     },
   ];
   const folderOptions = [
@@ -87,7 +86,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
         console.log("new file");
         dispatch(
           explorerModel.addEntityCreator({
-            parentId: entity.id,
+            parentId: explorerItemId,
             category: "file",
           })
         );
@@ -99,7 +98,7 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
         console.log("new folder");
         dispatch(
           explorerModel.addEntityCreator({
-            parentId: entity.id,
+            parentId: explorerItemId,
             category: "folder",
           })
         );
@@ -135,9 +134,9 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(explorerModel.removeEntity(entity.id));
+        dispatch(explorerModel.removeEntity(explorerItemId));
       },
-      // disabled: isLoading,
+      disabled: explorerItem?.isRemoval,
     },
   ];
 
@@ -145,10 +144,8 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
 
   if (isFetchEntitiesPending) {
     content = <div>Loading...</div>;
-  } else if (true) {
-    const children = entities.filter((item) => item.parentId === entity.id);
-
-    switch (entity.category) {
+  } else if (explorerItem) {
+    switch (explorerItem.category) {
       case "folder":
         content = (
           <li>
@@ -160,21 +157,24 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
               {indent}
               {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
-              {entity.name}
+              {explorerItem.name}
+              {explorerItem.isRemoval && (
+                <span>deletion is in progress...</span>
+              )}
             </div>
             {isOpen && (
               <>
                 <ul className={classes["children-list"]}>
                   {isParentOfCreatedEntity && (
                     <EntityCreator
-                      parentId={entity.id}
+                      parentId={explorerItem.id}
                       nestingLevel={nestingLevel + 1}
                     />
                   )}
                   {children.map((child) => (
                     <Entity
                       key={child.id}
-                      entity={child}
+                      explorerItemId={child.id}
                       nestingLevel={nestingLevel + 1}
                     />
                   ))}
@@ -193,8 +193,10 @@ export function Entity({ entity, nestingLevel }: EntityProps) {
             >
               {indent}
               <IconFile />
-              {entity.name}
-              {/* {isLoading && <div>Loading...</div>} */}
+              {explorerItem.name}
+              {explorerItem.isRemoval && (
+                <span>deletion is in progress...</span>
+              )}
             </div>
           </li>
         );

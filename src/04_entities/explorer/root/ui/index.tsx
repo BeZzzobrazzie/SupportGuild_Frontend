@@ -6,32 +6,21 @@ import { useContextMenu } from "mantine-contextmenu";
 import { explorerModel } from "../..";
 import { EntityCreator } from "../../entity-creator";
 import { explorerSlice, fetchEntities } from "../../model";
-// import { useGetEntitiesQuery } from "src/05_shared/api/apiSlice";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
 
-  // const {
-  //   data: entities,
-  //   isLoading,
-  //   isSuccess,
-  //   isError,
-  //   error,
-  // } = useGetEntitiesQuery();
-
   useEffect(() => {
     dispatch(fetchEntities());
   }, []);
 
-  const entities = useAppSelector((state) =>
-    explorerSlice.selectors.selectEntities(state)
+  const rootChildren = useAppSelector((state) =>
+    explorerSlice.selectors.selectRootExplorerItems(state)
   );
   const isFetchEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchEntitiesPending(state)
   );
-  console.log(entities);
-
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === null
   );
@@ -67,9 +56,7 @@ export function Root() {
 
   if (isFetchEntitiesPending) {
     content = <div>Loading...</div>;
-  } else if (true) {
-    const rootChildren = entities.filter((item) => item.parentId === null);
-
+  } else if (rootChildren) {
     content = (
       <ul
         className={classes["root"]}
@@ -79,7 +66,7 @@ export function Root() {
           <EntityCreator parentId={null} nestingLevel={0} />
         )}
         {rootChildren.map((entity) => (
-          <Entity key={entity.id} entity={entity} nestingLevel={0} />
+          <Entity key={entity.id} explorerItemId={entity.id} nestingLevel={0} />
         ))}
       </ul>
     );

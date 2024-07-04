@@ -1,6 +1,12 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  PayloadAction,
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 import {
   entityFromServerType,
+  explorerItem,
   explorerItemCategoryType,
   explorerItemId,
   explorerItemParentId,
@@ -14,6 +20,7 @@ import {
   getExplorerEntities,
   removeExplorerEntity,
 } from "src/05_shared/api";
+import { createAppSelector } from "src/05_shared/lib/hooks";
 
 const initialState: explorerSliceType = {
   entities: {
@@ -38,10 +45,31 @@ export const explorerSlice = createSlice({
   initialState,
   selectors: {
     selectEntities: (state) => state.entities.explorerItems,
+    selectExplorerItem: (state, id: explorerItemId) =>
+      state.entities.explorerItems.byId[id],
+    selectRootExplorerItems: createSelector(
+      (state: explorerSliceType) => state.entities.explorerItems.byId,
+      (state: explorerSliceType) => state.entities.explorerItems.ids,
+      (explorerItems, ids) =>
+        ids
+          .map((id) => explorerItems[id])
+          .filter((item): item is explorerItem => item?.parentId === null)
+    ),
+    selectChildren: createSelector(
+      (state: explorerSliceType) => state.entities.explorerItems.byId,
+      (state: explorerSliceType) => state.entities.explorerItems.ids,
+      (_: explorerSliceType, parentId: explorerItemId) => parentId,
+      (explorerItems, ids, parentId) =>
+        ids
+          .map((id) => explorerItems[id])
+          .filter((item): item is explorerItem => item?.parentId === parentId)
+    ),
     selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
     selectIsFetchEntitiesPending: (state) =>
       state.fetchEntitiesStatus === "pending",
     selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
+    selectIsRemoveItemPending: (state) =>
+      state.removeEntitiesStatus === "pending",
   },
   reducers: {
     addEntityCreator: (
@@ -71,7 +99,8 @@ export const explorerSlice = createSlice({
       (state, action: PayloadAction<entityFromServerType[]>) => {
         const items = action.payload;
         const byId = action.payload.reduce((byId: explorerItemsById, item) => {
-          byId[item.id] = item;
+          const newItem = { isRemoval: false, ...item };
+          byId[item.id] = newItem;
           return byId;
         }, {});
         state.entities.explorerItems.byId = byId;
@@ -89,7 +118,10 @@ export const explorerSlice = createSlice({
     builder.addCase(
       addEntity.fulfilled,
       (state, action: PayloadAction<entityFromServerType>) => {
-        state.entities.explorerItems.byId[action.payload.id] = action.payload;
+        state.entities.explorerItems.byId[action.payload.id] = {
+          isRemoval: false,
+          ...action.payload,
+        };
         state.entities.explorerItems.ids.push(action.payload.id);
         state.addEntityStatus = "success";
       }
@@ -98,7 +130,16 @@ export const explorerSlice = createSlice({
       state.addEntityStatus = "failed";
     });
 
-    builder.addCase(removeEntity.pending, (state) => {
+    builder.addCase(removeEntity.pending, (state, action) => {
+      const id = action.meta.arg;
+      // console.log(arg)
+      const explorerItems = state.entities.explorerItems;
+      if (explorerItems?.byId) {
+        const item = explorerItems.byId[id];
+        if (item?.isRemoval) {
+          item.isRemoval = true;
+        }
+      }
       state.removeEntitiesStatus = "pending";
     });
     builder.addCase(
@@ -112,7 +153,16 @@ export const explorerSlice = createSlice({
         state.removeEntitiesStatus = "success";
       }
     );
-    builder.addCase(removeEntity.rejected, (state) => {
+    builder.addCase(removeEntity.rejected, (state, action) => {
+      const id = action.meta.arg;
+
+      const explorerItems = state.entities.explorerItems;
+      if (explorerItems?.byId) {
+        const item = explorerItems.byId[id];
+        if (item?.isRemoval) {
+          item.isRemoval = false;
+        }
+      }
       state.removeEntitiesStatus = "failed";
     });
   },
