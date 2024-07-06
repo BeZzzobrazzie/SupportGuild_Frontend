@@ -132,36 +132,63 @@ export const explorerSlice = createSlice({
 
     builder.addCase(removeEntity.pending, (state, action) => {
       const id = action.meta.arg;
-      // console.log(arg)
-      const explorerItems = state.entities.explorerItems;
-      if (explorerItems?.byId) {
-        const item = explorerItems.byId[id];
-        if (item?.isRemoval) {
-          item.isRemoval = true;
-        }
+      if (!!state.entities.explorerItems.byId[id]) {
+        state.entities.explorerItems.byId[id].isRemoval = true;
       }
+
       state.removeEntitiesStatus = "pending";
     });
     builder.addCase(
       removeEntity.fulfilled,
-      (state, action: PayloadAction<explorerItemId>) => {
-        delete state.entities.explorerItems.byId[action.payload];
+      (state, action: PayloadAction<{ id: explorerItemId }>) => {
+        const { id } = action.payload;
+        const { [id]: removed, ...newById } = state.entities.explorerItems.byId;
+        state.entities.explorerItems.byId = newById;
         state.entities.explorerItems.ids =
-          state.entities.explorerItems.ids.filter(
-            (id) => id !== action.payload
-          );
+          state.entities.explorerItems.ids.filter((itemId) => itemId !== id);
+
+        // let entitiesToRemove: entityFromServerType[] = [];
+        // function createEntitiesToRemove(parent: entityFromServerType) {
+        //   entitiesToRemove = entitiesToRemove.concat(parent);
+        //   const children = draft.filter(
+        //     (entity) => entity.parentId === parent.id
+        //   );
+        //   children.forEach((child) => createEntitiesToRemove(child));
+        // }
+
+        // const parent = draft.find((entity) => entity.id === id);
+        // if (parent) {
+        //   createEntitiesToRemove(parent);
+        // }
+        // return draft.filter((elem) => !entitiesToRemove.includes(elem));
+
+        let newObjById = state.entities.explorerItems.byId
+        function createExplorerItemsByIdToRemove(parent: explorerItem) {
+          let explorerItemsByIdToRemove: string[] = [];
+          for (let key in newObjById) {
+            if (!!newObjById[key]) {
+              if (newObjById[key].parentId === parent.id) {
+                explorerItemsByIdToRemove.concat(key)
+              }
+            }
+          }
+          explorerItemsByIdToRemove.map((itemId) => {
+            delete newObjById[itemId]
+            createExplorerItemsByIdToRemove(itemId)
+          })
+        }
+
+
+
+
+
         state.removeEntitiesStatus = "success";
       }
     );
     builder.addCase(removeEntity.rejected, (state, action) => {
       const id = action.meta.arg;
-
-      const explorerItems = state.entities.explorerItems;
-      if (explorerItems?.byId) {
-        const item = explorerItems.byId[id];
-        if (item?.isRemoval) {
-          item.isRemoval = false;
-        }
+      if (!!state.entities.explorerItems.byId[id]) {
+        state.entities.explorerItems.byId[id].isRemoval = false;
       }
       state.removeEntitiesStatus = "failed";
     });

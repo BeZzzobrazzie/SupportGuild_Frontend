@@ -1,7 +1,7 @@
 
 export type explorerItemCategoryType = "file" | "folder" | null;
-export type explorerItemId = number;
-export type explorerItemParentId = number | null;
+export type explorerItemId = string;
+export type explorerItemParentId = string | null;
 
 // export type parentIdType = number | null;
 // export type entityIdType = number;

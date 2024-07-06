@@ -1,7 +1,7 @@
 // import axios from "axios";
 
 import {
-  entityIdType,
+  explorerItemId,
   initialEntityType,
 } from "src/04_entities/explorer/lib/types";
 
@@ -54,8 +54,7 @@ export async function addExplorerEntity(initialEntity: initialEntityType) {
   return data;
 }
 
-export async function removeExplorerEntity(id: entityIdType) {
-  console.log(id);
+export async function removeExplorerEntity(id: explorerItemId) {
   const response = await fetch(explorerEntitiesURL, {
     method: "DELETE",
     headers: {

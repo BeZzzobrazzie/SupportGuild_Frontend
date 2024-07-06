@@ -15,6 +15,10 @@ export function Root() {
     dispatch(fetchEntities());
   }, []);
 
+  const explorerItems = useAppSelector((state) =>
+    explorerSlice.selectors.selectEntities(state)
+  );
+  console.log(explorerItems);
   const rootChildren = useAppSelector((state) =>
     explorerSlice.selectors.selectRootExplorerItems(state)
   );

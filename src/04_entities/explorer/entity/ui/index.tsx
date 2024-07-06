@@ -11,6 +11,7 @@ import { useState } from "react";
 import { explorerModel } from "../..";
 import { explorerSlice } from "../../model";
 import { explorerItemId } from "../../lib/types";
+import { Loader } from "@mantine/core";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -32,7 +33,7 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
   const explorerItem = useAppSelector((state) =>
     explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
   );
-  console.log(explorerItem)
+  // console.log(explorerItem)
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -49,6 +50,7 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, explorerItemId)
   );
+
 
   const fileOptions = [
     {
@@ -152,15 +154,17 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
             <div
               className={classes["entity_header"]}
               onClick={handleFolderClick}
-              onContextMenu={showContextMenu(folderOptions)}
+              onContextMenu={
+                explorerItem.isRemoval
+                  ? showContextMenu([])
+                  : showContextMenu(folderOptions)
+              }
             >
               {indent}
               {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {explorerItem.name}
-              {explorerItem.isRemoval && (
-                <span>deletion is in progress...</span>
-              )}
+              {explorerItem.isRemoval && <Loader color="yellow" size="xs" />}
             </div>
             {isOpen && (
               <>
@@ -189,14 +193,16 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
           <li>
             <div
               className={classes["entity_header"]}
-              onContextMenu={showContextMenu(fileOptions)}
+              onContextMenu={
+                explorerItem.isRemoval
+                  ? showContextMenu([])
+                  : showContextMenu(fileOptions)
+              }
             >
               {indent}
               <IconFile />
               {explorerItem.name}
-              {explorerItem.isRemoval && (
-                <span>deletion is in progress...</span>
-              )}
+              {explorerItem.isRemoval && <Loader color="yellow" size="xs" />}
             </div>
           </li>
         );
