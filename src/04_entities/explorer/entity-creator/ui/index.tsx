@@ -4,7 +4,11 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
 import { explorerModel } from "../..";
 import { addEntity, explorerSlice } from "../../model";
-import { explorerItemCategoryType, explorerItemParentId } from "../../lib/types";
+import {
+  explorerItemCategoryType,
+  explorerItemParentId,
+} from "../../lib/types";
+import { useContextMenu } from "mantine-contextmenu";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
@@ -12,10 +16,9 @@ type EntityCreatorType = {
   nestingLevel: number;
 };
 
-export function EntityCreator({
-  parentId,
-  nestingLevel,
-}: EntityCreatorType) {
+export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
+  const { showContextMenu } = useContextMenu();
+
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
@@ -30,7 +33,10 @@ export function EntityCreator({
     case "folder":
       result = (
         <li>
-          <div className={classes["entity_header"]}>
+          <div
+            className={classes["entity_header"]}
+            onContextMenu={showContextMenu([])}
+          >
             {indent}
             <IconChevronRight />
             {/* <IconFolder /> */}
@@ -42,7 +48,10 @@ export function EntityCreator({
     case "file":
       result = (
         <li>
-          <div className={classes["entity_header"]}>
+          <div
+            className={classes["entity_header"]}
+            onContextMenu={showContextMenu([])}
+          >
             {indent}
             <IconFile />
             <EntityCreatorInput category={category} parentId={parentId} />

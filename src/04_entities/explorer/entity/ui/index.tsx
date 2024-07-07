@@ -16,8 +16,13 @@ import { Loader } from "@mantine/core";
 interface EntityProps {
   explorerItemId: explorerItemId;
   nestingLevel: number;
+  parentIsRemoval: boolean;
 }
-export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
+export function Entity({
+  explorerItemId,
+  nestingLevel,
+  parentIsRemoval,
+}: EntityProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +55,6 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, explorerItemId)
   );
-
 
   const fileOptions = [
     {
@@ -155,7 +159,7 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
               className={classes["entity_header"]}
               onClick={handleFolderClick}
               onContextMenu={
-                explorerItem.isRemoval
+                explorerItem.isRemoval || parentIsRemoval
                   ? showContextMenu([])
                   : showContextMenu(folderOptions)
               }
@@ -164,7 +168,9 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
               {isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {explorerItem.name}
-              {explorerItem.isRemoval && <Loader color="yellow" size="xs" />}
+              {(explorerItem.isRemoval || parentIsRemoval) && (
+                <Loader color="yellow" size="xs" />
+              )}
             </div>
             {isOpen && (
               <>
@@ -180,6 +186,9 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
                       key={child.id}
                       explorerItemId={child.id}
                       nestingLevel={nestingLevel + 1}
+                      parentIsRemoval={
+                        parentIsRemoval || explorerItem.isRemoval
+                      }
                     />
                   ))}
                 </ul>
@@ -194,7 +203,7 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
             <div
               className={classes["entity_header"]}
               onContextMenu={
-                explorerItem.isRemoval
+                explorerItem.isRemoval || parentIsRemoval
                   ? showContextMenu([])
                   : showContextMenu(fileOptions)
               }
@@ -202,7 +211,9 @@ export function Entity({ explorerItemId, nestingLevel }: EntityProps) {
               {indent}
               <IconFile />
               {explorerItem.name}
-              {explorerItem.isRemoval && <Loader color="yellow" size="xs" />}
+              {(explorerItem.isRemoval || parentIsRemoval) && (
+                <Loader color="yellow" size="xs" />
+              )}
             </div>
           </li>
         );

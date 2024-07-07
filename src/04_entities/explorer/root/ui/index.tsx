@@ -70,7 +70,12 @@ export function Root() {
           <EntityCreator parentId={null} nestingLevel={0} />
         )}
         {rootChildren.map((entity) => (
-          <Entity key={entity.id} explorerItemId={entity.id} nestingLevel={0} />
+          <Entity
+            key={entity.id}
+            explorerItemId={entity.id}
+            nestingLevel={0}
+            parentIsRemoval={false}
+          />
         ))}
       </ul>
     );
