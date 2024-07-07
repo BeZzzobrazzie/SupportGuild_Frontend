@@ -89,6 +89,18 @@ export const explorerSlice = createSlice({
       state.entityCreation.parentId = null;
       state.entityCreation.category = null;
     },
+    openFolder: (state, action: PayloadAction<explorerItemId>) => {
+      const explorerItemsById =
+        state.entities.explorerItems.byId[action.payload];
+      if (!!explorerItemsById) explorerItemsById.isOpen = true;
+      state.entities.explorerItems.byId[action.payload] = explorerItemsById;
+    },
+    closeFolder: (state, action: PayloadAction<explorerItemId>) => {
+      const explorerItemsById =
+        state.entities.explorerItems.byId[action.payload];
+      if (!!explorerItemsById) explorerItemsById.isOpen = false;
+      state.entities.explorerItems.byId[action.payload] = explorerItemsById;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchEntities.pending, (state) => {
@@ -99,9 +111,15 @@ export const explorerSlice = createSlice({
       (state, action: PayloadAction<entityFromServerType[]>) => {
         const items = action.payload;
         const byId = action.payload.reduce((byId: explorerItemsById, item) => {
-          const newItem = { isRemoval: false, ...item };
-          byId[item.id] = newItem;
-          return byId;
+          if (item.category === "folder") {
+            const newItem = { isRemoval: false, isOpen: false, ...item };
+            byId[item.id] = newItem;
+            return byId;
+          } else {
+            const newItem = { isRemoval: false, ...item };
+            byId[item.id] = newItem;
+            return byId;
+          }
         }, {});
         state.entities.explorerItems.byId = byId;
         state.entities.explorerItems.ids = items.map((item) => item.id);
@@ -118,10 +136,22 @@ export const explorerSlice = createSlice({
     builder.addCase(
       addEntity.fulfilled,
       (state, action: PayloadAction<entityFromServerType>) => {
-        state.entities.explorerItems.byId[action.payload.id] = {
-          isRemoval: false,
-          ...action.payload,
-        };
+        if (
+          state.entities.explorerItems.byId[action.payload.id]?.category ===
+          "folder"
+        ) {
+          state.entities.explorerItems.byId[action.payload.id] = {
+            isRemoval: false,
+            isOpen: false,
+            ...action.payload,
+          };
+        } else {
+          state.entities.explorerItems.byId[action.payload.id] = {
+            isRemoval: false,
+            ...action.payload,
+          };
+        }
+
         state.entities.explorerItems.ids.push(action.payload.id);
         state.addEntityStatus = "success";
       }
@@ -202,5 +232,10 @@ export const removeEntity = createAsyncThunk(
   }
 );
 
-export const { addEntityCreator, removeEntityCreator } = explorerSlice.actions;
+export const {
+  addEntityCreator,
+  removeEntityCreator,
+  openFolder,
+  closeFolder,
+} = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

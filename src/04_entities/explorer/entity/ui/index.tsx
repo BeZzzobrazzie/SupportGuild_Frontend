@@ -7,7 +7,6 @@ import classes from "./classes.module.css";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
-import { useState } from "react";
 import { explorerModel } from "../..";
 import { explorerSlice } from "../../model";
 import { explorerItemId } from "../../lib/types";
@@ -25,7 +24,6 @@ export function Entity({
 }: EntityProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
-  const [isOpen, setIsOpen] = useState(false);
   const isParentOfCreatedEntity = useAppSelector(
     (state) => state.explorer.entityCreation.parentId === explorerItemId
   );
@@ -47,9 +45,11 @@ export function Entity({
     ));
 
   function handleFolderClick() {
-    // if (entity.isOpen) dispatch(explorerModel.closeFolder(entity.id));
-    // else dispatch(explorerModel.openFolder(entity.id));
-    setIsOpen(!isOpen);
+    if (explorerItem) {
+      if (explorerItem.isOpen)
+        dispatch(explorerModel.closeFolder(explorerItem.id));
+      else dispatch(explorerModel.openFolder(explorerItem.id));
+    }
   }
 
   const children = useAppSelector((state) =>
@@ -90,6 +90,11 @@ export function Entity({
       key: "new file",
       onClick: () => {
         console.log("new file");
+        if (explorerItem) {
+          if (!explorerItem.isOpen) {
+            dispatch(explorerModel.openFolder(explorerItem.id));
+          }
+        }
         dispatch(
           explorerModel.addEntityCreator({
             parentId: explorerItemId,
@@ -102,6 +107,11 @@ export function Entity({
       key: "new folder",
       onClick: () => {
         console.log("new folder");
+        if (explorerItem) {
+          if (!explorerItem.isOpen) {
+            dispatch(explorerModel.openFolder(explorerItem.id));
+          }
+        }
         dispatch(
           explorerModel.addEntityCreator({
             parentId: explorerItemId,
@@ -165,14 +175,14 @@ export function Entity({
               }
             >
               {indent}
-              {isOpen ? <IconChevronDown /> : <IconChevronRight />}
+              {explorerItem.isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {explorerItem.name}
               {(explorerItem.isRemoval || parentIsRemoval) && (
                 <Loader color="yellow" size="xs" />
               )}
             </div>
-            {isOpen && (
+            {explorerItem.isOpen && (
               <>
                 <ul className={classes["children-list"]}>
                   {isParentOfCreatedEntity && (
