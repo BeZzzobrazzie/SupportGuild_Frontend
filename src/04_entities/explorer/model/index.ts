@@ -142,45 +142,30 @@ export const explorerSlice = createSlice({
       removeEntity.fulfilled,
       (state, action: PayloadAction<{ id: explorerItemId }>) => {
         const { id } = action.payload;
-        const { [id]: removed, ...newById } = state.entities.explorerItems.byId;
-        state.entities.explorerItems.byId = newById;
-        state.entities.explorerItems.ids =
-          state.entities.explorerItems.ids.filter((itemId) => itemId !== id);
 
-        // let entitiesToRemove: entityFromServerType[] = [];
-        // function createEntitiesToRemove(parent: entityFromServerType) {
-        //   entitiesToRemove = entitiesToRemove.concat(parent);
-        //   const children = draft.filter(
-        //     (entity) => entity.parentId === parent.id
-        //   );
-        //   children.forEach((child) => createEntitiesToRemove(child));
-        // }
+        let newById = state.entities.explorerItems.byId;
+        let newIds = state.entities.explorerItems.ids;
 
-        // const parent = draft.find((entity) => entity.id === id);
-        // if (parent) {
-        //   createEntitiesToRemove(parent);
-        // }
-        // return draft.filter((elem) => !entitiesToRemove.includes(elem));
+        function deleteElementTree(parentId: explorerItemId) {
+          let explorerItemsByIdToRemove: number[] = [];
+          delete newById[parentId];
+          newIds = newIds.filter((item) => item !== parentId);
 
-        let newObjById = state.entities.explorerItems.byId
-        function createExplorerItemsByIdToRemove(parent: explorerItem) {
-          let explorerItemsByIdToRemove: string[] = [];
-          for (let key in newObjById) {
-            if (!!newObjById[key]) {
-              if (newObjById[key].parentId === parent.id) {
-                explorerItemsByIdToRemove.concat(key)
+          for (let key in newById) {
+            if (!!newById[key]) {
+              if (newById[key].parentId === parentId) {
+                explorerItemsByIdToRemove.push(Number(key));
               }
             }
           }
+
           explorerItemsByIdToRemove.map((itemId) => {
-            delete newObjById[itemId]
-            createExplorerItemsByIdToRemove(itemId)
-          })
+            deleteElementTree(itemId);
+          });
         }
-
-
-
-
+        deleteElementTree(id);
+        state.entities.explorerItems.byId = newById;
+        state.entities.explorerItems.ids = newIds;
 
         state.removeEntitiesStatus = "success";
       }
