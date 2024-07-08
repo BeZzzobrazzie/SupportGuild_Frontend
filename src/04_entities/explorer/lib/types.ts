@@ -1,7 +1,7 @@
-
 export type explorerItemCategoryType = "file" | "folder" | null;
 export type explorerItemId = number;
 export type explorerItemParentId = number | null;
+export type explorerItemName = string;
 
 // export type parentIdType = number | null;
 // export type entityIdType = number;
@@ -14,7 +14,6 @@ export type explorerItemParentId = number | null;
 //   isOpen?: boolean;
 // };
 
-
 export type explorerItem = {
   id: explorerItemId;
   category: explorerItemCategoryType;
@@ -22,30 +21,32 @@ export type explorerItem = {
   parentId: explorerItemParentId;
   isOpen?: boolean;
   isRemoval: boolean;
-}
-export type explorerItemsById = Record<explorerItemId, explorerItem | undefined>;
+};
+export type explorerItemsById = Record<
+  explorerItemId,
+  explorerItem | undefined
+>;
 type explorerItems = {
   byId: explorerItemsById;
   ids: explorerItemId[];
-}
+};
 type entitiesType = {
   explorerItems: explorerItems;
-}
+};
 
 export type explorerSliceType = {
   entities: entitiesType;
-  fetchEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
-  addEntityStatus: 'idle' | 'pending' | 'success' | 'failed';
-  removeEntitiesStatus: 'idle' | 'pending' | 'success' | 'failed';
+  fetchEntitiesStatus: "idle" | "pending" | "success" | "failed";
+  addEntityStatus: "idle" | "pending" | "success" | "failed";
+  removeEntitiesStatus: "idle" | "pending" | "success" | "failed";
+  updateEntityStatus: "idle" | "pending" | "success" | "failed";
   error: string | null | undefined;
   entityCreation: {
     status: boolean;
     parentId: explorerItemParentId;
     category: explorerItemCategoryType;
-  }
+  };
 };
-
-
 
 // export type explorerSliceTypeTwo = {
 //   // entitiesIsOpen: {
@@ -60,17 +61,22 @@ export type explorerSliceType = {
 // }
 
 export type initialEntityType = {
-  name: string,
-  category: explorerItemCategoryType,
-  parentId: explorerItemParentId,
-}
+  name: string;
+  category: explorerItemCategoryType;
+  parentId: explorerItemParentId;
+};
+
+export type dataForUpdatingEntityType = {
+  id: explorerItemId;
+  name: explorerItemName;
+};
 
 export type entityFromServerType = {
-  id: explorerItemId,
-  name: string,
-  category: explorerItemCategoryType,
-  parent: entityFromServerType | null,
-  parentId: explorerItemParentId,
-  createdAt: string,
-  updatedAt: string,
-}
+  id: explorerItemId;
+  name: string;
+  category: explorerItemCategoryType;
+  parent: entityFromServerType | null;
+  parentId: explorerItemParentId;
+  createdAt: string;
+  updatedAt: string;
+};

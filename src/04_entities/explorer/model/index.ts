@@ -5,6 +5,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import {
+  dataForUpdatingEntityType,
   entityFromServerType,
   explorerItem,
   explorerItemCategoryType,
@@ -19,6 +20,7 @@ import {
   addExplorerEntity,
   getExplorerEntities,
   removeExplorerEntity,
+  updateExplorerEntity,
 } from "src/05_shared/api";
 import { createAppSelector } from "src/05_shared/lib/hooks";
 
@@ -32,6 +34,7 @@ const initialState: explorerSliceType = {
   fetchEntitiesStatus: "idle",
   addEntityStatus: "idle",
   removeEntitiesStatus: "idle",
+  updateEntityStatus: "idle",
   error: undefined,
   entityCreation: {
     status: false,
@@ -70,6 +73,8 @@ export const explorerSlice = createSlice({
     selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
     selectIsRemoveItemPending: (state) =>
       state.removeEntitiesStatus === "pending",
+    selectIsUpdateItemPending: (state) =>
+      state.updateEntityStatus === "pending",
   },
   reducers: {
     addEntityCreator: (
@@ -207,6 +212,26 @@ export const explorerSlice = createSlice({
       }
       state.removeEntitiesStatus = "failed";
     });
+
+    builder.addCase(updateEntity.pending, (state, action) => {
+      state.updateEntityStatus = "pending";
+    });
+    builder.addCase(
+      updateEntity.fulfilled,
+      (state, action: PayloadAction<entityFromServerType>) => {
+        const explorerItem =
+          state.entities.explorerItems.byId[action.payload.id];
+        if (explorerItem) {
+          explorerItem.name = action.payload.name;
+        }
+        state.entities.explorerItems.byId[action.payload.id] = explorerItem;
+
+        state.removeEntitiesStatus = "success";
+      }
+    );
+    builder.addCase(updateEntity.rejected, (state, action) => {
+      state.removeEntitiesStatus = "failed";
+    });
   },
 });
 
@@ -228,6 +253,13 @@ export const removeEntity = createAsyncThunk(
   "explorer/removeEntity",
   async (id: explorerItemId) => {
     const response = await removeExplorerEntity(id);
+    return response;
+  }
+);
+export const updateEntity = createAsyncThunk(
+  "explorer/updateEntity",
+  async (dataForUpdatingEntity: dataForUpdatingEntityType) => {
+    const response = await updateExplorerEntity(dataForUpdatingEntity);
     return response;
   }
 );

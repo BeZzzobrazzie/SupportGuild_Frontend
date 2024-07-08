@@ -1,6 +1,7 @@
 // import axios from "axios";
 
 import {
+  dataForUpdatingEntityType,
   explorerItemId,
   initialEntityType,
 } from "src/04_entities/explorer/lib/types";
@@ -61,6 +62,18 @@ export async function removeExplorerEntity(id: explorerItemId) {
       "Content-Type": "application/json;charset=utf-8",
     },
     body: JSON.stringify({ id }),
+  });
+  const data = await response.json();
+  return data;
+}
+
+export async function updateExplorerEntity(dataForUpdatingEntity: dataForUpdatingEntityType) {
+  const response = await fetch(explorerEntitiesURL, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(dataForUpdatingEntity),
   });
   const data = await response.json();
   return data;

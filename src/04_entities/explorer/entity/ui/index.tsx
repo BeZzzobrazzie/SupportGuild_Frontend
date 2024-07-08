@@ -8,9 +8,11 @@ import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { explorerModel } from "../..";
-import { explorerSlice } from "../../model";
+import { explorerSlice, updateEntity } from "../../model";
 import { explorerItemId } from "../../lib/types";
 import { Loader } from "@mantine/core";
+import { useState } from "react";
+import { updateExplorerEntity } from "src/05_shared/api";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -37,6 +39,8 @@ export function Entity({
     explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
   );
   // console.log(explorerItem)
+
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -73,7 +77,7 @@ export function Entity({
       key: "rename",
       onClick: () => {
         console.log("rename");
-        // explorerModel.unitRenamingStarted(unit);
+        setIsUpdating(true);
       },
     },
     {
@@ -177,7 +181,15 @@ export function Entity({
               {indent}
               {explorerItem.isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
-              {explorerItem.name}
+              {isUpdating ? (
+                <ExplorerItemUpdateInput
+                  id={explorerItem.id}
+                  name={explorerItem.name}
+                  setIsUpdating={setIsUpdating}
+                />
+              ) : (
+                explorerItem.name
+              )}
               {(explorerItem.isRemoval || parentIsRemoval) && (
                 <Loader color="yellow" size="xs" />
               )}
@@ -220,7 +232,15 @@ export function Entity({
             >
               {indent}
               <IconFile />
-              {explorerItem.name}
+              {isUpdating ? (
+                <ExplorerItemUpdateInput
+                  id={explorerItem.id}
+                  name={explorerItem.name}
+                  setIsUpdating={setIsUpdating}
+                />
+              ) : (
+                explorerItem.name
+              )}
               {(explorerItem.isRemoval || parentIsRemoval) && (
                 <Loader color="yellow" size="xs" />
               )}
@@ -233,4 +253,51 @@ export function Entity({
   }
 
   return <>{content}</>;
+}
+
+function ExplorerItemUpdateInput({
+  id,
+  name,
+  setIsUpdating,
+}: {
+  id: explorerItemId;
+  name: string;
+  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const dispatch = useAppDispatch();
+  const [inputValue, setInputValue] = useState(name);
+  const isUpdateItemPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsUpdateItemPending(state)
+  );
+
+  function handleBlur() {
+    setIsUpdating(false);
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      await dispatch(updateEntity({ id, name: inputValue })).unwrap();
+      setIsUpdating(false);
+    } catch (err) {
+      console.error("Failed to update the entity: ", err);
+    }
+  }
+
+  return (
+    <>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          autoFocus
+          required
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onBlur={handleBlur}
+          disabled={isUpdateItemPending}
+        />
+        {isUpdateItemPending && <Loader color="yellow" size="xs" />}
+      </form>
+    </>
+  );
 }
