@@ -117,11 +117,16 @@ export const explorerSlice = createSlice({
         const items = action.payload;
         const byId = action.payload.reduce((byId: explorerItemsById, item) => {
           if (item.category === "folder") {
-            const newItem = { isRemoval: false, isOpen: false, ...item };
+            const newItem = {
+              isUpdatePending: false,
+              isRemoval: false,
+              isOpen: false,
+              ...item,
+            };
             byId[item.id] = newItem;
             return byId;
           } else {
-            const newItem = { isRemoval: false, ...item };
+            const newItem = { isUpdatePending: false, isRemoval: false, ...item };
             byId[item.id] = newItem;
             return byId;
           }
@@ -146,12 +151,14 @@ export const explorerSlice = createSlice({
           "folder"
         ) {
           state.entities.explorerItems.byId[action.payload.id] = {
+            isUpdatePending: false,
             isRemoval: false,
             isOpen: false,
             ...action.payload,
           };
         } else {
           state.entities.explorerItems.byId[action.payload.id] = {
+            isUpdatePending: false,
             isRemoval: false,
             ...action.payload,
           };
@@ -214,6 +221,11 @@ export const explorerSlice = createSlice({
     });
 
     builder.addCase(updateEntity.pending, (state, action) => {
+      const id = action.meta.arg.id;
+
+      if (!!state.entities.explorerItems.byId[id]) {
+        state.entities.explorerItems.byId[id].isUpdatePending = true;
+      }
       state.updateEntityStatus = "pending";
     });
     builder.addCase(
@@ -223,14 +235,20 @@ export const explorerSlice = createSlice({
           state.entities.explorerItems.byId[action.payload.id];
         if (explorerItem) {
           explorerItem.name = action.payload.name;
+          explorerItem.isUpdatePending = false;
         }
         state.entities.explorerItems.byId[action.payload.id] = explorerItem;
 
-        state.removeEntitiesStatus = "success";
+        state.updateEntityStatus = "success";
       }
     );
     builder.addCase(updateEntity.rejected, (state, action) => {
-      state.removeEntitiesStatus = "failed";
+      const id = action.meta.arg.id;
+
+      if (!!state.entities.explorerItems.byId[id]) {
+        state.entities.explorerItems.byId[id].isUpdatePending = false;
+      }
+      state.updateEntityStatus = "failed";
     });
   },
 });

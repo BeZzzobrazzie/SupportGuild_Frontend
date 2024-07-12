@@ -147,7 +147,7 @@ export function Entity({
       key: "rename",
       onClick: () => {
         console.log("rename");
-        // explorerModel.unitRenamingStarted(unit);
+        setIsUpdating(true);
       },
     },
     {
@@ -173,7 +173,11 @@ export function Entity({
               className={classes["entity_header"]}
               onClick={handleFolderClick}
               onContextMenu={
-                explorerItem.isRemoval || parentIsRemoval
+                isUpdating
+                  ? (event) => event.stopPropagation()
+                  : explorerItem.isRemoval ||
+                    parentIsRemoval ||
+                    explorerItem.isUpdatePending
                   ? showContextMenu([])
                   : showContextMenu(folderOptions)
               }
@@ -190,7 +194,9 @@ export function Entity({
               ) : (
                 explorerItem.name
               )}
-              {(explorerItem.isRemoval || parentIsRemoval) && (
+              {(explorerItem.isRemoval ||
+                parentIsRemoval ||
+                explorerItem.isUpdatePending) && (
                 <Loader color="yellow" size="xs" />
               )}
             </div>
@@ -225,7 +231,11 @@ export function Entity({
             <div
               className={classes["entity_header"]}
               onContextMenu={
-                explorerItem.isRemoval || parentIsRemoval
+                isUpdating
+                  ? (event) => event.stopPropagation()
+                  : explorerItem.isRemoval ||
+                    parentIsRemoval ||
+                    explorerItem.isUpdatePending
                   ? showContextMenu([])
                   : showContextMenu(fileOptions)
               }
@@ -241,7 +251,9 @@ export function Entity({
               ) : (
                 explorerItem.name
               )}
-              {(explorerItem.isRemoval || parentIsRemoval) && (
+              {(explorerItem.isRemoval ||
+                parentIsRemoval ||
+                explorerItem.isUpdatePending) && (
                 <Loader color="yellow" size="xs" />
               )}
             </div>
@@ -294,9 +306,10 @@ function ExplorerItemUpdateInput({
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           onBlur={handleBlur}
-          disabled={isUpdateItemPending}
+          onContextMenu={(event) => console.log("context")}
+          // disabled={isUpdateItemPending}
         />
-        {isUpdateItemPending && <Loader color="yellow" size="xs" />}
+        {/* {isUpdateItemPending && <Loader color="yellow" size="xs" />} */}
       </form>
     </>
   );

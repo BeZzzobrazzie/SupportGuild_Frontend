@@ -21,6 +21,7 @@ export type explorerItem = {
   parentId: explorerItemParentId;
   isOpen?: boolean;
   isRemoval: boolean;
+  isUpdatePending: boolean;
 };
 export type explorerItemsById = Record<
   explorerItemId,
