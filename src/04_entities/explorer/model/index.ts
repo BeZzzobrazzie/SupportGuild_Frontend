@@ -8,21 +8,18 @@ import {
   dataForUpdatingEntityType,
   entityFromServerType,
   explorerItem,
-  explorerItemCategoryType,
   explorerItemId,
-  explorerItemParentId,
   explorerItemsById,
   explorerSliceType,
   initialEntityType,
 } from "../lib/types";
-import { apiSlice } from "src/05_shared/api/apiSlice";
 import {
   addExplorerEntity,
   getExplorerEntities,
   removeExplorerEntity,
   updateExplorerEntity,
 } from "src/05_shared/api";
-import { createAppSelector } from "src/05_shared/lib/hooks";
+import { rootReducer } from "src/00_app/store";
 
 const initialState: explorerSliceType = {
   entities: {
@@ -36,12 +33,36 @@ const initialState: explorerSliceType = {
   removeEntitiesStatus: "idle",
   updateEntityStatus: "idle",
   error: undefined,
-  entityCreation: {
-    status: false,
-    parentId: null,
-    category: null,
-  },
 };
+
+export const fetchEntities = createAsyncThunk(
+  "explorer/fetchEntities",
+  async () => {
+    const response = await getExplorerEntities();
+    return response;
+  }
+);
+export const addEntity = createAsyncThunk(
+  "explorer/addEntity",
+  async (initialEntity: initialEntityType) => {
+    const response = await addExplorerEntity(initialEntity);
+    return response;
+  }
+);
+export const removeEntity = createAsyncThunk(
+  "explorer/removeEntity",
+  async (id: explorerItemId) => {
+    const response = await removeExplorerEntity(id);
+    return response;
+  }
+);
+export const updateEntity = createAsyncThunk(
+  "explorer/updateEntity",
+  async (dataForUpdatingEntity: dataForUpdatingEntityType) => {
+    const response = await updateExplorerEntity(dataForUpdatingEntity);
+    return response;
+  }
+);
 
 export const explorerSlice = createSlice({
   name: "explorer",
@@ -77,23 +98,6 @@ export const explorerSlice = createSlice({
       state.updateEntityStatus === "pending",
   },
   reducers: {
-    addEntityCreator: (
-      state,
-      action: PayloadAction<{
-        parentId: explorerItemParentId;
-        category: explorerItemCategoryType;
-      }>
-    ) => {
-      const { parentId, category } = action.payload;
-      state.entityCreation.status = true;
-      state.entityCreation.parentId = parentId;
-      state.entityCreation.category = category;
-    },
-    removeEntityCreator: (state) => {
-      state.entityCreation.status = false;
-      state.entityCreation.parentId = null;
-      state.entityCreation.category = null;
-    },
     openFolder: (state, action: PayloadAction<explorerItemId>) => {
       const explorerItemsById =
         state.entities.explorerItems.byId[action.payload];
@@ -126,7 +130,11 @@ export const explorerSlice = createSlice({
             byId[item.id] = newItem;
             return byId;
           } else {
-            const newItem = { isUpdatePending: false, isRemoval: false, ...item };
+            const newItem = {
+              isUpdatePending: false,
+              isRemoval: false,
+              ...item,
+            };
             byId[item.id] = newItem;
             return byId;
           }
@@ -251,41 +259,7 @@ export const explorerSlice = createSlice({
       state.updateEntityStatus = "failed";
     });
   },
-});
+}).injectInto(rootReducer);
 
-export const fetchEntities = createAsyncThunk(
-  "explorer/fetchEntities",
-  async () => {
-    const response = await getExplorerEntities();
-    return response;
-  }
-);
-export const addEntity = createAsyncThunk(
-  "explorer/addEntity",
-  async (initialEntity: initialEntityType) => {
-    const response = await addExplorerEntity(initialEntity);
-    return response;
-  }
-);
-export const removeEntity = createAsyncThunk(
-  "explorer/removeEntity",
-  async (id: explorerItemId) => {
-    const response = await removeExplorerEntity(id);
-    return response;
-  }
-);
-export const updateEntity = createAsyncThunk(
-  "explorer/updateEntity",
-  async (dataForUpdatingEntity: dataForUpdatingEntityType) => {
-    const response = await updateExplorerEntity(dataForUpdatingEntity);
-    return response;
-  }
-);
-
-export const {
-  addEntityCreator,
-  removeEntityCreator,
-  openFolder,
-  closeFolder,
-} = explorerSlice.actions;
+export const { openFolder, closeFolder } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

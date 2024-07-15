@@ -1,22 +1,22 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import { contextMenuModel } from "src/04_entities/contextmenu";
 import { explorerModel } from "src/04_entities/explorer";
 import { apiSlice } from "src/05_shared/api/apiSlice";
 
+
+export const rootReducer = combineSlices()
+
+
 export const store = configureStore({
-  reducer: {
-    contextMenu: contextMenuModel.reducer,
-    explorer: explorerModel.reducer,
-    // [explorerApi.reducerPath]: explorerApi.reducer,
-    [apiSlice.reducerPath]: apiSlice.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+  reducer: rootReducer,
+
 });
 
 
+
 // Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
+// export type RootState = ReturnType<typeof store.getState>;
+export type RootState = any;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 

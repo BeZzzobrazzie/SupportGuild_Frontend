@@ -2,7 +2,6 @@ import { IconChevronRight, IconFile, IconFolder } from "@tabler/icons-react";
 import classes from "./classes.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
-import { explorerModel } from "../..";
 import { addEntity, explorerSlice } from "../../model";
 import {
   explorerItemCategoryType,
@@ -13,10 +12,17 @@ import { useContextMenu } from "mantine-contextmenu";
 
 type EntityCreatorType = {
   parentId: explorerItemParentId;
+  category: explorerItemCategoryType;
   nestingLevel: number;
+  hideEntityCreator(): void;
 };
 
-export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
+export function EntityCreator({
+  parentId,
+  category,
+  nestingLevel,
+  hideEntityCreator,
+}: EntityCreatorType) {
   const { showContextMenu } = useContextMenu();
 
   const indent = Array(nestingLevel)
@@ -24,9 +30,7 @@ export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
     .map((_, index) => (
       <div key={index} className={classes["entity_indent"]}></div>
     ));
-  const category = useAppSelector(
-    (state) => state.explorer.entityCreation.category
-  );
+
   let result = <></>;
 
   switch (category) {
@@ -40,7 +44,11 @@ export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
             {indent}
             <IconChevronRight />
             {/* <IconFolder /> */}
-            <EntityCreatorInput category={category} parentId={parentId} />
+            <EntityCreatorInput
+              category={category}
+              parentId={parentId}
+              hideEntityCreator={hideEntityCreator}
+            />
           </div>
         </li>
       );
@@ -54,7 +62,11 @@ export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
           >
             {indent}
             <IconFile />
-            <EntityCreatorInput category={category} parentId={parentId} />
+            <EntityCreatorInput
+              category={category}
+              parentId={parentId}
+              hideEntityCreator={hideEntityCreator}
+            />
           </div>
         </li>
       );
@@ -66,9 +78,11 @@ export function EntityCreator({ parentId, nestingLevel }: EntityCreatorType) {
 function EntityCreatorInput({
   category,
   parentId,
+  hideEntityCreator,
 }: {
   category: explorerItemCategoryType;
   parentId: explorerItemParentId;
+  hideEntityCreator(): void;
 }) {
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
@@ -78,15 +92,13 @@ function EntityCreatorInput({
     parentId: parentId,
   };
 
-  // const [addEntity, { error: addEntityError, isLoading, isSuccess }] =
-  //   useAddEntityMutation();
   const isAddEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsAddEntitiesPending(state)
   );
 
   function handleBlur() {
     if (canSave) {
-      dispatch(explorerModel.removeEntityCreator());
+      hideEntityCreator();
     }
   }
 
@@ -96,7 +108,7 @@ function EntityCreatorInput({
     if (canSave) {
       try {
         await dispatch(addEntity(initialEntity)).unwrap();
-        dispatch(explorerModel.removeEntityCreator());
+        hideEntityCreator();
       } catch (err) {
         console.error("Failed to save the entity: ", err);
       }

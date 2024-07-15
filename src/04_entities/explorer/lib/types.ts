@@ -42,11 +42,6 @@ export type explorerSliceType = {
   removeEntitiesStatus: "idle" | "pending" | "success" | "failed";
   updateEntityStatus: "idle" | "pending" | "success" | "failed";
   error: string | null | undefined;
-  entityCreation: {
-    status: boolean;
-    parentId: explorerItemParentId;
-    category: explorerItemCategoryType;
-  };
 };
 
 // export type explorerSliceTypeTwo = {

@@ -9,10 +9,9 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "../../entity-creator";
 import { explorerModel } from "../..";
 import { explorerSlice, updateEntity } from "../../model";
-import { explorerItemId } from "../../lib/types";
+import { explorerItemCategoryType, explorerItemId } from "../../lib/types";
 import { Loader } from "@mantine/core";
 import { useState } from "react";
-import { updateExplorerEntity } from "src/05_shared/api";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -26,14 +25,8 @@ export function Entity({
 }: EntityProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
-  const isParentOfCreatedEntity = useAppSelector(
-    (state) => state.explorer.entityCreation.parentId === explorerItemId
-  );
   const isFetchEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchEntitiesPending(state)
-  );
-  const isRemoveItemPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsRemoveItemPending(state)
   );
   const explorerItem = useAppSelector((state) =>
     explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
@@ -59,6 +52,17 @@ export function Entity({
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, explorerItemId)
   );
+
+  const [isEntityCreator, setIsEntityCreator] = useState(false);
+  const [categoryEntityCreator, setCategoryEntityCreator] =
+    useState<explorerItemCategoryType>(null);
+
+  function showEntityCreator() {
+    setIsEntityCreator(true);
+  }
+  function hideEntityCreator() {
+    setIsEntityCreator(false);
+  }
 
   const fileOptions = [
     {
@@ -99,12 +103,9 @@ export function Entity({
             dispatch(explorerModel.openFolder(explorerItem.id));
           }
         }
-        dispatch(
-          explorerModel.addEntityCreator({
-            parentId: explorerItemId,
-            category: "file",
-          })
-        );
+
+        setCategoryEntityCreator("file");
+        showEntityCreator();
       },
     },
     {
@@ -116,12 +117,9 @@ export function Entity({
             dispatch(explorerModel.openFolder(explorerItem.id));
           }
         }
-        dispatch(
-          explorerModel.addEntityCreator({
-            parentId: explorerItemId,
-            category: "folder",
-          })
-        );
+
+        setCategoryEntityCreator("folder");
+        showEntityCreator();
       },
     },
     { key: "divider-1" },
@@ -203,10 +201,12 @@ export function Entity({
             {explorerItem.isOpen && (
               <>
                 <ul className={classes["children-list"]}>
-                  {isParentOfCreatedEntity && (
+                  {isEntityCreator && (
                     <EntityCreator
                       parentId={explorerItem.id}
+                      category={categoryEntityCreator}
                       nestingLevel={nestingLevel + 1}
+                      hideEntityCreator={hideEntityCreator}
                     />
                   )}
                   {children.map((child) => (
