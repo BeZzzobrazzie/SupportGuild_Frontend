@@ -1,12 +1,12 @@
 import { IconChevronRight, IconFile, IconFolder } from "@tabler/icons-react";
-import classes from "./classes.module.css";
+import classes from "./entity-creator.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
-import { addEntity, explorerSlice } from "../../model";
+import { addEntity, explorerSlice } from "../model";
 import {
   explorerItemCategoryType,
   explorerItemParentId,
-} from "../../lib/types";
+} from "../lib/types";
 import { useContextMenu } from "mantine-contextmenu";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 

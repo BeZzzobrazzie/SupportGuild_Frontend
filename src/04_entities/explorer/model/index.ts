@@ -9,6 +9,7 @@ import {
   entityFromServerType,
   explorerItem,
   explorerItemId,
+  explorerItemParentId,
   explorerItemsById,
   explorerSliceType,
   initialEntityType,
@@ -71,18 +72,10 @@ export const explorerSlice = createSlice({
     selectEntities: (state) => state.entities.explorerItems,
     selectExplorerItem: (state, id: explorerItemId) =>
       state.entities.explorerItems.byId[id],
-    selectRootExplorerItems: createSelector(
-      (state: explorerSliceType) => state.entities.explorerItems.byId,
-      (state: explorerSliceType) => state.entities.explorerItems.ids,
-      (explorerItems, ids) =>
-        ids
-          .map((id) => explorerItems[id])
-          .filter((item): item is explorerItem => item?.parentId === null)
-    ),
     selectChildren: createSelector(
       (state: explorerSliceType) => state.entities.explorerItems.byId,
       (state: explorerSliceType) => state.entities.explorerItems.ids,
-      (_: explorerSliceType, parentId: explorerItemId) => parentId,
+      (_: explorerSliceType, parentId: explorerItemParentId) => parentId,
       (explorerItems, ids, parentId) =>
         ids
           .map((id) => explorerItems[id])

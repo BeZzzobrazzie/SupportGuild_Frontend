@@ -3,15 +3,15 @@ import {
   IconChevronDown,
   IconChevronRight,
 } from "@tabler/icons-react";
-import classes from "./classes.module.css";
+import classes from "./entity.module.css";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
-import { EntityCreator } from "../../entity-creator";
-import { explorerModel } from "../..";
-import { explorerSlice, updateEntity } from "../../model";
-import { explorerItemCategoryType, explorerItemId } from "../../lib/types";
+import { EntityCreator } from "./entity-creator";
+import { closeFolder, explorerSlice, openFolder, removeEntity } from "../model";
+import { explorerItemCategoryType, explorerItemId } from "../lib/types";
 import { Loader } from "@mantine/core";
 import { useState } from "react";
+import { EntityUpdateInput } from "./entity-update-input";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -25,15 +25,17 @@ export function Entity({
 }: EntityProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
+  // console.log(explorerItem)
+
   const isFetchEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchEntitiesPending(state)
   );
   const explorerItem = useAppSelector((state) =>
     explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
   );
-  // console.log(explorerItem)
-
-  const [isUpdating, setIsUpdating] = useState(false);
+  const children = useAppSelector((state) =>
+    explorerSlice.selectors.selectChildren(state, explorerItemId)
+  );
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -43,15 +45,12 @@ export function Entity({
 
   function handleFolderClick() {
     if (explorerItem) {
-      if (explorerItem.isOpen)
-        dispatch(explorerModel.closeFolder(explorerItem.id));
-      else dispatch(explorerModel.openFolder(explorerItem.id));
+      if (explorerItem.isOpen) dispatch(closeFolder(explorerItem.id));
+      else dispatch(openFolder(explorerItem.id));
     }
   }
 
-  const children = useAppSelector((state) =>
-    explorerSlice.selectors.selectChildren(state, explorerItemId)
-  );
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [isEntityCreator, setIsEntityCreator] = useState(false);
   const [categoryEntityCreator, setCategoryEntityCreator] =
@@ -88,7 +87,7 @@ export function Entity({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(explorerModel.removeEntity(explorerItemId));
+        dispatch(removeEntity(explorerItemId));
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -100,7 +99,7 @@ export function Entity({
         console.log("new file");
         if (explorerItem) {
           if (!explorerItem.isOpen) {
-            dispatch(explorerModel.openFolder(explorerItem.id));
+            dispatch(openFolder(explorerItem.id));
           }
         }
 
@@ -114,7 +113,7 @@ export function Entity({
         console.log("new folder");
         if (explorerItem) {
           if (!explorerItem.isOpen) {
-            dispatch(explorerModel.openFolder(explorerItem.id));
+            dispatch(openFolder(explorerItem.id));
           }
         }
 
@@ -152,7 +151,7 @@ export function Entity({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(explorerModel.removeEntity(explorerItemId));
+        dispatch(removeEntity(explorerItemId));
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -184,7 +183,7 @@ export function Entity({
               {explorerItem.isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {isUpdating ? (
-                <ExplorerItemUpdateInput
+                <EntityUpdateInput
                   id={explorerItem.id}
                   name={explorerItem.name}
                   setIsUpdating={setIsUpdating}
@@ -243,7 +242,7 @@ export function Entity({
               {indent}
               <IconFile />
               {isUpdating ? (
-                <ExplorerItemUpdateInput
+                <EntityUpdateInput
                   id={explorerItem.id}
                   name={explorerItem.name}
                   setIsUpdating={setIsUpdating}
@@ -259,58 +258,9 @@ export function Entity({
             </div>
           </li>
         );
-
         break;
     }
   }
 
   return <>{content}</>;
-}
-
-function ExplorerItemUpdateInput({
-  id,
-  name,
-  setIsUpdating,
-}: {
-  id: explorerItemId;
-  name: string;
-  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  const dispatch = useAppDispatch();
-  const [inputValue, setInputValue] = useState(name);
-  const isUpdateItemPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsUpdateItemPending(state)
-  );
-
-  function handleBlur() {
-    setIsUpdating(false);
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    try {
-      await dispatch(updateEntity({ id, name: inputValue })).unwrap();
-      setIsUpdating(false);
-    } catch (err) {
-      console.error("Failed to update the entity: ", err);
-    }
-  }
-
-  return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          autoFocus
-          required
-          value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
-          onBlur={handleBlur}
-          onContextMenu={(event) => console.log("context")}
-          // disabled={isUpdateItemPending}
-        />
-        {/* {isUpdateItemPending && <Loader color="yellow" size="xs" />} */}
-      </form>
-    </>
-  );
 }

@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
-import { Entity } from "../../entity";
-import classes from "./classes.module.css";
+import { Entity } from "./entity";
+import classes from "./root.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useContextMenu } from "mantine-contextmenu";
-import { explorerModel } from "../..";
-import { EntityCreator } from "../../entity-creator";
-import { explorerSlice, fetchEntities } from "../../model";
-import { explorerItemCategoryType } from "../../lib/types";
+import { EntityCreator } from "./entity-creator";
+import { explorerSlice, fetchEntities } from "../model";
+import { explorerItemCategoryType } from "../lib/types";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
+  // console.log(explorerItems);
 
   useEffect(() => {
     dispatch(fetchEntities());
   }, []);
 
-  // console.log(explorerItems);
-  const rootChildren = useAppSelector((state) =>
-    explorerSlice.selectors.selectRootExplorerItems(state)
+  const children = useAppSelector((state) =>
+    explorerSlice.selectors.selectChildren(state, null)
   );
   const isFetchEntitiesPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchEntitiesPending(state)
@@ -58,7 +57,7 @@ export function Root() {
 
   if (isFetchEntitiesPending) {
     content = <div>Loading...</div>;
-  } else if (rootChildren) {
+  } else if (children) {
     content = (
       <ul
         className={classes["root"]}
@@ -72,7 +71,7 @@ export function Root() {
             hideEntityCreator={hideEntityCreator}
           />
         )}
-        {rootChildren.map((entity) => (
+        {children.map((entity) => (
           <Entity
             key={entity.id}
             explorerItemId={entity.id}

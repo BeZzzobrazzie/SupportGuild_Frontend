@@ -1,3 +1,2 @@
-export { Root as ExplorerRoot } from "./root/index";
-export { Entity as ExplorerEntity } from "./entity/index";
-export * as explorerModel from "./model";
+export { Root as ExplorerRoot } from "./ui/root";
+// export * as explorerModel from "./model";
