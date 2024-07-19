@@ -4,7 +4,10 @@ import {
   dataForUpdatingEntityType,
   explorerItemId,
   initialEntityType,
-} from "src/04_entities/explorer/lib/types";
+  templateCardIdType,
+  templateCardInitialType,
+} from "src/05_shared/api/types";
+import { z } from "zod";
 
 // const host = axios.create({
 //   baseURL: "http://localhost:5000",
@@ -36,6 +39,7 @@ import {
 
 const baseURL = "http://localhost:5000/";
 const explorerEntitiesURL = `${baseURL}api/template-manager/explorer-entities`;
+const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
 
 export async function getExplorerEntities() {
   const response = await fetch(explorerEntitiesURL);
@@ -67,7 +71,9 @@ export async function removeExplorerEntity(id: explorerItemId) {
   return data;
 }
 
-export async function updateExplorerEntity(dataForUpdatingEntity: dataForUpdatingEntityType) {
+export async function updateExplorerEntity(
+  dataForUpdatingEntity: dataForUpdatingEntityType
+) {
   const response = await fetch(explorerEntitiesURL, {
     method: "PATCH",
     headers: {
@@ -78,3 +84,68 @@ export async function updateExplorerEntity(dataForUpdatingEntity: dataForUpdatin
   const data = await response.json();
   return data;
 }
+
+const templateCardId = z.number();
+const templateCardSchema = z.object({
+  id: templateCardId,
+  name: z.string(),
+  content: z.string(),
+  parentId: z.number().nullable(),
+})
+const templateCardsSchema = templateCardSchema.array();
+
+export async function getTemplateCards() {
+  const response = await fetch(templateCardsUrl);
+  const data = await response.json();
+  // console.log(data);
+
+  try {
+    return templateCardsSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+export async function addTemplateCard(initialData: templateCardInitialType) {
+  const response = await fetch(templateCardsUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(initialData),
+  });
+  const data = await response.json();
+
+  try {
+    return templateCardSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+export async function removeTemplateCard(id: templateCardIdType) {
+  const response = await fetch(templateCardsUrl, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify({ id }),
+  });
+  const data = await response.json();
+  try {
+    return templateCardId.parse(data);
+  } catch (e) {
+    console.log(e);
+  }}
+
+// export async function updateExplorerEntity(dataForUpdatingEntity: dataForUpdatingEntityType) {
+//   const response = await fetch(explorerEntitiesURL, {
+//     method: "PATCH",
+//     headers: {
+//       "Content-Type": "application/json;charset=utf-8",
+//     },
+//     body: JSON.stringify(dataForUpdatingEntity),
+//   });
+//   const data = await response.json();
+//   return data;
+// }

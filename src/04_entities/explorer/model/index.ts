@@ -13,7 +13,7 @@ import {
   explorerItemsById,
   explorerSliceType,
   initialEntityType,
-} from "../lib/types";
+} from "../../../05_shared/api/types";
 import {
   addExplorerEntity,
   getExplorerEntities,

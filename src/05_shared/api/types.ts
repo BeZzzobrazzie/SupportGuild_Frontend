@@ -76,3 +76,11 @@ export type entityFromServerType = {
   createdAt: string;
   updatedAt: string;
 };
+
+
+export type templateCardIdType = number;
+export type templateCardInitialType = {
+  name: string,
+  content: string,
+  parentId: explorerItemParentId
+}

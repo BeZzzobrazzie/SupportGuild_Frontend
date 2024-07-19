@@ -8,7 +8,7 @@ import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "./entity-creator";
 import { closeFolder, explorerSlice, openFolder, removeEntity } from "../model";
-import { explorerItemCategoryType, explorerItemId } from "../lib/types";
+import { explorerItemCategoryType, explorerItemId } from "../../../05_shared/api/types";
 import { Loader } from "@mantine/core";
 import { useState } from "react";
 import { EntityUpdateInput } from "./entity-update-input";
