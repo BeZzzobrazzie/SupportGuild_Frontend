@@ -3,17 +3,6 @@ export type explorerItemId = number;
 export type explorerItemParentId = number | null;
 export type explorerItemName = string;
 
-// export type parentIdType = number | null;
-// export type entityIdType = number;
-
-// export type entityType = {
-//   id: entityIdType;
-//   category: entityCategoryType;
-//   name: string;
-//   parentId: parentIdType;
-//   isOpen?: boolean;
-// };
-
 export type explorerItem = {
   id: explorerItemId;
   category: explorerItemCategoryType;
@@ -37,24 +26,13 @@ type entitiesType = {
 
 export type explorerSliceType = {
   entities: entitiesType;
+  activeCollection: explorerItemId | null;
   fetchEntitiesStatus: "idle" | "pending" | "success" | "failed";
   addEntityStatus: "idle" | "pending" | "success" | "failed";
   removeEntitiesStatus: "idle" | "pending" | "success" | "failed";
   updateEntityStatus: "idle" | "pending" | "success" | "failed";
   error: string | null | undefined;
 };
-
-// export type explorerSliceTypeTwo = {
-//   // entitiesIsOpen: {
-//   //   id: number,
-//   //   isOpen: boolean,
-//   // }[],
-//   entityCreation: {
-//     status: boolean;
-//     parentId: parentIdType;
-//     category: entityCategoryType;
-//   }
-// }
 
 export type initialEntityType = {
   name: string;
@@ -76,11 +54,3 @@ export type entityFromServerType = {
   createdAt: string;
   updatedAt: string;
 };
-
-
-export type templateCardIdType = number;
-export type templateCardInitialType = {
-  name: string,
-  content: string,
-  parentId: explorerItemParentId
-}

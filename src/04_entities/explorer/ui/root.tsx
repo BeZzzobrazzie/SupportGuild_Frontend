@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useContextMenu } from "mantine-contextmenu";
 import { EntityCreator } from "./entity-creator";
 import { explorerSlice, fetchEntities } from "../model";
-import { explorerItemCategoryType } from "../../../05_shared/api/types";
+import { explorerItemCategoryType } from "src/05_shared/api/explorer/types";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();

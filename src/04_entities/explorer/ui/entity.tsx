@@ -7,11 +7,21 @@ import classes from "./entity.module.css";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { EntityCreator } from "./entity-creator";
-import { closeFolder, explorerSlice, openFolder, removeEntity } from "../model";
-import { explorerItemCategoryType, explorerItemId } from "../../../05_shared/api/types";
+import {
+  closeFolder,
+  explorerSlice,
+  openFolder,
+  removeEntity,
+  selectedCollection,
+} from "../model";
+
 import { Loader } from "@mantine/core";
 import { useState } from "react";
 import { EntityUpdateInput } from "./entity-update-input";
+import {
+  explorerItemCategoryType,
+  explorerItemId,
+} from "src/05_shared/api/explorer/types";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -47,6 +57,11 @@ export function Entity({
     if (explorerItem) {
       if (explorerItem.isOpen) dispatch(closeFolder(explorerItem.id));
       else dispatch(openFolder(explorerItem.id));
+    }
+  }
+  function handleCollectionClick() {
+    if (explorerItem) {
+      dispatch(selectedCollection(explorerItem.id));
     }
   }
 
@@ -229,6 +244,7 @@ export function Entity({
           <li>
             <div
               className={classes["entity_header"]}
+              onClick={handleCollectionClick}
               onContextMenu={
                 isUpdating
                   ? (event) => event.stopPropagation()

@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
-import { explorerItemId } from "../../../05_shared/api/types";
+import { explorerItemId } from "../../../05_shared/api/template-cards/types";
 import { useState } from "react";
 import { explorerSlice, updateEntity } from "../model";
 

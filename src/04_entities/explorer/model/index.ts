@@ -4,23 +4,11 @@ import {
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
-import {
-  dataForUpdatingEntityType,
-  entityFromServerType,
-  explorerItem,
-  explorerItemId,
-  explorerItemParentId,
-  explorerItemsById,
-  explorerSliceType,
-  initialEntityType,
-} from "../../../05_shared/api/types";
-import {
-  addExplorerEntity,
-  getExplorerEntities,
-  removeExplorerEntity,
-  updateExplorerEntity,
-} from "src/05_shared/api";
+
+
 import { rootReducer } from "src/00_app/store";
+import { addExplorerEntity, getExplorerEntities, removeExplorerEntity, updateExplorerEntity } from "src/05_shared/api/explorer/explorer-api";
+import { dataForUpdatingEntityType, entityFromServerType, explorerItem, explorerItemId, explorerItemParentId, explorerItemsById, explorerSliceType, initialEntityType } from "src/05_shared/api/explorer/types";
 
 const initialState: explorerSliceType = {
   entities: {
@@ -29,6 +17,7 @@ const initialState: explorerSliceType = {
       ids: [],
     },
   },
+  activeCollection: null,
   fetchEntitiesStatus: "idle",
   addEntityStatus: "idle",
   removeEntitiesStatus: "idle",
@@ -81,6 +70,7 @@ export const explorerSlice = createSlice({
           .map((id) => explorerItems[id])
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
+    selectActiveCollection: (state) => state.activeCollection,
     selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
     selectIsFetchEntitiesPending: (state) =>
       state.fetchEntitiesStatus === "pending",
@@ -102,6 +92,9 @@ export const explorerSlice = createSlice({
         state.entities.explorerItems.byId[action.payload];
       if (!!explorerItemsById) explorerItemsById.isOpen = false;
       state.entities.explorerItems.byId[action.payload] = explorerItemsById;
+    },
+    selectedCollection: (state, action: PayloadAction<explorerItemId>) => {
+      state.activeCollection = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -254,5 +247,5 @@ export const explorerSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { openFolder, closeFolder } = explorerSlice.actions;
+export const { openFolder, closeFolder, selectedCollection } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

@@ -6,7 +6,7 @@ import { addEntity, explorerSlice } from "../model";
 import {
   explorerItemCategoryType,
   explorerItemParentId,
-} from "../../../05_shared/api/types";
+} from "../../../05_shared/api/template-cards/types";
 import { useContextMenu } from "mantine-contextmenu";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
