@@ -1,1 +1,1 @@
-export {TemplateCard} from "./ui"
+export { ListCards } from "./ui/list-cards";

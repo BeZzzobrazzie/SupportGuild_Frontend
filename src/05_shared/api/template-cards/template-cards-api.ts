@@ -2,6 +2,7 @@ import { z } from "zod";
 import { baseURL } from "..";
 import {
   dataForUpdatingTemplateCardType,
+  removeTemplateCardIdSchema,
   templateCardIdSchema,
   templateCardIdType,
   templateCardInitialType,
@@ -23,7 +24,8 @@ export async function getTemplateCards() {
   }
 }
 
-export async function addTemplateCard(initialData: templateCardInitialType) {
+
+export async function addEmptyTemplateCard(initialData: templateCardInitialType) {
   const response = await fetch(templateCardsUrl, {
     method: "POST",
     headers: {
@@ -40,6 +42,23 @@ export async function addTemplateCard(initialData: templateCardInitialType) {
   }
 }
 
+// export async function addTemplateCard(initialData: templateCardInitialType) {
+//   const response = await fetch(templateCardsUrl, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json;charset=utf-8",
+//     },
+//     body: JSON.stringify(initialData),
+//   });
+//   const data = await response.json();
+
+//   try {
+//     return templateCardSchema.parse(data);
+//   } catch (e) {
+//     console.log(e);
+//   }
+// }
+
 export async function removeTemplateCard(id: templateCardIdType) {
   const response = await fetch(templateCardsUrl, {
     method: "DELETE",
@@ -50,7 +69,7 @@ export async function removeTemplateCard(id: templateCardIdType) {
   });
   const data = await response.json();
   try {
-    return templateCardIdSchema.parse(data);
+    return removeTemplateCardIdSchema.parse(data);
   } catch (e) {
     console.log(e);
   }

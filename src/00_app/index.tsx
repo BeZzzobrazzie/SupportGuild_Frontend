@@ -9,7 +9,7 @@ import "mantine-contextmenu/styles.layer.css";
 import { ExplorerSmall } from "src/02_widgets/explorer-small";
 import { fetchEntities } from "src/04_entities/explorer/model";
 import { store } from "./store";
-import { ListCards } from "src/04_entities/template-card/ui/list-cards";
+import { Templates } from "src/02_widgets/templates";
 
 function App() {
   store.dispatch(fetchEntities());
@@ -18,7 +18,7 @@ function App() {
     <MantineProvider defaultColorScheme="dark">
       <ContextMenuProvider>
         <ExplorerSmall />
-        <ListCards />
+        <Templates />
       </ContextMenuProvider>
     </MantineProvider>
   );

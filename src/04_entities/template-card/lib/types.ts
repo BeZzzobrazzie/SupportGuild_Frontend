@@ -4,27 +4,20 @@ import {
   templateCardNameType,
 } from "src/05_shared/api/template-cards/types";
 
-type id = number;
-
 export type card = {
   id: templateCardIdType;
   parentId: explorerItemParentId;
-  name: templateCardNameType;
+  name?: templateCardNameType;
   content: string;
 };
-export type byId = Record<id, card | undefined>;
+export type byId = Record<templateCardIdType, card | undefined>;
 export type templateCardsSliceType = {
   entities: {
     byId: byId;
-    ids: id[];
+    ids: templateCardIdType[];
   };
+  idEditingCard: templateCardIdType | null;
   fetchCardsStatus: "idle" | "pending" | "success" | "failed";
-};
-
-export const initialState: templateCardsSliceType = {
-  entities: {
-    byId: {},
-    ids: [],
-  },
-  fetchCardsStatus: "idle",
+  addCardStatus: "idle" | "pending" | "success" | "failed";
+  removeCardStatus: "idle" | "pending" | "success" | "failed";
 };

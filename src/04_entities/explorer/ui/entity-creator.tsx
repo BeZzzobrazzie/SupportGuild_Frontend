@@ -3,11 +3,9 @@ import classes from "./entity-creator.module.css";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useState } from "react";
 import { addEntity, explorerSlice } from "../model";
-import {
-  explorerItemCategoryType,
-  explorerItemParentId,
-} from "../../../05_shared/api/template-cards/types";
+
 import { useContextMenu } from "mantine-contextmenu";
+import { explorerItemCategoryType, explorerItemParentId } from "src/05_shared/api/explorer/types";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {
