@@ -14,6 +14,7 @@ import {
   addEmptyTemplateCard,
   getTemplateCards,
   removeTemplateCard,
+  updateTemplateCard,
 } from "src/05_shared/api/template-cards/template-cards-api";
 import {
   templateCardIdType,
@@ -27,9 +28,14 @@ const initialState: templateCardsSliceType = {
     ids: [],
   },
   idEditingCard: null,
+  // cardsForEditing: {
+  //   currentId: null,
+  //   nextId: null,
+  // },
   fetchCardsStatus: "idle",
   addCardStatus: "idle",
   removeCardStatus: "idle",
+  updateCardStatus: "idle",
 };
 
 export const fetchCards = createAsyncThunk(
@@ -53,6 +59,13 @@ export const removeCard = createAsyncThunk(
     return response;
   }
 );
+export const updateCard = createAsyncThunk(
+  "templateCards/updateCard",
+  async (dataForUpdatingCard: card) => {
+    const response = await updateTemplateCard(dataForUpdatingCard);
+    return response;
+  }
+);
 
 export const templateCardsSlice = createSlice({
   name: "templateCards",
@@ -69,13 +82,25 @@ export const templateCardsSlice = createSlice({
           .map((id) => cards[id])
           .filter((item): item is card => item?.parentId === parentId)
     ),
+    // selectIdEditingCard: (state) => state.cardsForEditing.currentId,
+    // selectIsUnsavedChanges: (state, id: templateCardIdType) =>
+    //   state.cardsForEditing.currentId === id &&
+    //   state.cardsForEditing.nextId !== null,
     selectIdEditingCard: (state) => state.idEditingCard,
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardIdType>) => {
+      // if (state.cardsForEditing.currentId === null) {
+      //   state.cardsForEditing.currentId = action.payload;
+      // } else {
+      //   state.cardsForEditing.nextId = action.payload;
+      // }
       state.idEditingCard = action.payload;
     },
     resetEditing: (state) => {
+      // state.cardsForEditing.currentId = state.cardsForEditing.nextId;
+      // state.cardsForEditing.nextId = null;
+
       state.idEditingCard = null;
     },
   },
@@ -124,7 +149,7 @@ export const templateCardsSlice = createSlice({
     });
     builder.addCase(
       removeCard.fulfilled,
-      (state, action: PayloadAction<{id: explorerItemId} | undefined>) => {
+      (state, action: PayloadAction<{ id: explorerItemId } | undefined>) => {
         const id = action.payload?.id;
 
         if (id !== undefined) {
@@ -140,8 +165,31 @@ export const templateCardsSlice = createSlice({
     builder.addCase(removeCard.rejected, (state, action) => {
       state.removeCardStatus = "failed";
     });
+
+    builder.addCase(updateCard.pending, (state, action) => {
+      state.updateCardStatus = "pending";
+    });
+    builder.addCase(
+      updateCard.fulfilled,
+      (state, action: PayloadAction<card | undefined>) => {
+        if (action.payload) {
+          const templateCard = state.entities.byId[action.payload.id];
+          if (templateCard) {
+            templateCard.content = action.payload.content;
+          }
+          state.entities.byId[action.payload.id] = templateCard;
+
+          // state.cardsForEditing.currentId = state.cardsForEditing.nextId;
+          // state.cardsForEditing.nextId = null;
+          state.idEditingCard = null;
+          state.updateCardStatus = "success";
+        }
+      }
+    );
+    builder.addCase(updateCard.rejected, (state, action) => {
+      state.updateCardStatus = "failed";
+    });
   },
 }).injectInto(rootReducer);
-
 
 export const { startEditing, resetEditing } = templateCardsSlice.actions;

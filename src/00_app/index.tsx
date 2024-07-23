@@ -10,16 +10,19 @@ import { ExplorerSmall } from "src/02_widgets/explorer-small";
 import { fetchEntities } from "src/04_entities/explorer/model";
 import { store } from "./store";
 import { Templates } from "src/02_widgets/templates";
+import { ModalsProvider } from "@mantine/modals";
 
 function App() {
   store.dispatch(fetchEntities());
 
   return (
     <MantineProvider defaultColorScheme="dark">
-      <ContextMenuProvider>
-        <ExplorerSmall />
-        <Templates />
-      </ContextMenuProvider>
+      <ModalsProvider>
+        <ContextMenuProvider>
+          <ExplorerSmall />
+          <Templates />
+        </ContextMenuProvider>
+      </ModalsProvider>
     </MantineProvider>
   );
 }
