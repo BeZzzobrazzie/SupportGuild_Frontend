@@ -1,10 +1,11 @@
 import { RichTextEditor } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useState } from "react";
 import { templateCardIdType } from "src/05_shared/api/template-cards/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import {
+  continueEditing,
   resetEditing,
   startEditing,
   templateCardsSlice,
@@ -15,6 +16,7 @@ import Link from "@tiptap/extension-link";
 import { modals } from "@mantine/modals";
 import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { card } from "../lib/types";
 
 interface cardProps {
   id: templateCardIdType;
@@ -40,19 +42,27 @@ export function Card({ id }: cardProps) {
     editable: isEditing,
   });
 
-  const openModal = () =>
-    modals.openConfirmModal({
-      title: "Unsaved Changes Detected",
-      children: (
-        <div>
-          You have unsaved changes in the current template. Would you like to
-          save your changes before editing a new template?
-        </div>
-      ),
-      labels: { confirm: "Save Changes", cancel: "Discard Changes" },
-      onCancel: () => handleClickReset(),
-      onConfirm: () => handleClickSave(),
-    });
+  if (!editor || !card) {
+    return <>Error</>;
+  }
+  const dataForUpdate = {
+    ...card,
+    content: editor.getText(),
+  };
+
+  // const openModal = () =>
+  //   modals.openConfirmModal({
+  //     title: "Unsaved Changes Detected",
+  //     children: (
+  //       <div>
+  //         You have unsaved changes in the current template. Would you like to
+  //         save your changes before editing a new template?
+  //       </div>
+  //     ),
+  //     labels: { confirm: "Save Changes", cancel: "Discard Changes" },
+  //     onCancel: () => handleClickReset(),
+  //     onConfirm: () => handleClickSave(),
+  //   });
 
   function handleClickEdit() {
     // if (idEditingCard !== null) {
@@ -62,14 +72,7 @@ export function Card({ id }: cardProps) {
     dispatch(startEditing(id));
   }
   function handleClickSave() {
-    if (card && editor) {
-      dispatch(
-        updateCard({
-          ...card,
-          content: editor.getText(),
-        })
-      );
-    }
+    dispatch(updateCard(dataForUpdate));
   }
   function handleClickReset() {
     dispatch(resetEditing());
@@ -80,11 +83,11 @@ export function Card({ id }: cardProps) {
     }
   }
 
-  useEffect(() => {
-    if (isUnsavedChanges) {
-      // openModal();
-    }
-  }, [isUnsavedChanges]);
+  // useEffect(() => {
+  //   if (isUnsavedChanges) {
+  //     // openModal();
+  //   }
+  // }, [isUnsavedChanges]);
   useEffect(() => {
     if (!editor) {
       return undefined;
@@ -96,37 +99,77 @@ export function Card({ id }: cardProps) {
   let componentContent = <></>;
   if (card) {
     componentContent = (
-      <div>
-        <RichTextEditor editor={editor}>
-          <RichTextEditor.Toolbar>
-            {/* <span>Name: {card.name}</span> */}
+      <>
+        <div>
+          <RichTextEditor editor={editor}>
+            <RichTextEditor.Toolbar>
+              {/* <span>Name: {card.name}</span> */}
 
-            <RichTextEditor.ControlsGroup>
-              {isEditing ? (
-                <>
-                  <button onClick={handleClickSave}>Save</button>
-                  <button onClick={handleClickReset}>Reset</button>
-                </>
-              ) : (
-                <button onClick={handleClickEdit}>Edit</button>
-              )}
+              <RichTextEditor.ControlsGroup>
+                {isEditing ? (
+                  <>
+                    <button onClick={handleClickSave}>Save</button>
+                    <button onClick={handleClickReset}>Reset</button>
+                  </>
+                ) : (
+                  <button onClick={handleClickEdit}>Edit</button>
+                )}
 
-              <RemoveCard id={card.id} />
-            </RichTextEditor.ControlsGroup>
-          </RichTextEditor.Toolbar>
-          <RichTextEditor.Content />
-        </RichTextEditor>
-      </div>
+                <RemoveCard id={card.id} />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+            <RichTextEditor.Content />
+          </RichTextEditor>
+        </div>
+        {isUnsavedChanges && idEditingCard === card.id && (
+          <ModalUnsavedChanges
+            dataForUpdate={dataForUpdate}
+            content={content}
+            editor={editor}
+            cardId={id}
+          />
+        )}
+      </>
     );
   }
 
   return componentContent;
 }
 
-function ModalUnsavedChanges() {
+function ModalUnsavedChanges({
+  dataForUpdate,
+  content,
+  editor,
+  cardId
+}: {
+  dataForUpdate: card;
+  content: string | undefined;
+  editor: Editor;
+  cardId: templateCardIdType;
+}) {
+  const dispatch = useAppDispatch();
+  const isUnsavedChanges = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsUnsavedChanges(state, cardId)
+  );
   const [opened, { open, close }] = useDisclosure(true, {
-    onClose: () => console.log("close"),
+    onClose: () => {
+      if(isUnsavedChanges) {
+        dispatch(continueEditing());
+      }
+    },
   });
+
+  function handleClickSave() {
+    dispatch(updateCard(dataForUpdate));
+  }
+  function handleClickReset() {
+    if (content) {
+      editor.commands.setContent(content);
+    } else {
+      editor.commands.setContent("");
+    }
+    dispatch(resetEditing());
+  }
 
   return (
     <>
@@ -136,8 +179,8 @@ function ModalUnsavedChanges() {
           You have unsaved changes in the current template. Would you like to
           save your changes before editing a new template?
         </div>
-        <button onClick={close}>Save Changes</button>
-        <button>Discard Changes</button>
+        <button onClick={handleClickSave}>Save Changes</button>
+        <button onClick={handleClickReset}>Discard Changes</button>
       </Modal>
     </>
   );

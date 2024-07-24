@@ -16,11 +16,11 @@ export type templateCardsSliceType = {
     byId: byId;
     ids: templateCardIdType[];
   };
-  idEditingCard: templateCardIdType | null;
-  // cardsForEditing: {
-  //   currentId: templateCardIdType | null;
-  //   nextId: templateCardIdType | null;
-  // };
+  // idEditingCard: templateCardIdType | null;
+  cardsForEditing: {
+    currentId: templateCardIdType | null;
+    nextId: templateCardIdType | null;
+  };
   fetchCardsStatus: "idle" | "pending" | "success" | "failed";
   addCardStatus: "idle" | "pending" | "success" | "failed";
   removeCardStatus: "idle" | "pending" | "success" | "failed";

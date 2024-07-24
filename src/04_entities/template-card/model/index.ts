@@ -27,11 +27,11 @@ const initialState: templateCardsSliceType = {
     byId: {},
     ids: [],
   },
-  idEditingCard: null,
-  // cardsForEditing: {
-  //   currentId: null,
-  //   nextId: null,
-  // },
+  // idEditingCard: null,
+  cardsForEditing: {
+    currentId: null,
+    nextId: null,
+  },
   fetchCardsStatus: "idle",
   addCardStatus: "idle",
   removeCardStatus: "idle",
@@ -82,27 +82,30 @@ export const templateCardsSlice = createSlice({
           .map((id) => cards[id])
           .filter((item): item is card => item?.parentId === parentId)
     ),
-    // selectIdEditingCard: (state) => state.cardsForEditing.currentId,
-    // selectIsUnsavedChanges: (state, id: templateCardIdType) =>
-    //   state.cardsForEditing.currentId === id &&
-    //   state.cardsForEditing.nextId !== null,
-    selectIdEditingCard: (state) => state.idEditingCard,
+    selectIdEditingCard: (state) => state.cardsForEditing.currentId,
+    selectIsUnsavedChanges: (state, id: templateCardIdType) =>
+      state.cardsForEditing.currentId === id &&
+      state.cardsForEditing.nextId !== null,
+    // selectIdEditingCard: (state) => state.idEditingCard,
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardIdType>) => {
-      // if (state.cardsForEditing.currentId === null) {
-      //   state.cardsForEditing.currentId = action.payload;
-      // } else {
-      //   state.cardsForEditing.nextId = action.payload;
-      // }
-      state.idEditingCard = action.payload;
+      if (state.cardsForEditing.currentId === null) {
+        state.cardsForEditing.currentId = action.payload;
+      } else {
+        state.cardsForEditing.nextId = action.payload;
+      }
+      // state.idEditingCard = action.payload;
     },
     resetEditing: (state) => {
-      // state.cardsForEditing.currentId = state.cardsForEditing.nextId;
-      // state.cardsForEditing.nextId = null;
+      state.cardsForEditing.currentId = state.cardsForEditing.nextId;
+      state.cardsForEditing.nextId = null;
 
-      state.idEditingCard = null;
+      // state.idEditingCard = null;
     },
+    continueEditing: (state) => {
+      state.cardsForEditing.nextId = null;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCards.pending, (state) => {
@@ -179,9 +182,9 @@ export const templateCardsSlice = createSlice({
           }
           state.entities.byId[action.payload.id] = templateCard;
 
-          // state.cardsForEditing.currentId = state.cardsForEditing.nextId;
-          // state.cardsForEditing.nextId = null;
-          state.idEditingCard = null;
+          state.cardsForEditing.currentId = state.cardsForEditing.nextId;
+          state.cardsForEditing.nextId = null;
+          // state.idEditingCard = null;
           state.updateCardStatus = "success";
         }
       }
@@ -192,4 +195,4 @@ export const templateCardsSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { startEditing, resetEditing } = templateCardsSlice.actions;
+export const { startEditing, resetEditing, continueEditing } = templateCardsSlice.actions;
