@@ -12,7 +12,6 @@ import {
   explorerSlice,
   openFolder,
   removeEntity,
-  selectedCollection,
 } from "../model";
 
 import { Loader } from "@mantine/core";
@@ -22,6 +21,7 @@ import {
   explorerItemCategoryType,
   explorerItemId,
 } from "src/05_shared/api/explorer/types";
+import { selectedCollectionThunk } from "../model/selected-collection";
 
 interface EntityProps {
   explorerItemId: explorerItemId;
@@ -61,7 +61,8 @@ export function Entity({
   }
   function handleCollectionClick() {
     if (explorerItem) {
-      dispatch(selectedCollection(explorerItem.id));
+      // dispatch(selectedCollection(explorerItem.id));
+      dispatch(selectedCollectionThunk(explorerItem.id))
     }
   }
 

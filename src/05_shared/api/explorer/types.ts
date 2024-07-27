@@ -1,6 +1,6 @@
 export type explorerItemCategoryType = "file" | "folder" | null;
 export type explorerItemId = number;
-export type explorerItemParentId = number | null;
+export type explorerItemParentId = number;
 export type explorerItemName = string;
 
 export type explorerItem = {
@@ -26,7 +26,11 @@ type entitiesType = {
 
 export type explorerSliceType = {
   entities: entitiesType;
-  activeCollection: explorerItemId | null;
+  // activeCollection: explorerItemId | null;
+  activeCollection: {
+    currentId: explorerItemId | null;
+    nextId: explorerItemId | null;
+  };
   fetchEntitiesStatus: "idle" | "pending" | "success" | "failed";
   addEntityStatus: "idle" | "pending" | "success" | "failed";
   removeEntitiesStatus: "idle" | "pending" | "success" | "failed";

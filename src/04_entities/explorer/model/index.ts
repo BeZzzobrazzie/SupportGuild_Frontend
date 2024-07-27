@@ -5,10 +5,24 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 
-
-import { rootReducer } from "src/00_app/store";
-import { addExplorerEntity, getExplorerEntities, removeExplorerEntity, updateExplorerEntity } from "src/05_shared/api/explorer/explorer-api";
-import { dataForUpdatingEntityType, entityFromServerType, explorerItem, explorerItemId, explorerItemParentId, explorerItemsById, explorerSliceType, initialEntityType } from "src/05_shared/api/explorer/types";
+import { createAppAsyncThunk, rootReducer } from "src/00_app/store";
+import { templateCardsSlice } from "src/04_entities/template-card/model";
+import {
+  addExplorerEntity,
+  getExplorerEntities,
+  removeExplorerEntity,
+  updateExplorerEntity,
+} from "src/05_shared/api/explorer/explorer-api";
+import {
+  dataForUpdatingEntityType,
+  entityFromServerType,
+  explorerItem,
+  explorerItemId,
+  explorerItemParentId,
+  explorerItemsById,
+  explorerSliceType,
+  initialEntityType,
+} from "src/05_shared/api/explorer/types";
 
 const initialState: explorerSliceType = {
   entities: {
@@ -17,7 +31,11 @@ const initialState: explorerSliceType = {
       ids: [],
     },
   },
-  activeCollection: null,
+  // activeCollection: null,
+  activeCollection: {
+    currentId: null,
+    nextId: null,
+  },
   fetchEntitiesStatus: "idle",
   addEntityStatus: "idle",
   removeEntitiesStatus: "idle",
@@ -25,7 +43,7 @@ const initialState: explorerSliceType = {
   error: undefined,
 };
 
-export const fetchEntities = createAsyncThunk(
+export const fetchEntities = createAppAsyncThunk(
   "explorer/fetchEntities",
   async () => {
     const response = await getExplorerEntities();
@@ -70,7 +88,7 @@ export const explorerSlice = createSlice({
           .map((id) => explorerItems[id])
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
-    selectActiveCollection: (state) => state.activeCollection,
+    selectActiveCollection: (state) => state.activeCollection.currentId,
     selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
     selectIsFetchEntitiesPending: (state) =>
       state.fetchEntitiesStatus === "pending",
@@ -79,6 +97,9 @@ export const explorerSlice = createSlice({
       state.removeEntitiesStatus === "pending",
     selectIsUpdateItemPending: (state) =>
       state.updateEntityStatus === "pending",
+    selectIsCollectionInQueue: (state, collectionId: explorerItemId) =>
+      state.activeCollection.currentId === collectionId &&
+      state.activeCollection.nextId !== null,
   },
   reducers: {
     openFolder: (state, action: PayloadAction<explorerItemId>) => {
@@ -93,8 +114,18 @@ export const explorerSlice = createSlice({
       if (!!explorerItemsById) explorerItemsById.isOpen = false;
       state.entities.explorerItems.byId[action.payload] = explorerItemsById;
     },
-    selectedCollection: (state, action: PayloadAction<explorerItemId>) => {
-      state.activeCollection = action.payload;
+    // selectedCollection: (state, action: PayloadAction<explorerItemId>) => {
+    //   state.activeCollection = action.payload;
+    // },
+    changeCurrentCollection: (state, action: PayloadAction<explorerItemId>) => {
+      state.activeCollection.currentId = action.payload;
+    },
+    changeNextCollection: (state, action: PayloadAction<explorerItemId | null>) => {
+      state.activeCollection.nextId = action.payload;
+    },
+    changeCurrentCollectionToNext: (state) => {
+      state.activeCollection.currentId = state.activeCollection.nextId;
+      state.activeCollection.currentId = null;
     },
   },
   extraReducers: (builder) => {
@@ -247,5 +278,5 @@ export const explorerSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { openFolder, closeFolder, selectedCollection } = explorerSlice.actions;
+export const { openFolder, closeFolder, changeCurrentCollectionToNext, changeNextCollection } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

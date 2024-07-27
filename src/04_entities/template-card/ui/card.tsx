@@ -1,11 +1,10 @@
 import { RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { templateCardIdType } from "src/05_shared/api/template-cards/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import {
-  continueEditing,
   resetEditing,
   startEditing,
   templateCardsSlice,
@@ -13,10 +12,8 @@ import {
 } from "../model";
 import { RemoveCard } from "./remove-card";
 import Link from "@tiptap/extension-link";
-import { modals } from "@mantine/modals";
-import { Modal } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { card } from "../lib/types";
+import { ModalUnsavedChanges } from "./modal-unsaved-changes";
+import { explorerSlice } from "src/04_entities/explorer/model";
 
 interface cardProps {
   id: templateCardIdType;
@@ -45,10 +42,15 @@ export function Card({ id }: cardProps) {
   if (!editor || !card) {
     return <>Error</>;
   }
+
   const dataForUpdate = {
     ...card,
     content: editor.getText(),
   };
+  const isCollectionInQueue = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
+  );
+  console.log(idEditingCard && (isUnsavedChanges || isCollectionInQueue));
 
   // const openModal = () =>
   //   modals.openConfirmModal({
@@ -121,67 +123,19 @@ export function Card({ id }: cardProps) {
             <RichTextEditor.Content />
           </RichTextEditor>
         </div>
-        {isUnsavedChanges && idEditingCard === card.id && (
-          <ModalUnsavedChanges
-            dataForUpdate={dataForUpdate}
-            content={content}
-            editor={editor}
-            cardId={id}
-          />
-        )}
+        {idEditingCard === card.id &&
+          (isUnsavedChanges || isCollectionInQueue) && (
+            <ModalUnsavedChanges
+              dataForUpdate={dataForUpdate}
+              content={content}
+              editor={editor}
+              cardId={id}
+              isCollectionInQueue
+            />
+          )}
       </>
     );
   }
 
   return componentContent;
-}
-
-function ModalUnsavedChanges({
-  dataForUpdate,
-  content,
-  editor,
-  cardId
-}: {
-  dataForUpdate: card;
-  content: string | undefined;
-  editor: Editor;
-  cardId: templateCardIdType;
-}) {
-  const dispatch = useAppDispatch();
-  const isUnsavedChanges = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsUnsavedChanges(state, cardId)
-  );
-  const [opened, { open, close }] = useDisclosure(true, {
-    onClose: () => {
-      if(isUnsavedChanges) {
-        dispatch(continueEditing());
-      }
-    },
-  });
-
-  function handleClickSave() {
-    dispatch(updateCard(dataForUpdate));
-  }
-  function handleClickReset() {
-    if (content) {
-      editor.commands.setContent(content);
-    } else {
-      editor.commands.setContent("");
-    }
-    dispatch(resetEditing());
-  }
-
-  return (
-    <>
-      <Modal opened={opened} onClose={close}>
-        <div>Unsaved Changes Detected</div>
-        <div>
-          You have unsaved changes in the current template. Would you like to
-          save your changes before editing a new template?
-        </div>
-        <button onClick={handleClickSave}>Save Changes</button>
-        <button onClick={handleClickReset}>Discard Changes</button>
-      </Modal>
-    </>
-  );
 }
