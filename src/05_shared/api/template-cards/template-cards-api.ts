@@ -15,17 +15,18 @@ const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
 export async function getTemplateCards() {
   const response = await fetch(templateCardsUrl);
   const data = await response.json();
-  // console.log(data);
 
   try {
     return templateCardsSchema.parse(data);
   } catch (e) {
     console.log(e);
+    throw e;
   }
 }
 
-
-export async function addEmptyTemplateCard(initialData: templateCardInitialType) {
+export async function addEmptyTemplateCard(
+  initialData: templateCardInitialType
+) {
   const response = await fetch(templateCardsUrl, {
     method: "POST",
     headers: {
@@ -39,6 +40,8 @@ export async function addEmptyTemplateCard(initialData: templateCardInitialType)
     return templateCardSchema.parse(data);
   } catch (e) {
     console.log(e);
+
+    throw e;
   }
 }
 
@@ -56,6 +59,8 @@ export async function addEmptyTemplateCard(initialData: templateCardInitialType)
 //     return templateCardSchema.parse(data);
 //   } catch (e) {
 //     console.log(e);
+//throw e;
+
 //   }
 // }
 
@@ -72,6 +77,7 @@ export async function removeTemplateCard(id: templateCardIdType) {
     return removeTemplateCardIdSchema.parse(data);
   } catch (e) {
     console.log(e);
+    throw e;
   }
 }
 
@@ -90,5 +96,6 @@ export async function updateTemplateCard(
     return templateCardSchema.parse(data);
   } catch (e) {
     console.log(e);
+    throw e;
   }
 }

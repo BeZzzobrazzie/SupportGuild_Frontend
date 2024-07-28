@@ -20,7 +20,7 @@ import { EntityUpdateInput } from "./entity-update-input";
 import {
   explorerItemCategoryType,
   explorerItemId,
-} from "src/05_shared/api/explorer/types";
+} from "src/04_entities/explorer/api/types";
 import { selectedCollectionThunk } from "../model/selected-collection";
 
 interface EntityProps {

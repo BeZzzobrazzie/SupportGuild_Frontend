@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { explorerItemParentId } from "../explorer/types";
+import { explorerItemParentId } from "../../../04_entities/explorer/api/types";
 
 export const templateCardIdSchema = z.number();
 export const removeTemplateCardIdSchema = z.object({

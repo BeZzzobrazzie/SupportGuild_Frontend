@@ -12,7 +12,7 @@ import {
   getExplorerEntities,
   removeExplorerEntity,
   updateExplorerEntity,
-} from "src/05_shared/api/explorer/explorer-api";
+} from "src/04_entities/explorer/api/explorer-api";
 import {
   dataForUpdatingEntityType,
   entityFromServerType,
@@ -22,7 +22,7 @@ import {
   explorerItemsById,
   explorerSliceType,
   initialEntityType,
-} from "src/05_shared/api/explorer/types";
+} from "src/04_entities/explorer/api/types";
 
 const initialState: explorerSliceType = {
   entities: {

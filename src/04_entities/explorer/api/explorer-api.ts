@@ -1,7 +1,8 @@
-import { baseURL } from "..";
+import { baseURL } from "../../../05_shared/api";
 import {
   dataForUpdatingEntityType,
   explorerItemId,
+  explorerItemsFromServerSchema,
   initialEntityType,
 } from "./types";
 
@@ -10,7 +11,13 @@ const explorerEntitiesURL = `${baseURL}api/template-manager/explorer-entities`;
 export async function getExplorerEntities() {
   const response = await fetch(explorerEntitiesURL);
   const data = await response.json();
-  return data;
+
+  try {
+    return explorerItemsFromServerSchema.parse(data);
+  } catch (e) {
+    console.log(e)
+    throw e;
+  }
 }
 
 export async function addExplorerEntity(initialEntity: initialEntityType) {

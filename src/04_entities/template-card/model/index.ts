@@ -9,7 +9,7 @@ import { rootReducer } from "src/00_app/store";
 import {
   explorerItemId,
   explorerItemParentId,
-} from "src/05_shared/api/explorer/types";
+} from "src/04_entities/explorer/api/types";
 import {
   addEmptyTemplateCard,
   getTemplateCards,

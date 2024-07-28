@@ -5,7 +5,7 @@ import { useState } from "react";
 import { addEntity, explorerSlice } from "../model";
 
 import { useContextMenu } from "mantine-contextmenu";
-import { explorerItemCategoryType, explorerItemParentId } from "src/05_shared/api/explorer/types";
+import { explorerItemCategoryType, explorerItemParentId } from "src/04_entities/explorer/api/types";
 // import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
 
 type EntityCreatorType = {

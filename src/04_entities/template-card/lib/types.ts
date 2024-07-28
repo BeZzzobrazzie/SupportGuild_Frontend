@@ -1,4 +1,4 @@
-import { explorerItemParentId } from "src/05_shared/api/explorer/types";
+import { explorerItemParentId } from "src/04_entities/explorer/api/types";
 import {
   templateCardIdType,
   templateCardNameType,
