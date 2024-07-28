@@ -50,7 +50,11 @@ export function Card({ id }: cardProps) {
   const isCollectionInQueue = useAppSelector((state) =>
     explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
   );
-  console.log(idEditingCard && (isUnsavedChanges || isCollectionInQueue));
+
+  // console.log('idEditingCard: ' + idEditingCard)
+  // console.log('isUnsavedChanges: ' + isUnsavedChanges)
+  // console.log('isCollectionInQueue: ' + isCollectionInQueue)
+  // console.log(idEditingCard && (isUnsavedChanges || isCollectionInQueue));
 
   // const openModal = () =>
   //   modals.openConfirmModal({
@@ -130,7 +134,7 @@ export function Card({ id }: cardProps) {
               content={content}
               editor={editor}
               cardId={id}
-              isCollectionInQueue
+              isCollectionInQueue={isCollectionInQueue}
             />
           )}
       </>

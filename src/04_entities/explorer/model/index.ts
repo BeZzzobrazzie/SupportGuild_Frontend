@@ -120,12 +120,15 @@ export const explorerSlice = createSlice({
     changeCurrentCollection: (state, action: PayloadAction<explorerItemId>) => {
       state.activeCollection.currentId = action.payload;
     },
-    changeNextCollection: (state, action: PayloadAction<explorerItemId | null>) => {
+    changeNextCollection: (
+      state,
+      action: PayloadAction<explorerItemId | null>
+    ) => {
       state.activeCollection.nextId = action.payload;
     },
     changeCurrentCollectionToNext: (state) => {
       state.activeCollection.currentId = state.activeCollection.nextId;
-      state.activeCollection.currentId = null;
+      state.activeCollection.nextId = null;
     },
   },
   extraReducers: (builder) => {
@@ -278,5 +281,10 @@ export const explorerSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { openFolder, closeFolder, changeCurrentCollectionToNext, changeNextCollection } = explorerSlice.actions;
+export const {
+  openFolder,
+  closeFolder,
+  changeCurrentCollectionToNext,
+  changeNextCollection,
+} = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

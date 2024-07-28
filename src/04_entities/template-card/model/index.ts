@@ -105,7 +105,7 @@ export const templateCardsSlice = createSlice({
     },
     continueEditing: (state) => {
       state.cardsForEditing.nextId = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCards.pending, (state) => {
@@ -195,4 +195,5 @@ export const templateCardsSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { startEditing, resetEditing, continueEditing } = templateCardsSlice.actions;
+export const { startEditing, resetEditing, continueEditing } =
+  templateCardsSlice.actions;
