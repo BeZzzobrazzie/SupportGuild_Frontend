@@ -1,15 +1,16 @@
 import { z } from "zod";
 
-const explorerItemIdSchema = z.number();
+export const explorerItemIdSchema = z.number();
+const explorerItemNameSchema = z.string();
 const explorerItemCategorySchema = z.union([
   z.enum(["file", "folder"]),
   z.null(),
 ]);
 const explorerItemParentIdSchema = z.union([z.number(), z.null()]);
-const explorerItemFromServerSchema = z.object({
+export const explorerItemFromServerSchema = z.object({
   id: explorerItemIdSchema,
   category: explorerItemCategorySchema,
-  name: z.string(),
+  name: explorerItemNameSchema,
   parentId: explorerItemParentIdSchema,
 });
 export const explorerItemsFromServerSchema = z.array(
@@ -21,8 +22,11 @@ const explorerItemSchema = explorerItemFromServerSchema.extend({
   isUpdatePending: z.boolean(),
 });
 
+export type explorerItemFromServer = z.infer<typeof explorerItemFromServerSchema>;
+
 export type explorerItemId = z.infer<typeof explorerItemIdSchema>;
 export type explorerItemCategory = z.infer<typeof explorerItemCategorySchema>;
+export type explorerItemName = z.infer<typeof explorerItemNameSchema>;
 export type explorerItemParentId = z.infer<typeof explorerItemParentIdSchema>;
 export type explorerItem = z.infer<typeof explorerItemSchema>;
 
@@ -32,30 +36,30 @@ type entities = {
   ids: explorerItemId[];
 };
 
-export type explorerSlice = {
+export type explorerSliceType = {
   entities: entities;
   // activeCollection: explorerItemId | null;
   activeCollection: {
     currentId: explorerItemId | null;
     nextId: explorerItemId | null;
   };
-  fetchEntitiesStatus: "idle" | "pending" | "success" | "failed";
-  addEntityStatus: "idle" | "pending" | "success" | "failed";
-  removeEntitiesStatus: "idle" | "pending" | "success" | "failed";
-  updateEntityStatus: "idle" | "pending" | "success" | "failed";
+  fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
+  addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+  removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+  updateExplorerItemStatus: "idle" | "pending" | "success" | "failed";
   error: string | null | undefined;
 };
 
-// export type initialEntityType = {
-//   name: string;
-//   category: explorerItemCategoryType;
-//   parentId: explorerItemParentId;
-// };
+export type initialExplorerItem = {
+  name: explorerItemName;
+  category: explorerItemCategory;
+  parentId: explorerItemParentId;
+};
 
-// export type dataForUpdatingEntityType = {
-//   id: explorerItemId;
-//   name: explorerItemName;
-// };
+export type dataForUpdate = {
+  id: explorerItemId;
+  name: explorerItemName;
+};
 
 // export type entityFromServerType = {
 //   id: explorerItemId;

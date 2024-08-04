@@ -1,73 +1,76 @@
-import {
-  PayloadAction,
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from "@reduxjs/toolkit";
+// import {
+//   PayloadAction,
+//   createAsyncThunk,
+//   createSelector,
+//   createSlice,
+// } from "@reduxjs/toolkit";
 
-import { createAppAsyncThunk, rootReducer } from "src/00_app/store";
-import { templateCardsSlice } from "src/04_entities/template-card/model";
-import {
-  addExplorerEntity,
-  getExplorerEntities,
-  removeExplorerEntity,
-  updateExplorerEntity,
-} from "src/04_entities/explorer/api/explorer-api";
-import {
-  dataForUpdatingEntityType,
-  entityFromServerType,
-  explorerItem,
-  explorerItemId,
-  explorerItemParentId,
-  explorerItemsById,
-  explorerSliceType,
-  initialEntityType,
-} from "src/04_entities/explorer/api/types";
+import { createAppAsyncThunk } from "src/05_shared/redux";
+import { dataForUpdate, explorerItem, explorerItemFromServer, explorerItemId, explorerItemParentId, explorerSliceType, initialExplorerItem } from "../api/types";
+import { addExplorerItem, getExplorerItems, removeExplorerItem, updateExplorerItem } from "../api/explorer-api";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+// import { createAppAsyncThunk, rootReducer } from "src/00_app/store";
+// import { templateCardsSlice } from "src/04_entities/template-card/model";
+// import {
+//   addExplorerEntity,
+//   getExplorerEntities,
+//   removeExplorerEntity,
+//   updateExplorerEntity,
+// } from "src/04_entities/explorer/api/explorer-api";
+// import {
+//   dataForUpdatingEntityType,
+//   entityFromServerType,
+//   explorerItem,
+//   explorerItemId,
+//   explorerItemParentId,
+//   explorerItemsById,
+//   explorerSliceType,
+//   initialEntityType,
+// } from "src/04_entities/explorer/api/types";
 
 const initialState: explorerSliceType = {
   entities: {
-    explorerItems: {
-      byId: {},
-      ids: [],
-    },
+    byId: {},
+    ids: [],
   },
   // activeCollection: null,
   activeCollection: {
     currentId: null,
     nextId: null,
   },
-  fetchEntitiesStatus: "idle",
-  addEntityStatus: "idle",
-  removeEntitiesStatus: "idle",
-  updateEntityStatus: "idle",
+  fetchExplorerItemsStatus: "idle",
+  addExplorerItemStatus: "idle",
+  removeExplorerItemStatus: "idle",
+  updateExplorerItemStatus: "idle",
   error: undefined,
 };
 
-export const fetchEntities = createAppAsyncThunk(
-  "explorer/fetchEntities",
+export const fetchExplorerItemsTh = createAppAsyncThunk(
+  "explorer/fetchExplorerItemsTh",
   async () => {
-    const response = await getExplorerEntities();
+    const response = await getExplorerItems();
     return response;
   }
 );
-export const addEntity = createAsyncThunk(
-  "explorer/addEntity",
-  async (initialEntity: initialEntityType) => {
-    const response = await addExplorerEntity(initialEntity);
+export const addExplorerItemTh = createAppAsyncThunk(
+  "explorer/addExplorerItemTh",
+  async (initialData: initialExplorerItem) => {
+    const response = await addExplorerItem(initialData);
     return response;
   }
 );
-export const removeEntity = createAsyncThunk(
-  "explorer/removeEntity",
+export const removeExplorerItemTh = createAppAsyncThunk(
+  "explorer/removeExplorerItemTh",
   async (id: explorerItemId) => {
-    const response = await removeExplorerEntity(id);
+    const response = await removeExplorerItem(id);
     return response;
   }
 );
-export const updateEntity = createAsyncThunk(
-  "explorer/updateEntity",
-  async (dataForUpdatingEntity: dataForUpdatingEntityType) => {
-    const response = await updateExplorerEntity(dataForUpdatingEntity);
+export const updateExplorerItemTh = createAppAsyncThunk(
+  "explorer/updateExplorerItemTh",
+  async (dataForUpdate: dataForUpdate) => {
+    const response = await updateExplorerItem(dataForUpdate);
     return response;
   }
 );
@@ -76,12 +79,12 @@ export const explorerSlice = createSlice({
   name: "explorer",
   initialState,
   selectors: {
-    selectEntities: (state) => state.entities.explorerItems,
+    selectExplorerItems: (state) => state.entities.ids.map(id => state.entities.byId[id]),
     selectExplorerItem: (state, id: explorerItemId) =>
-      state.entities.explorerItems.byId[id],
+      state.entities.byId[id],
     selectChildren: createSelector(
-      (state: explorerSliceType) => state.entities.explorerItems.byId,
-      (state: explorerSliceType) => state.entities.explorerItems.ids,
+      (state: explorerSliceType) => state.entities.byId,
+      (state: explorerSliceType) => state.entities.ids,
       (_: explorerSliceType, parentId: explorerItemParentId) => parentId,
       (explorerItems, ids, parentId) =>
         ids
@@ -89,14 +92,14 @@ export const explorerSlice = createSlice({
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
     selectActiveCollection: (state) => state.activeCollection.currentId,
-    selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
-    selectIsFetchEntitiesPending: (state) =>
-      state.fetchEntitiesStatus === "pending",
-    selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
-    selectIsRemoveItemPending: (state) =>
-      state.removeEntitiesStatus === "pending",
-    selectIsUpdateItemPending: (state) =>
-      state.updateEntityStatus === "pending",
+    // selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
+    // selectIsFetchEntitiesPending: (state) =>
+    //   state.fetchEntitiesStatus === "pending",
+    // selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
+    // selectIsRemoveItemPending: (state) =>
+    //   state.removeEntitiesStatus === "pending",
+    // selectIsUpdateItemPending: (state) =>
+    //   state.updateEntityStatus === "pending",
     selectIsCollectionInQueue: (state, collectionId: explorerItemId) =>
       state.activeCollection.currentId === collectionId &&
       state.activeCollection.nextId !== null,
@@ -104,15 +107,15 @@ export const explorerSlice = createSlice({
   reducers: {
     openFolder: (state, action: PayloadAction<explorerItemId>) => {
       const explorerItemsById =
-        state.entities.explorerItems.byId[action.payload];
+        state.entities.byId[action.payload];
       if (!!explorerItemsById) explorerItemsById.isOpen = true;
-      state.entities.explorerItems.byId[action.payload] = explorerItemsById;
+      state.entities.byId[action.payload] = explorerItemsById;
     },
     closeFolder: (state, action: PayloadAction<explorerItemId>) => {
       const explorerItemsById =
-        state.entities.explorerItems.byId[action.payload];
+        state.entities.byId[action.payload];
       if (!!explorerItemsById) explorerItemsById.isOpen = false;
-      state.entities.explorerItems.byId[action.payload] = explorerItemsById;
+      state.entities.byId[action.payload] = explorerItemsById;
     },
     // selectedCollection: (state, action: PayloadAction<explorerItemId>) => {
     //   state.activeCollection = action.payload;
@@ -132,12 +135,12 @@ export const explorerSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchEntities.pending, (state) => {
-      state.fetchEntitiesStatus = "pending";
+    builder.addCase(fetchExplorerItemsTh.pending, (state) => {
+      state.fetchExplorerItemsStatus = "pending";
     });
     builder.addCase(
-      fetchEntities.fulfilled,
-      (state, action: PayloadAction<entityFromServerType[]>) => {
+      fetchExplorerItemsTh.fulfilled,
+      (state, action: PayloadAction<explorerItemFromServer[]>) => {
         const items = action.payload;
         const byId = action.payload.reduce((byId: explorerItemsById, item) => {
           if (item.category === "folder") {
@@ -161,11 +164,11 @@ export const explorerSlice = createSlice({
         }, {});
         state.entities.explorerItems.byId = byId;
         state.entities.explorerItems.ids = items.map((item) => item.id);
-        state.fetchEntitiesStatus = "success";
+        state.fetchExplorerItemsStatus = "success";
       }
     );
-    builder.addCase(fetchEntities.rejected, (state) => {
-      state.fetchEntitiesStatus = "failed";
+    builder.addCase(fetchExplorerItemsTh.rejected, (state) => {
+      state.fetchExplorerItemsStatus = "failed";
     });
 
     builder.addCase(addEntity.pending, (state) => {
