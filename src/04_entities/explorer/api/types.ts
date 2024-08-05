@@ -30,7 +30,7 @@ export type explorerItemName = z.infer<typeof explorerItemNameSchema>;
 export type explorerItemParentId = z.infer<typeof explorerItemParentIdSchema>;
 export type explorerItem = z.infer<typeof explorerItemSchema>;
 
-type byId = Record<explorerItemId, explorerItem | undefined>;
+export type byId = Record<explorerItemId, explorerItem | undefined>;
 type entities = {
   byId: byId;
   ids: explorerItemId[];

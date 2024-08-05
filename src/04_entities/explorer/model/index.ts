@@ -1,33 +1,21 @@
-// import {
-//   PayloadAction,
-//   createAsyncThunk,
-//   createSelector,
-//   createSlice,
-// } from "@reduxjs/toolkit";
-
-import { createAppAsyncThunk } from "src/05_shared/redux";
-import { dataForUpdate, explorerItem, explorerItemFromServer, explorerItemId, explorerItemParentId, explorerSliceType, initialExplorerItem } from "../api/types";
-import { addExplorerItem, getExplorerItems, removeExplorerItem, updateExplorerItem } from "../api/explorer-api";
+import { createAppAsyncThunk, rootReducer } from "src/05_shared/redux";
+import {
+  byId,
+  dataForUpdate,
+  explorerItem,
+  explorerItemFromServer,
+  explorerItemId,
+  explorerItemParentId,
+  explorerSliceType,
+  initialExplorerItem,
+} from "../api/types";
+import {
+  addExplorerItem,
+  getExplorerItems,
+  removeExplorerItem,
+  updateExplorerItem,
+} from "../api/explorer-api";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-// import { createAppAsyncThunk, rootReducer } from "src/00_app/store";
-// import { templateCardsSlice } from "src/04_entities/template-card/model";
-// import {
-//   addExplorerEntity,
-//   getExplorerEntities,
-//   removeExplorerEntity,
-//   updateExplorerEntity,
-// } from "src/04_entities/explorer/api/explorer-api";
-// import {
-//   dataForUpdatingEntityType,
-//   entityFromServerType,
-//   explorerItem,
-//   explorerItemId,
-//   explorerItemParentId,
-//   explorerItemsById,
-//   explorerSliceType,
-//   initialEntityType,
-// } from "src/04_entities/explorer/api/types";
 
 const initialState: explorerSliceType = {
   entities: {
@@ -79,9 +67,9 @@ export const explorerSlice = createSlice({
   name: "explorer",
   initialState,
   selectors: {
-    selectExplorerItems: (state) => state.entities.ids.map(id => state.entities.byId[id]),
-    selectExplorerItem: (state, id: explorerItemId) =>
-      state.entities.byId[id],
+    selectExplorerItems: (state) =>
+      state.entities.ids.map((id) => state.entities.byId[id]),
+    selectExplorerItem: (state, id: explorerItemId) => state.entities.byId[id],
     selectChildren: createSelector(
       (state: explorerSliceType) => state.entities.byId,
       (state: explorerSliceType) => state.entities.ids,
@@ -106,14 +94,12 @@ export const explorerSlice = createSlice({
   },
   reducers: {
     openFolder: (state, action: PayloadAction<explorerItemId>) => {
-      const explorerItemsById =
-        state.entities.byId[action.payload];
+      const explorerItemsById = state.entities.byId[action.payload];
       if (!!explorerItemsById) explorerItemsById.isOpen = true;
       state.entities.byId[action.payload] = explorerItemsById;
     },
     closeFolder: (state, action: PayloadAction<explorerItemId>) => {
-      const explorerItemsById =
-        state.entities.byId[action.payload];
+      const explorerItemsById = state.entities.byId[action.payload];
       if (!!explorerItemsById) explorerItemsById.isOpen = false;
       state.entities.byId[action.payload] = explorerItemsById;
     },
@@ -142,7 +128,7 @@ export const explorerSlice = createSlice({
       fetchExplorerItemsTh.fulfilled,
       (state, action: PayloadAction<explorerItemFromServer[]>) => {
         const items = action.payload;
-        const byId = action.payload.reduce((byId: explorerItemsById, item) => {
+        const byId = action.payload.reduce((byId: byId, item) => {
           if (item.category === "folder") {
             const newItem = {
               isUpdatePending: false,
@@ -162,8 +148,8 @@ export const explorerSlice = createSlice({
             return byId;
           }
         }, {});
-        state.entities.explorerItems.byId = byId;
-        state.entities.explorerItems.ids = items.map((item) => item.id);
+        state.entities.byId = byId;
+        state.entities.ids = items.map((item) => item.id);
         state.fetchExplorerItemsStatus = "success";
       }
     );
@@ -171,53 +157,50 @@ export const explorerSlice = createSlice({
       state.fetchExplorerItemsStatus = "failed";
     });
 
-    builder.addCase(addEntity.pending, (state) => {
-      state.addEntityStatus = "pending";
+    builder.addCase(addExplorerItemTh.pending, (state) => {
+      state.addExplorerItemStatus = "pending";
     });
     builder.addCase(
-      addEntity.fulfilled,
-      (state, action: PayloadAction<entityFromServerType>) => {
-        if (
-          state.entities.explorerItems.byId[action.payload.id]?.category ===
-          "folder"
-        ) {
-          state.entities.explorerItems.byId[action.payload.id] = {
+      addExplorerItemTh.fulfilled,
+      (state, action: PayloadAction<explorerItemFromServer>) => {
+        if (state.entities.byId[action.payload.id]?.category === "folder") {
+          state.entities.byId[action.payload.id] = {
             isUpdatePending: false,
             isRemoval: false,
             isOpen: false,
             ...action.payload,
           };
         } else {
-          state.entities.explorerItems.byId[action.payload.id] = {
+          state.entities.byId[action.payload.id] = {
             isUpdatePending: false,
             isRemoval: false,
             ...action.payload,
           };
         }
 
-        state.entities.explorerItems.ids.push(action.payload.id);
-        state.addEntityStatus = "success";
+        state.entities.ids.push(action.payload.id);
+        state.addExplorerItemStatus = "success";
       }
     );
-    builder.addCase(addEntity.rejected, (state) => {
-      state.addEntityStatus = "failed";
+    builder.addCase(addExplorerItemTh.rejected, (state) => {
+      state.addExplorerItemStatus = "failed";
     });
 
-    builder.addCase(removeEntity.pending, (state, action) => {
+    builder.addCase(removeExplorerItemTh.pending, (state, action) => {
       const id = action.meta.arg;
-      if (!!state.entities.explorerItems.byId[id]) {
-        state.entities.explorerItems.byId[id].isRemoval = true;
+      if (!!state.entities.byId[id]) {
+        state.entities.byId[id].isRemoval = true;
       }
 
-      state.removeEntitiesStatus = "pending";
+      state.removeExplorerItemStatus = "pending";
     });
     builder.addCase(
-      removeEntity.fulfilled,
+      removeExplorerItemTh.fulfilled,
       (state, action: PayloadAction<{ id: explorerItemId }>) => {
         const { id } = action.payload;
 
-        let newById = state.entities.explorerItems.byId;
-        let newIds = state.entities.explorerItems.ids;
+        let newById = state.entities.byId;
+        let newIds = state.entities.ids;
 
         function deleteElementTree(parentId: explorerItemId) {
           let explorerItemsByIdToRemove: number[] = [];
@@ -237,49 +220,48 @@ export const explorerSlice = createSlice({
           });
         }
         deleteElementTree(id);
-        state.entities.explorerItems.byId = newById;
-        state.entities.explorerItems.ids = newIds;
+        state.entities.byId = newById;
+        state.entities.ids = newIds;
 
-        state.removeEntitiesStatus = "success";
+        state.removeExplorerItemStatus = "success";
       }
     );
-    builder.addCase(removeEntity.rejected, (state, action) => {
+    builder.addCase(removeExplorerItemTh.rejected, (state, action) => {
       const id = action.meta.arg;
-      if (!!state.entities.explorerItems.byId[id]) {
-        state.entities.explorerItems.byId[id].isRemoval = false;
+      if (!!state.entities.byId[id]) {
+        state.entities.byId[id].isRemoval = false;
       }
-      state.removeEntitiesStatus = "failed";
+      state.removeExplorerItemStatus = "failed";
     });
 
-    builder.addCase(updateEntity.pending, (state, action) => {
+    builder.addCase(updateExplorerItemTh.pending, (state, action) => {
       const id = action.meta.arg.id;
 
-      if (!!state.entities.explorerItems.byId[id]) {
-        state.entities.explorerItems.byId[id].isUpdatePending = true;
+      if (!!state.entities.byId[id]) {
+        state.entities.byId[id].isUpdatePending = true;
       }
-      state.updateEntityStatus = "pending";
+      state.updateExplorerItemStatus = "pending";
     });
     builder.addCase(
-      updateEntity.fulfilled,
-      (state, action: PayloadAction<entityFromServerType>) => {
-        const explorerItem =
-          state.entities.explorerItems.byId[action.payload.id];
+      updateExplorerItemTh.fulfilled,
+      (state, action: PayloadAction<explorerItemFromServer>) => {
+        const explorerItem = state.entities.byId[action.payload.id];
         if (explorerItem) {
           explorerItem.name = action.payload.name;
           explorerItem.isUpdatePending = false;
         }
-        state.entities.explorerItems.byId[action.payload.id] = explorerItem;
+        state.entities.byId[action.payload.id] = explorerItem;
 
-        state.updateEntityStatus = "success";
+        state.updateExplorerItemStatus = "success";
       }
     );
-    builder.addCase(updateEntity.rejected, (state, action) => {
+    builder.addCase(updateExplorerItemTh.rejected, (state, action) => {
       const id = action.meta.arg.id;
 
-      if (!!state.entities.explorerItems.byId[id]) {
-        state.entities.explorerItems.byId[id].isUpdatePending = false;
+      if (!!state.entities.byId[id]) {
+        state.entities.byId[id].isUpdatePending = false;
       }
-      state.updateEntityStatus = "failed";
+      state.updateExplorerItemStatus = "failed";
     });
   },
 }).injectInto(rootReducer);

@@ -1,8 +1,7 @@
-import { AppThunk, RootState } from "src/00_app/store";
 import { explorerSlice } from ".";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
 import { explorerItemId } from "src/04_entities/explorer/api/types";
-import { ThunkAction, UnknownAction } from "@reduxjs/toolkit";
+import { AppThunk } from "src/05_shared/redux";
 
 export const selectedCollectionThunk =
   (explorerItemId: explorerItemId): AppThunk =>
