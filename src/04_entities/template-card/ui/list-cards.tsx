@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { fetchCards, templateCardsSlice } from "../model";
 import { explorerSlice } from "src/04_entities/explorer/model";
 import { Card } from "./card";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 export function ListCards() {
   const dispatch = useAppDispatch();

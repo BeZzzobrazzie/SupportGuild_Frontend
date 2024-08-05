@@ -4,23 +4,24 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { rootReducer } from "src/00_app/store";
 
 import {
   explorerItemId,
   explorerItemParentId,
 } from "src/04_entities/explorer/api/types";
+
+import {
+  templateCardIdType,
+  templateCardType,
+} from "src/04_entities/template-card/api/types";
+import { byId, templateCardsSliceType } from "../api/types";
 import {
   addEmptyTemplateCard,
   getTemplateCards,
   removeTemplateCard,
   updateTemplateCard,
-} from "src/05_shared/api/template-cards/template-cards-api";
-import {
-  templateCardIdType,
-  templateCardType,
-} from "src/05_shared/api/template-cards/types";
-import { byId, card, templateCardsSliceType } from "../lib/types";
+} from "../api/template-cards-api";
+import { rootReducer } from "src/05_shared/redux";
 
 const initialState: templateCardsSliceType = {
   entities: {
@@ -61,7 +62,7 @@ export const removeCard = createAsyncThunk(
 );
 export const updateCard = createAsyncThunk(
   "templateCards/updateCard",
-  async (dataForUpdatingCard: card) => {
+  async (dataForUpdatingCard: templateCardType) => {
     const response = await updateTemplateCard(dataForUpdatingCard);
     return response;
   }
@@ -80,7 +81,9 @@ export const templateCardsSlice = createSlice({
       (cards, ids, parentId) =>
         ids
           .map((id) => cards[id])
-          .filter((item): item is card => item?.parentId === parentId)
+          .filter(
+            (item): item is templateCardType => item?.parentId === parentId
+          )
     ),
     selectIdEditingCard: (state) => state.cardsForEditing.currentId,
     selectIsUnsavedChanges: (state, id: templateCardIdType) =>
@@ -174,7 +177,7 @@ export const templateCardsSlice = createSlice({
     });
     builder.addCase(
       updateCard.fulfilled,
-      (state, action: PayloadAction<card | undefined>) => {
+      (state, action: PayloadAction<templateCardType | undefined>) => {
         if (action.payload) {
           const templateCard = state.entities.byId[action.payload.id];
           if (templateCard) {

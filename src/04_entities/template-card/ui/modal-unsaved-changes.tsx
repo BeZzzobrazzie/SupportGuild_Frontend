@@ -1,7 +1,8 @@
 import { Editor } from "@tiptap/react";
-import { card } from "../lib/types";
-import { templateCardIdType } from "src/05_shared/api/template-cards/types";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
+import {
+  templateCardIdType,
+  templateCardType,
+} from "src/04_entities/template-card/api/types";
 import {
   continueEditing,
   resetEditing,
@@ -10,7 +11,11 @@ import {
 } from "../model";
 import { useDisclosure } from "@mantine/hooks";
 import { Modal } from "@mantine/core";
-import { changeCurrentCollectionToNext, changeNextCollection } from "src/04_entities/explorer/model";
+import {
+  changeCurrentCollectionToNext,
+  changeNextCollection,
+} from "src/04_entities/explorer/model";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 export function ModalUnsavedChanges({
   dataForUpdate,
@@ -19,7 +24,7 @@ export function ModalUnsavedChanges({
   cardId,
   isCollectionInQueue,
 }: {
-  dataForUpdate: card;
+  dataForUpdate: templateCardType;
   content: string | undefined;
   editor: Editor;
   cardId: templateCardIdType;
@@ -34,9 +39,8 @@ export function ModalUnsavedChanges({
       if (isUnsavedChanges) {
         dispatch(continueEditing());
       }
-      if(isCollectionInQueue) {
+      if (isCollectionInQueue) {
         dispatch(changeNextCollection(null));
-
       }
     },
   });

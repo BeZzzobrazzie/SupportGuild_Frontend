@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { addCard } from "../model";
 import { explorerSlice } from "src/04_entities/explorer/model";
 

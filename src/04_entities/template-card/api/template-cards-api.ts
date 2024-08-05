@@ -1,9 +1,7 @@
-import { z } from "zod";
-import { baseURL } from "..";
+import { baseURL } from "../../../05_shared/api";
 import {
   dataForUpdatingTemplateCardType,
   removeTemplateCardIdSchema,
-  templateCardIdSchema,
   templateCardIdType,
   templateCardInitialType,
   templateCardSchema,

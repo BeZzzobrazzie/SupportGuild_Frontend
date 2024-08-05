@@ -2,8 +2,7 @@ import { RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
-import { templateCardIdType } from "src/05_shared/api/template-cards/types";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
+import { templateCardIdType } from "src/04_entities/template-card/api/types";
 import {
   resetEditing,
   startEditing,
@@ -14,6 +13,7 @@ import { RemoveCard } from "./remove-card";
 import Link from "@tiptap/extension-link";
 import { ModalUnsavedChanges } from "./modal-unsaved-changes";
 import { explorerSlice } from "src/04_entities/explorer/model";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 interface cardProps {
   id: templateCardIdType;

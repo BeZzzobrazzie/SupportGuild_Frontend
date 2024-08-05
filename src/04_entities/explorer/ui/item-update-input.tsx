@@ -1,9 +1,9 @@
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
-import { explorerItemId } from "../../../05_shared/api/template-cards/types";
 import { useState } from "react";
-import { explorerSlice, updateEntity } from "../model";
+import { explorerSlice, updateExplorerItemTh } from "../model";
+import { explorerItemId } from "../api/types";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
-export function EntityUpdateInput({
+export function ExplorerItemUpdateInput({
   id,
   name,
   setIsUpdating,
@@ -15,7 +15,7 @@ export function EntityUpdateInput({
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState(name);
   const isUpdateItemPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsUpdateItemPending(state)
+    explorerSlice.selectors.selectIsUpdateExplorerItemPending(state)
   );
 
   function handleBlur() {
@@ -27,7 +27,7 @@ export function EntityUpdateInput({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      await dispatch(updateEntity({ id, name: inputValue })).unwrap();
+      await dispatch(updateExplorerItemTh({ id, name: inputValue })).unwrap();
       setIsUpdating(false);
     } catch (err) {
       console.error("Failed to update the entity: ", err);

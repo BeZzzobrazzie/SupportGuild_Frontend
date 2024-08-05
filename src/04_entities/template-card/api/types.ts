@@ -1,10 +1,7 @@
 import { z } from "zod";
-import { explorerItemParentId } from "../../../04_entities/explorer/api/types";
+import { explorerItemParentId } from "src/04_entities/explorer/api/types";
 
 export const templateCardIdSchema = z.number();
-export const removeTemplateCardIdSchema = z.object({
-  id: templateCardIdSchema,
-})
 const templateCardNameSchema = z.string().optional();
 export const templateCardSchema = z.object({
   id: templateCardIdSchema,
@@ -13,6 +10,10 @@ export const templateCardSchema = z.object({
   parentId: z.number(),
 });
 export const templateCardsSchema = templateCardSchema.array();
+
+export const removeTemplateCardIdSchema = z.object({
+  id: templateCardIdSchema,
+});
 
 export type templateCardType = z.infer<typeof templateCardSchema>;
 
@@ -28,4 +29,21 @@ export type dataForUpdatingTemplateCardType = {
   name?: templateCardNameType;
   content: string;
   parentId: explorerItemParentId;
+};
+
+export type byId = Record<templateCardIdType, templateCardType | undefined>;
+export type templateCardsSliceType = {
+  entities: {
+    byId: byId;
+    ids: templateCardIdType[];
+  };
+  // idEditingCard: templateCardIdType | null;
+  cardsForEditing: {
+    currentId: templateCardIdType | null;
+    nextId: templateCardIdType | null;
+  };
+  fetchCardsStatus: "idle" | "pending" | "success" | "failed";
+  addCardStatus: "idle" | "pending" | "success" | "failed";
+  removeCardStatus: "idle" | "pending" | "success" | "failed";
+  updateCardStatus: "idle" | "pending" | "success" | "failed";
 };

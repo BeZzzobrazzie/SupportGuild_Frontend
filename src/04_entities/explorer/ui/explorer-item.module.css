@@ -1,10 +1,10 @@
 
 
-.entity_header {
+.explorer-item_header {
   display: flex;
   border: 1px solid black;
 }
-.entity_indent {
+.explorer-item_indent {
   width: 24px;
 }
 .children-list {

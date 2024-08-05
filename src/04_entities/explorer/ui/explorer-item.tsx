@@ -3,42 +3,44 @@ import {
   IconChevronDown,
   IconChevronRight,
 } from "@tabler/icons-react";
-import classes from "./entity.module.css";
 import { useContextMenu } from "mantine-contextmenu";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
-import { EntityCreator } from "./entity-creator";
+import { Loader } from "@mantine/core";
+import { useState } from "react";
+
+import classes from "./explorer-item.module.css";
+import { ExplorerItemUpdateInput } from "./item-update-input";
+
+import { ExplorerItemCreator } from "./item-creator";
 import {
   closeFolder,
   explorerSlice,
   openFolder,
-  removeEntity,
+  removeExplorerItemTh,
 } from "../model";
-
-import { Loader } from "@mantine/core";
-import { useState } from "react";
-import { EntityUpdateInput } from "./entity-update-input";
-import {
-  explorerItemCategoryType,
-  explorerItemId,
-} from "src/04_entities/explorer/api/types";
 import { selectedCollectionThunk } from "../model/selected-collection";
 
-interface EntityProps {
+import {
+  explorerItemCategory,
+  explorerItemId,
+} from "src/04_entities/explorer/api/types";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+
+interface ExplorerItemProps {
   explorerItemId: explorerItemId;
   nestingLevel: number;
   parentIsRemoval: boolean;
 }
-export function Entity({
+export function ExplorerItem({
   explorerItemId,
   nestingLevel,
   parentIsRemoval,
-}: EntityProps) {
+}: ExplorerItemProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
   // console.log(explorerItem)
 
-  const isFetchEntitiesPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsFetchEntitiesPending(state)
+  const isFetchExplorerItemsPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsFetchExplorerItemsPending(state)
   );
   const explorerItem = useAppSelector((state) =>
     explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
@@ -50,7 +52,7 @@ export function Entity({
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
-      <div key={index} className={classes["entity_indent"]}></div>
+      <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
   function handleFolderClick() {
@@ -62,21 +64,21 @@ export function Entity({
   function handleCollectionClick() {
     if (explorerItem) {
       // dispatch(selectedCollection(explorerItem.id));
-      dispatch(selectedCollectionThunk(explorerItem.id))
+      dispatch(selectedCollectionThunk(explorerItem.id));
     }
   }
 
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const [isEntityCreator, setIsEntityCreator] = useState(false);
-  const [categoryEntityCreator, setCategoryEntityCreator] =
-    useState<explorerItemCategoryType>(null);
+  const [isExplorerItemCreator, setIsExplorerItemCreator] = useState(false);
+  const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
+    useState<explorerItemCategory>(null);
 
-  function showEntityCreator() {
-    setIsEntityCreator(true);
+  function showExplorerItemCreator() {
+    setIsExplorerItemCreator(true);
   }
-  function hideEntityCreator() {
-    setIsEntityCreator(false);
+  function hideExplorerItemCreator() {
+    setIsExplorerItemCreator(false);
   }
 
   const fileOptions = [
@@ -103,7 +105,7 @@ export function Entity({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(removeEntity(explorerItemId));
+        dispatch(removeExplorerItemTh(explorerItemId));
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -119,8 +121,8 @@ export function Entity({
           }
         }
 
-        setCategoryEntityCreator("file");
-        showEntityCreator();
+        setCategoryExplorerItemCreator("file");
+        showExplorerItemCreator();
       },
     },
     {
@@ -133,8 +135,8 @@ export function Entity({
           }
         }
 
-        setCategoryEntityCreator("folder");
-        showEntityCreator();
+        setCategoryExplorerItemCreator("folder");
+        showExplorerItemCreator();
       },
     },
     { key: "divider-1" },
@@ -167,7 +169,7 @@ export function Entity({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(removeEntity(explorerItemId));
+        dispatch(removeExplorerItemTh(explorerItemId));
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -175,7 +177,7 @@ export function Entity({
 
   let content = <></>;
 
-  if (isFetchEntitiesPending) {
+  if (isFetchExplorerItemsPending) {
     content = <div>Loading...</div>;
   } else if (explorerItem) {
     switch (explorerItem.category) {
@@ -183,7 +185,7 @@ export function Entity({
         content = (
           <li>
             <div
-              className={classes["entity_header"]}
+              className={classes["explorer-item_header"]}
               onClick={handleFolderClick}
               onContextMenu={
                 isUpdating
@@ -199,7 +201,7 @@ export function Entity({
               {explorerItem.isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
               {isUpdating ? (
-                <EntityUpdateInput
+                <ExplorerItemUpdateInput
                   id={explorerItem.id}
                   name={explorerItem.name}
                   setIsUpdating={setIsUpdating}
@@ -216,16 +218,16 @@ export function Entity({
             {explorerItem.isOpen && (
               <>
                 <ul className={classes["children-list"]}>
-                  {isEntityCreator && (
-                    <EntityCreator
+                  {isExplorerItemCreator && (
+                    <ExplorerItemCreator
                       parentId={explorerItem.id}
-                      category={categoryEntityCreator}
+                      category={categoryExplorerItemCreator}
                       nestingLevel={nestingLevel + 1}
-                      hideEntityCreator={hideEntityCreator}
+                      hideExplorerItemCreator={hideExplorerItemCreator}
                     />
                   )}
                   {children.map((child) => (
-                    <Entity
+                    <ExplorerItem
                       key={child.id}
                       explorerItemId={child.id}
                       nestingLevel={nestingLevel + 1}
@@ -244,7 +246,7 @@ export function Entity({
         content = (
           <li>
             <div
-              className={classes["entity_header"]}
+              className={classes["explorer-item_header"]}
               onClick={handleCollectionClick}
               onContextMenu={
                 isUpdating
@@ -259,7 +261,7 @@ export function Entity({
               {indent}
               <IconFile />
               {isUpdating ? (
-                <EntityUpdateInput
+                <ExplorerItemUpdateInput
                   id={explorerItem.id}
                   name={explorerItem.name}
                   setIsUpdating={setIsUpdating}

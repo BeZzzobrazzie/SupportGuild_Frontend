@@ -3,8 +3,8 @@ import {
   dataForUpdate,
   explorerItemFromServerSchema,
   explorerItemId,
-  explorerItemIdSchema,
   explorerItemsFromServerSchema,
+  idDeletedExplorerItemSchema,
   initialExplorerItem,
 } from "./types";
 
@@ -51,7 +51,7 @@ export async function removeExplorerItem(id: explorerItemId) {
   const data = await response.json();
 
   try {
-    return explorerItemIdSchema.parse(data);
+    return idDeletedExplorerItemSchema.parse(data);
   } catch (e) {
     console.log(e);
     throw e;

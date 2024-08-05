@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const explorerItemIdSchema = z.number();
+const explorerItemIdSchema = z.number();
 const explorerItemNameSchema = z.string();
 const explorerItemCategorySchema = z.union([
   z.enum(["file", "folder"]),
@@ -17,10 +17,13 @@ export const explorerItemsFromServerSchema = z.array(
   explorerItemFromServerSchema
 );
 const explorerItemSchema = explorerItemFromServerSchema.extend({
-  isOpen: z.boolean(),
+  isOpen: z.boolean().optional(),
   isRemoval: z.boolean(),
   isUpdatePending: z.boolean(),
 });
+export const idDeletedExplorerItemSchema = z.object({
+  id: explorerItemIdSchema
+})
 
 export type explorerItemFromServer = z.infer<typeof explorerItemFromServerSchema>;
 

@@ -5,4 +5,6 @@ export const extraArgument = {};
 
 export const store = configureStore({
   reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ thunk: { extraArgument } }),
 });

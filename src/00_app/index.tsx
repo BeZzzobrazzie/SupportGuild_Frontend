@@ -7,13 +7,13 @@ import "mantine-contextmenu/styles.layer.css";
 // import "./style.module.css";
 
 import { ExplorerSmall } from "src/02_widgets/explorer-small";
-import { fetchEntities } from "src/04_entities/explorer/model";
 import { store } from "./store";
 import { Templates } from "src/02_widgets/templates";
 import { ModalsProvider } from "@mantine/modals";
+import { fetchExplorerItemsTh } from "src/04_entities/explorer/model";
 
 function App() {
-  store.dispatch(fetchEntities());
+  store.dispatch(fetchExplorerItemsTh());
 
   return (
     <MantineProvider defaultColorScheme="dark">

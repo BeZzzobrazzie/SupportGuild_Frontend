@@ -1,32 +1,33 @@
-import { IconChevronRight, IconFile, IconFolder } from "@tabler/icons-react";
-import classes from "./entity-creator.module.css";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
-import { useState } from "react";
-import { addEntity, explorerSlice } from "../model";
-
+import { IconChevronRight, IconFile } from "@tabler/icons-react";
 import { useContextMenu } from "mantine-contextmenu";
-import { explorerItemCategoryType, explorerItemParentId } from "src/04_entities/explorer/api/types";
-// import { useAddEntityMutation } from "src/05_shared/api/apiSlice";
+import { useState } from "react";
+import classes from "./item-creator.module.css";
+import { addExplorerItemTh, explorerSlice } from "../model";
+import {
+  explorerItemCategory,
+  explorerItemParentId,
+} from "src/04_entities/explorer/api/types";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
-type EntityCreatorType = {
+type ExplorerItemCreator = {
   parentId: explorerItemParentId;
-  category: explorerItemCategoryType;
+  category: explorerItemCategory;
   nestingLevel: number;
-  hideEntityCreator(): void;
+  hideExplorerItemCreator(): void;
 };
 
-export function EntityCreator({
+export function ExplorerItemCreator({
   parentId,
   category,
   nestingLevel,
-  hideEntityCreator,
-}: EntityCreatorType) {
+  hideExplorerItemCreator,
+}: ExplorerItemCreator) {
   const { showContextMenu } = useContextMenu();
 
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
-      <div key={index} className={classes["entity_indent"]}></div>
+      <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
   let result = <></>;
@@ -36,16 +37,16 @@ export function EntityCreator({
       result = (
         <li>
           <div
-            className={classes["entity_header"]}
+            className={classes["explorer-item_header"]}
             onContextMenu={showContextMenu([])}
           >
             {indent}
             <IconChevronRight />
             {/* <IconFolder /> */}
-            <EntityCreatorInput
+            <ExplorerItemCreatorInput
               category={category}
               parentId={parentId}
-              hideEntityCreator={hideEntityCreator}
+              hideExplorerItemCreator={hideExplorerItemCreator}
             />
           </div>
         </li>
@@ -55,15 +56,15 @@ export function EntityCreator({
       result = (
         <li>
           <div
-            className={classes["entity_header"]}
+            className={classes["explorer-item_header"]}
             onContextMenu={showContextMenu([])}
           >
             {indent}
             <IconFile />
-            <EntityCreatorInput
+            <ExplorerItemCreatorInput
               category={category}
               parentId={parentId}
-              hideEntityCreator={hideEntityCreator}
+              hideExplorerItemCreator={hideExplorerItemCreator}
             />
           </div>
         </li>
@@ -73,14 +74,14 @@ export function EntityCreator({
   return <>{result}</>;
 }
 
-function EntityCreatorInput({
+function ExplorerItemCreatorInput({
   category,
   parentId,
-  hideEntityCreator,
+  hideExplorerItemCreator,
 }: {
-  category: explorerItemCategoryType;
+  category: explorerItemCategory;
   parentId: explorerItemParentId;
-  hideEntityCreator(): void;
+  hideExplorerItemCreator(): void;
 }) {
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
@@ -91,12 +92,12 @@ function EntityCreatorInput({
   };
 
   const isAddEntitiesPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsAddEntitiesPending(state)
+    explorerSlice.selectors.selectIsAddExplorerItemPending(state)
   );
 
   function handleBlur() {
     if (canSave) {
-      hideEntityCreator();
+      hideExplorerItemCreator();
     }
   }
 
@@ -105,8 +106,8 @@ function EntityCreatorInput({
     event.preventDefault();
     if (canSave) {
       try {
-        await dispatch(addEntity(initialEntity)).unwrap();
-        hideEntityCreator();
+        await dispatch(addExplorerItemTh(initialEntity)).unwrap();
+        hideExplorerItemCreator();
       } catch (err) {
         console.error("Failed to save the entity: ", err);
       }

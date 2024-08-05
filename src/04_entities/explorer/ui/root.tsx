@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Entity } from "./entity";
-import classes from "./root.module.css";
-import { useAppDispatch, useAppSelector } from "src/05_shared/lib/hooks";
 import { useContextMenu } from "mantine-contextmenu";
-import { EntityCreator } from "./entity-creator";
-import { explorerSlice, fetchEntities } from "../model";
-import { explorerItemCategoryType } from "src/04_entities/explorer/api/types";
+
+import classes from "./root.module.css";
+import { explorerSlice, fetchExplorerItemsTh } from "../model";
+import { explorerItemCategory } from "../api/types";
+import { ExplorerItemCreator } from "./item-creator";
+import { ExplorerItem } from "./explorer-item";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
@@ -13,25 +14,25 @@ export function Root() {
   // console.log(explorerItems);
 
   useEffect(() => {
-    dispatch(fetchEntities());
+    dispatch(fetchExplorerItemsTh());
   }, []);
 
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, null)
   );
-  const isFetchEntitiesPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsFetchEntitiesPending(state)
+  const isFetchExplorerItemsPending = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsFetchExplorerItemsPending(state)
   );
 
-  const [isEntityCreator, setIsEntityCreator] = useState(false);
-  const [categoryEntityCreator, setCategoryEntityCreator] =
-    useState<explorerItemCategoryType>(null);
+  const [isCreator, setIsCreator] = useState(false);
+  const [creatorCategory, setCreatorCategory] =
+    useState<explorerItemCategory>(null);
 
-  function showEntityCreator() {
-    setIsEntityCreator(true);
+  function showCreator() {
+    setIsCreator(true);
   }
-  function hideEntityCreator() {
-    setIsEntityCreator(false);
+  function hideCreator() {
+    setIsCreator(false);
   }
 
   const rootOptions = [
@@ -39,23 +40,23 @@ export function Root() {
       key: "new file",
       onClick: () => {
         console.log("new file");
-        setCategoryEntityCreator("file");
-        showEntityCreator();
+        setCreatorCategory("file");
+        showCreator();
       },
     },
     {
       key: "new folder",
       onClick: () => {
         console.log("new folder");
-        setCategoryEntityCreator("folder");
-        showEntityCreator();
+        setCreatorCategory("folder");
+        showCreator();
       },
     },
   ];
 
   let content = <></>;
 
-  if (isFetchEntitiesPending) {
+  if (isFetchExplorerItemsPending) {
     content = <div>Loading...</div>;
   } else if (children) {
     content = (
@@ -63,16 +64,16 @@ export function Root() {
         className={classes["root"]}
         onContextMenu={showContextMenu(rootOptions)}
       >
-        {isEntityCreator && (
-          <EntityCreator
+        {isCreator && (
+          <ExplorerItemCreator
             parentId={null}
-            category={categoryEntityCreator}
+            category={creatorCategory}
             nestingLevel={0}
-            hideEntityCreator={hideEntityCreator}
+            hideExplorerItemCreator={hideCreator}
           />
         )}
         {children.map((entity) => (
-          <Entity
+          <ExplorerItem
             key={entity.id}
             explorerItemId={entity.id}
             nestingLevel={0}

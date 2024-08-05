@@ -80,14 +80,16 @@ export const explorerSlice = createSlice({
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
     selectActiveCollection: (state) => state.activeCollection.currentId,
+    selectIsFetchExplorerItemsPending: (state) =>
+      state.fetchExplorerItemsStatus === "pending",
+
     // selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
-    // selectIsFetchEntitiesPending: (state) =>
-    //   state.fetchEntitiesStatus === "pending",
-    // selectIsAddEntitiesPending: (state) => state.addEntityStatus === "pending",
+
+    selectIsAddExplorerItemPending: (state) => state.addExplorerItemStatus === "pending",
     // selectIsRemoveItemPending: (state) =>
     //   state.removeEntitiesStatus === "pending",
-    // selectIsUpdateItemPending: (state) =>
-    //   state.updateEntityStatus === "pending",
+    selectIsUpdateExplorerItemPending: (state) =>
+      state.updateExplorerItemStatus === "pending",
     selectIsCollectionInQueue: (state, collectionId: explorerItemId) =>
       state.activeCollection.currentId === collectionId &&
       state.activeCollection.nextId !== null,
