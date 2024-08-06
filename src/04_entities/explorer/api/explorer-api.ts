@@ -6,6 +6,7 @@ import {
   explorerItemsFromServerSchema,
   idDeletedExplorerItemSchema,
   initialExplorerItem,
+  initialExplorerItems,
 } from "./types";
 
 const explorerItemsURL = `${baseURL}api/template-manager/explorer-entities`;
@@ -39,6 +40,25 @@ export async function addExplorerItem(initialData: initialExplorerItem) {
     throw e;
   }
 }
+
+export async function addExplorerItems(initialData: initialExplorerItems) {
+  const response = await fetch(explorerItemsURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(initialData),
+  });
+  const data = await response.json();
+
+  try {
+    return explorerItemsFromServerSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
 
 export async function removeExplorerItem(id: explorerItemId) {
   const response = await fetch(explorerItemsURL, {

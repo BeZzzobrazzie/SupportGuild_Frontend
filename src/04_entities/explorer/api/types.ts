@@ -22,10 +22,12 @@ const explorerItemSchema = explorerItemFromServerSchema.extend({
   isUpdatePending: z.boolean(),
 });
 export const idDeletedExplorerItemSchema = z.object({
-  id: explorerItemIdSchema
-})
+  id: explorerItemIdSchema,
+});
 
-export type explorerItemFromServer = z.infer<typeof explorerItemFromServerSchema>;
+export type explorerItemFromServer = z.infer<
+  typeof explorerItemFromServerSchema
+>;
 
 export type explorerItemId = z.infer<typeof explorerItemIdSchema>;
 export type explorerItemCategory = z.infer<typeof explorerItemCategorySchema>;
@@ -58,6 +60,7 @@ export type initialExplorerItem = {
   category: explorerItemCategory;
   parentId: explorerItemParentId;
 };
+export type initialExplorerItems = explorerItemFromServer[];
 
 export type dataForUpdate = {
   id: explorerItemId;
