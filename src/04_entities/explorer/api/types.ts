@@ -24,6 +24,9 @@ const explorerItemSchema = explorerItemFromServerSchema.extend({
 export const idDeletedExplorerItemSchema = z.object({
   id: explorerItemIdSchema,
 });
+export const idDeletedExplorerItemsSchema = z.object({
+  ids: z.array(explorerItemIdSchema),
+});
 
 export type explorerItemFromServer = z.infer<
   typeof explorerItemFromServerSchema
@@ -48,6 +51,7 @@ export type explorerSliceType = {
     currentId: explorerItemId | null;
     nextId: explorerItemId | null;
   };
+  selectedItemIds: explorerItemId[] | null;
   fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
   addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
   removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";

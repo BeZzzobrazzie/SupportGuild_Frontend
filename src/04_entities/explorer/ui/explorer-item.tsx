@@ -16,6 +16,8 @@ import {
   explorerSlice,
   openFolder,
   removeExplorerItemTh,
+  selectItem,
+  toggleSelectItem,
 } from "../model";
 import { selectedCollectionThunk } from "../model/selected-collection";
 
@@ -48,6 +50,12 @@ export function ExplorerItem({
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, explorerItemId)
   );
+  const isActiveCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsActiveCollection(state, explorerItemId)
+  );
+  const isSelectedItem = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
+  );
 
   const indent = Array(nestingLevel)
     .fill(0)
@@ -55,16 +63,29 @@ export function ExplorerItem({
       <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
-  function handleFolderClick() {
+  function handleFolderClick(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) {
     if (explorerItem) {
-      if (explorerItem.isOpen) dispatch(closeFolder(explorerItem.id));
-      else dispatch(openFolder(explorerItem.id));
+      if (event.ctrlKey) {
+        dispatch(toggleSelectItem(explorerItem.id));
+      } else {
+        dispatch(selectItem(explorerItem.id));
+        if (explorerItem.isOpen) dispatch(closeFolder(explorerItem.id));
+        else dispatch(openFolder(explorerItem.id));
+      }
     }
   }
-  function handleCollectionClick() {
+  function handleCollectionClick(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) {
     if (explorerItem) {
-      // dispatch(selectedCollection(explorerItem.id));
-      dispatch(selectedCollectionThunk(explorerItem.id));
+      if (event.ctrlKey) {
+        dispatch(toggleSelectItem(explorerItem.id));
+      } else {
+        dispatch(selectItem(explorerItem.id));
+        dispatch(selectedCollectionThunk(explorerItem.id));
+      }
     }
   }
 
@@ -186,7 +207,7 @@ export function ExplorerItem({
           <li>
             <div
               className={classes["explorer-item_header"]}
-              onClick={handleFolderClick}
+              onClick={(event) => handleFolderClick(event)}
               onContextMenu={
                 isUpdating
                   ? (event) => event.stopPropagation()
@@ -197,6 +218,20 @@ export function ExplorerItem({
                   : showContextMenu(folderOptions)
               }
             >
+              <div
+                className={
+                  isActiveCollection
+                    ? classes["explorer-item__active"]
+                    : classes["explorer-item__inactive"]
+                }
+              ></div>
+              <div
+                className={
+                  isSelectedItem
+                    ? classes["explorer-item__select"]
+                    : classes["explorer-item__unselect"]
+                }
+              ></div>
               {indent}
               {explorerItem.isOpen ? <IconChevronDown /> : <IconChevronRight />}
               {/* <IconFolder /> */}
@@ -247,7 +282,7 @@ export function ExplorerItem({
           <li>
             <div
               className={classes["explorer-item_header"]}
-              onClick={handleCollectionClick}
+              onClick={(event) => handleCollectionClick(event)}
               onContextMenu={
                 isUpdating
                   ? (event) => event.stopPropagation()
@@ -258,6 +293,20 @@ export function ExplorerItem({
                   : showContextMenu(fileOptions)
               }
             >
+              <div
+                className={
+                  isActiveCollection
+                    ? classes["explorer-item__active"]
+                    : classes["explorer-item__inactive"]
+                }
+              ></div>
+              <div
+                className={
+                  isSelectedItem
+                    ? classes["explorer-item__select"]
+                    : classes["explorer-item__unselect"]
+                }
+              ></div>
               {indent}
               <IconFile />
               {isUpdating ? (

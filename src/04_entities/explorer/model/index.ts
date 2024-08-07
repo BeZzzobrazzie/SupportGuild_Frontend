@@ -27,6 +27,7 @@ const initialState: explorerSliceType = {
     currentId: null,
     nextId: null,
   },
+  selectedItemIds: [],
   fetchExplorerItemsStatus: "idle",
   addExplorerItemStatus: "idle",
   removeExplorerItemStatus: "idle",
@@ -80,12 +81,23 @@ export const explorerSlice = createSlice({
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
     selectActiveCollection: (state) => state.activeCollection.currentId,
+    selectIsActiveCollection: (state, id: explorerItemId) =>
+      state.activeCollection.currentId === id,
+    selectIsSelectedItem: (state, id: explorerItemId) => {
+      if (state.selectedItemIds) {
+        return state.selectedItemIds.includes(id);
+      } else {
+        return false;
+      }
+    },
+
     selectIsFetchExplorerItemsPending: (state) =>
       state.fetchExplorerItemsStatus === "pending",
 
     // selectIsFetchEntitiesIdle: (state) => state.fetchEntitiesStatus === "idle",
 
-    selectIsAddExplorerItemPending: (state) => state.addExplorerItemStatus === "pending",
+    selectIsAddExplorerItemPending: (state) =>
+      state.addExplorerItemStatus === "pending",
     // selectIsRemoveItemPending: (state) =>
     //   state.removeEntitiesStatus === "pending",
     selectIsUpdateExplorerItemPending: (state) =>
@@ -120,6 +132,20 @@ export const explorerSlice = createSlice({
     changeCurrentCollectionToNext: (state) => {
       state.activeCollection.currentId = state.activeCollection.nextId;
       state.activeCollection.nextId = null;
+    },
+
+    selectItem: (state, action: PayloadAction<explorerItemId>) => {
+      state.selectedItemIds = [action.payload];
+    },
+    toggleSelectItem: (state, action: PayloadAction<explorerItemId>) => {
+      if (state.selectedItemIds) {
+        const index = state.selectedItemIds.indexOf(action.payload);
+        if (index !== -1) {
+          state.selectedItemIds.splice(index, 1);
+        } else {
+          state.selectedItemIds.push(action.payload);
+        }
+      }
     },
   },
   extraReducers: (builder) => {
@@ -271,6 +297,8 @@ export const explorerSlice = createSlice({
 export const {
   openFolder,
   closeFolder,
+  selectItem,
+  toggleSelectItem,
   changeCurrentCollectionToNext,
   changeNextCollection,
 } = explorerSlice.actions;

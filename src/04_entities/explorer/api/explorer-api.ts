@@ -5,6 +5,7 @@ import {
   explorerItemId,
   explorerItemsFromServerSchema,
   idDeletedExplorerItemSchema,
+  idDeletedExplorerItemsSchema,
   initialExplorerItem,
   initialExplorerItems,
 } from "./types";
@@ -59,7 +60,6 @@ export async function addExplorerItems(initialData: initialExplorerItems) {
   }
 }
 
-
 export async function removeExplorerItem(id: explorerItemId) {
   const response = await fetch(explorerItemsURL, {
     method: "DELETE",
@@ -77,6 +77,26 @@ export async function removeExplorerItem(id: explorerItemId) {
     throw e;
   }
 }
+
+export async function removeSeveralExplorerItems(ids: explorerItemId[]) {
+  const response = await fetch(`${baseURL}api/template-manager/explorer-entities/delete-several`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify({ ids }),
+  });
+  const data = await response.json();
+
+  try {
+    return idDeletedExplorerItemsSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+
 
 export async function updateExplorerItem(dataForUpdate: dataForUpdate) {
   const response = await fetch(explorerItemsURL, {
