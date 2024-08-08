@@ -11,7 +11,10 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 export function Root() {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
-  // console.log(explorerItems);
+  const explorerItems = useAppSelector((state) =>
+    explorerSlice.selectors.selectExplorerItems(state)
+  );
+  console.log(explorerItems);
 
   useEffect(() => {
     dispatch(fetchExplorerItemsTh());
@@ -60,6 +63,7 @@ export function Root() {
     content = <div>Loading...</div>;
   } else if (children) {
     content = (
+      <>
       <ul
         className={classes["root"]}
         onContextMenu={showContextMenu(rootOptions)}
@@ -81,6 +85,8 @@ export function Root() {
           />
         ))}
       </ul>
+      <ListItems />
+      </>
     );
   }
   // else if (isError) {
@@ -88,4 +94,30 @@ export function Root() {
   // }
 
   return <>{content}</>;
+}
+
+function ListItems() {
+  const explorerItems = useAppSelector((state) =>
+    explorerSlice.selectors.selectExplorerItems(state)
+  );
+
+
+  return (
+    <>
+    hi
+      {explorerItems.map((item) => (
+        item &&
+          
+          <ExplorerItem
+            key={item.id}
+            explorerItemId={item.id}
+            nestingLevel={0}
+            parentIsRemoval={false}
+          />
+        
+      ))}
+
+
+    </>
+  );
 }

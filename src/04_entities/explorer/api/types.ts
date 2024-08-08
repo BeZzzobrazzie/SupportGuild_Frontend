@@ -12,6 +12,7 @@ export const explorerItemFromServerSchema = z.object({
   category: explorerItemCategorySchema,
   name: explorerItemNameSchema,
   parentId: explorerItemParentIdSchema,
+  children: z.array(explorerItemIdSchema)
 });
 export const explorerItemsFromServerSchema = z.array(
   explorerItemFromServerSchema
@@ -55,6 +56,7 @@ export type explorerSliceType = {
   fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
   addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
   removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+  removeExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
   updateExplorerItemStatus: "idle" | "pending" | "success" | "failed";
   error: string | null | undefined;
 };

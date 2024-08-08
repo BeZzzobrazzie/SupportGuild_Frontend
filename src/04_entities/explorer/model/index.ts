@@ -13,6 +13,7 @@ import {
   addExplorerItem,
   getExplorerItems,
   removeExplorerItem,
+  removeSeveralExplorerItems,
   updateExplorerItem,
 } from "../api/explorer-api";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -31,6 +32,7 @@ const initialState: explorerSliceType = {
   fetchExplorerItemsStatus: "idle",
   addExplorerItemStatus: "idle",
   removeExplorerItemStatus: "idle",
+  removeExplorerItemsStatus: "idle",
   updateExplorerItemStatus: "idle",
   error: undefined,
 };
@@ -54,6 +56,45 @@ export const removeExplorerItemTh = createAppAsyncThunk(
   async (id: explorerItemId) => {
     const response = await removeExplorerItem(id);
     return response;
+  }
+);
+export const removeExplorerItemsTh = createAppAsyncThunk(
+  "explorer/removeExplorerItemsTh",
+  async (_, thunkAPI) => {
+    const ids = explorerSlice.selectors.selectSelectedItemsIds(
+      thunkAPI.getState()
+    );
+    if (ids) {
+      console.log("before");
+      console.log(ids); // before
+
+      const idsToRemove = new Set(ids);
+      console.log([...idsToRemove])
+
+
+      ids.forEach((id) => {
+        const childrenId = explorerSlice.selectors.selectAllChildren(
+          thunkAPI.getState(),
+          id
+        );
+        console.log(childrenId)
+        childrenId.forEach((childId) => {
+          // const index = ids.indexOf(childId);
+          // if (index !== -1) {
+          //   ids.splice(index, 1);
+          // }
+          if (idsToRemove.has(childId)) {
+            idsToRemove.delete(childId);
+          }
+
+        });
+
+      });
+      console.log("after");
+      console.log([...idsToRemove]); // after
+      const response = await removeSeveralExplorerItems([...idsToRemove]);
+      return response;
+    } else return undefined;
   }
 );
 export const updateExplorerItemTh = createAppAsyncThunk(
@@ -80,9 +121,28 @@ export const explorerSlice = createSlice({
           .map((id) => explorerItems[id])
           .filter((item): item is explorerItem => item?.parentId === parentId)
     ),
+    selectAllChildren: createSelector(
+      (state: explorerSliceType) => state.entities.byId,
+      (_: explorerSliceType, parentId: explorerItemId) => parentId,
+      (explorerItems, parentId) => {
+        let children: explorerItemId[] = [];
+        function a(id: explorerItemId) {
+          if (explorerItems[id]) {
+            // children.push(id);
+            explorerItems[id].children.forEach((childId) => {
+              children.push(childId);
+              a(childId);
+            });
+          }
+        }
+        a(parentId);
+        return children;
+      }
+    ),
     selectActiveCollection: (state) => state.activeCollection.currentId,
     selectIsActiveCollection: (state, id: explorerItemId) =>
       state.activeCollection.currentId === id,
+    selectSelectedItemsIds: (state) => state.selectedItemIds,
     selectIsSelectedItem: (state, id: explorerItemId) => {
       if (state.selectedItemIds) {
         return state.selectedItemIds.includes(id);
@@ -260,6 +320,62 @@ export const explorerSlice = createSlice({
         state.entities.byId[id].isRemoval = false;
       }
       state.removeExplorerItemStatus = "failed";
+    });
+
+    builder.addCase(removeExplorerItemsTh.pending, (state, action) => {
+      // const ids = action.meta.arg;
+      const ids = state.selectedItemIds;
+      if (ids) {
+        ids.forEach((id) => {
+          if (!!state.entities.byId[id]) {
+            state.entities.byId[id].isRemoval = true;
+          }
+        });
+      }
+
+      state.removeExplorerItemsStatus = "pending";
+    });
+    builder.addCase(
+      removeExplorerItemsTh.fulfilled,
+      (state, action: PayloadAction<{ ids: explorerItemId[] } | undefined>) => {
+        const { ids } = action.payload || {};
+        console.log(ids)
+        if (ids) {
+          let newById = { ...state.entities.byId };
+          let newIds = [...state.entities.ids];
+
+          function deleteElementTree(parentId: explorerItemId) {
+            // console.log('func')
+            newById[parentId]?.children.forEach((childId) =>
+              deleteElementTree(childId)
+            );
+            delete newById[parentId];
+            newIds = newIds.filter((item) => item !== parentId);
+          }
+
+          ids.forEach((id) => deleteElementTree(id));
+          // console.log('newById')
+          // console.log(newById)
+          // console.log('---')
+          state.entities.byId = newById;
+          state.entities.ids = newIds;
+        }
+        state.selectedItemIds = []
+        state.removeExplorerItemsStatus = "success";
+      }
+    );
+    builder.addCase(removeExplorerItemsTh.rejected, (state, action) => {
+      // const ids = action.meta.arg;
+      const ids = state.selectedItemIds;
+      if (ids) {
+        ids.forEach((id) => {
+          if (!!state.entities.byId[id]) {
+            state.entities.byId[id].isRemoval = false;
+          }
+        });
+      }
+
+      state.removeExplorerItemsStatus = "failed";
     });
 
     builder.addCase(updateExplorerItemTh.pending, (state, action) => {

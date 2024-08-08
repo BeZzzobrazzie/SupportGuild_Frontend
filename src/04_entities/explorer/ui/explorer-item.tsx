@@ -15,6 +15,7 @@ import {
   closeFolder,
   explorerSlice,
   openFolder,
+  removeExplorerItemsTh,
   removeExplorerItemTh,
   selectItem,
   toggleSelectItem,
@@ -126,7 +127,11 @@ export function ExplorerItem({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(removeExplorerItemTh(explorerItemId));
+        if (isSelectedItem) {
+          dispatch(removeExplorerItemsTh());
+        } else {
+          dispatch(removeExplorerItemTh(explorerItemId));
+        }
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -190,7 +195,11 @@ export function ExplorerItem({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        dispatch(removeExplorerItemTh(explorerItemId));
+        if (isSelectedItem) {
+          dispatch(removeExplorerItemsTh());
+        } else {
+          dispatch(removeExplorerItemTh(explorerItemId));
+        }
       },
       disabled: explorerItem?.isRemoval,
     },
