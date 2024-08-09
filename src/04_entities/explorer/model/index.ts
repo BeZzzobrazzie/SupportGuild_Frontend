@@ -69,15 +69,14 @@ export const removeExplorerItemsTh = createAppAsyncThunk(
       console.log(ids); // before
 
       const idsToRemove = new Set(ids);
-      console.log([...idsToRemove])
-
+      console.log([...idsToRemove]);
 
       ids.forEach((id) => {
         const childrenId = explorerSlice.selectors.selectAllChildren(
           thunkAPI.getState(),
           id
         );
-        console.log(childrenId)
+        console.log(childrenId);
         childrenId.forEach((childId) => {
           // const index = ids.indexOf(childId);
           // if (index !== -1) {
@@ -86,9 +85,7 @@ export const removeExplorerItemsTh = createAppAsyncThunk(
           if (idsToRemove.has(childId)) {
             idsToRemove.delete(childId);
           }
-
         });
-
       });
       console.log("after");
       console.log([...idsToRemove]); // after
@@ -265,7 +262,11 @@ export const explorerSlice = createSlice({
             ...action.payload,
           };
         }
-
+        if (action.payload.parentId !== null) {
+          state.entities.byId[action.payload.parentId]?.children.push(
+            action.payload.id
+          );
+        }
         state.entities.ids.push(action.payload.id);
         state.addExplorerItemStatus = "success";
       }
@@ -286,6 +287,16 @@ export const explorerSlice = createSlice({
       removeExplorerItemTh.fulfilled,
       (state, action: PayloadAction<{ id: explorerItemId }>) => {
         const { id } = action.payload;
+
+        const item = state.entities.byId[action.payload.id];
+        if (item && item.parentId !== null) {
+          const index = state.entities.byId[item.parentId]?.children.indexOf(
+            item.id
+          );
+          if (index) {
+            state.entities.byId[item.parentId]?.children.splice(index, 1);
+          }
+        }
 
         let newById = state.entities.byId;
         let newIds = state.entities.ids;
@@ -339,28 +350,43 @@ export const explorerSlice = createSlice({
       removeExplorerItemsTh.fulfilled,
       (state, action: PayloadAction<{ ids: explorerItemId[] } | undefined>) => {
         const { ids } = action.payload || {};
-        console.log(ids)
         if (ids) {
+          ids.forEach((id) => {
+            const item = state.entities.byId[id];
+            if (item && item.parentId !== null) {
+              const index = state.entities.byId[
+                item.parentId
+              ]?.children.indexOf(item.id);
+              if (index) {
+                state.entities.byId[item.parentId]?.children.splice(index, 1);
+              }
+            }
+          });
+
           let newById = { ...state.entities.byId };
           let newIds = [...state.entities.ids];
 
           function deleteElementTree(parentId: explorerItemId) {
-            // console.log('func')
-            newById[parentId]?.children.forEach((childId) =>
-              deleteElementTree(childId)
-            );
-            delete newById[parentId];
-            newIds = newIds.filter((item) => item !== parentId);
+            if (newById[parentId]) {
+              console.log([...newById[parentId].children]);
+              newById[parentId].children.forEach((childId) =>
+                deleteElementTree(childId)
+              );
+              delete newById[parentId];
+              newIds = newIds.filter((item) => item !== parentId);
+            }
           }
-
+          // console.log('before delete')
+          // console.log({...newById})
           ids.forEach((id) => deleteElementTree(id));
-          // console.log('newById')
-          // console.log(newById)
-          // console.log('---')
+          // console.log('after delete')
+          // console.log({...newById})
+          // console.log('===')
+
           state.entities.byId = newById;
           state.entities.ids = newIds;
         }
-        state.selectedItemIds = []
+        state.selectedItemIds = [];
         state.removeExplorerItemsStatus = "success";
       }
     );
