@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { explorerSlice, updateExplorerItemTh } from "../model";
+import { explorerSlice } from "../model";
 import { explorerItemId } from "../api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
@@ -25,13 +25,13 @@ export function ExplorerItemUpdateInput({
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    try {
-      await dispatch(updateExplorerItemTh({ id, name: inputValue })).unwrap();
-      setIsUpdating(false);
-    } catch (err) {
-      console.error("Failed to update the entity: ", err);
-    }
+    // event.preventDefault();
+    // try {
+    //   await dispatch(updateExplorerItemTh({ id, name: inputValue })).unwrap();
+    //   setIsUpdating(false);
+    // } catch (err) {
+    //   console.error("Failed to update the entity: ", err);
+    // }
   }
 
   return (

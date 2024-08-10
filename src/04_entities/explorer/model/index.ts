@@ -9,13 +9,13 @@ import {
   explorerSliceType,
   initialExplorerItem,
 } from "../api/types";
-import {
-  addExplorerItem,
-  getExplorerItems,
-  removeExplorerItem,
-  removeSeveralExplorerItems,
-  updateExplorerItem,
-} from "../api/explorer-api";
+// import {
+//   addExplorerItem,
+//   getExplorerItems,
+//   removeExplorerItem,
+//   removeSeveralExplorerItems,
+//   updateExplorerItem,
+// } from "../api/explorer-api";
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: explorerSliceType = {
@@ -37,70 +37,70 @@ const initialState: explorerSliceType = {
   error: undefined,
 };
 
-export const fetchExplorerItemsTh = createAppAsyncThunk(
-  "explorer/fetchExplorerItemsTh",
-  async () => {
-    const response = await getExplorerItems();
-    return response;
-  }
-);
-export const addExplorerItemTh = createAppAsyncThunk(
-  "explorer/addExplorerItemTh",
-  async (initialData: initialExplorerItem) => {
-    const response = await addExplorerItem(initialData);
-    return response;
-  }
-);
-export const removeExplorerItemTh = createAppAsyncThunk(
-  "explorer/removeExplorerItemTh",
-  async (id: explorerItemId) => {
-    const response = await removeExplorerItem(id);
-    return response;
-  }
-);
-export const removeExplorerItemsTh = createAppAsyncThunk(
-  "explorer/removeExplorerItemsTh",
-  async (_, thunkAPI) => {
-    const ids = explorerSlice.selectors.selectSelectedItemsIds(
-      thunkAPI.getState()
-    );
-    if (ids) {
-      console.log("before");
-      console.log(ids); // before
+// export const fetchExplorerItemsTh = createAppAsyncThunk(
+//   "explorer/fetchExplorerItemsTh",
+//   async () => {
+//     const response = await getExplorerItems();
+//     return response;
+//   }
+// );
+// export const addExplorerItemTh = createAppAsyncThunk(
+//   "explorer/addExplorerItemTh",
+//   async (initialData: initialExplorerItem) => {
+//     const response = await addExplorerItem(initialData);
+//     return response;
+//   }
+// );
+// export const removeExplorerItemTh = createAppAsyncThunk(
+//   "explorer/removeExplorerItemTh",
+//   async (id: explorerItemId) => {
+//     const response = await removeExplorerItem(id);
+//     return response;
+//   }
+// );
+// export const removeExplorerItemsTh = createAppAsyncThunk(
+//   "explorer/removeExplorerItemsTh",
+//   async (_, thunkAPI) => {
+//     const ids = explorerSlice.selectors.selectSelectedItemsIds(
+//       thunkAPI.getState()
+//     );
+//     if (ids) {
+//       console.log("before");
+//       console.log(ids); // before
 
-      const idsToRemove = new Set(ids);
-      console.log([...idsToRemove]);
+//       const idsToRemove = new Set(ids);
+//       console.log([...idsToRemove]);
 
-      ids.forEach((id) => {
-        const childrenId = explorerSlice.selectors.selectAllChildren(
-          thunkAPI.getState(),
-          id
-        );
-        console.log(childrenId);
-        childrenId.forEach((childId) => {
-          // const index = ids.indexOf(childId);
-          // if (index !== -1) {
-          //   ids.splice(index, 1);
-          // }
-          if (idsToRemove.has(childId)) {
-            idsToRemove.delete(childId);
-          }
-        });
-      });
-      console.log("after");
-      console.log([...idsToRemove]); // after
-      const response = await removeSeveralExplorerItems([...idsToRemove]);
-      return response;
-    } else return undefined;
-  }
-);
-export const updateExplorerItemTh = createAppAsyncThunk(
-  "explorer/updateExplorerItemTh",
-  async (dataForUpdate: dataForUpdate) => {
-    const response = await updateExplorerItem(dataForUpdate);
-    return response;
-  }
-);
+//       ids.forEach((id) => {
+//         const childrenId = explorerSlice.selectors.selectAllChildren(
+//           thunkAPI.getState(),
+//           id
+//         );
+//         console.log(childrenId);
+//         childrenId.forEach((childId) => {
+//           // const index = ids.indexOf(childId);
+//           // if (index !== -1) {
+//           //   ids.splice(index, 1);
+//           // }
+//           if (idsToRemove.has(childId)) {
+//             idsToRemove.delete(childId);
+//           }
+//         });
+//       });
+//       console.log("after");
+//       console.log([...idsToRemove]); // after
+//       const response = await removeSeveralExplorerItems([...idsToRemove]);
+//       return response;
+//     } else return undefined;
+//   }
+// );
+// export const updateExplorerItemTh = createAppAsyncThunk(
+//   "explorer/updateExplorerItemTh",
+//   async (dataForUpdate: dataForUpdate) => {
+//     const response = await updateExplorerItem(dataForUpdate);
+//     return response;
+//   }
+// );
 
 export const explorerSlice = createSlice({
   name: "explorer",
@@ -206,233 +206,233 @@ export const explorerSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchExplorerItemsTh.pending, (state) => {
-      state.fetchExplorerItemsStatus = "pending";
-    });
-    builder.addCase(
-      fetchExplorerItemsTh.fulfilled,
-      (state, action: PayloadAction<explorerItemFromServer[]>) => {
-        const items = action.payload;
-        const byId = action.payload.reduce((byId: byId, item) => {
-          if (item.category === "folder") {
-            const newItem = {
-              isUpdatePending: false,
-              isRemoval: false,
-              isOpen: false,
-              ...item,
-            };
-            byId[item.id] = newItem;
-            return byId;
-          } else {
-            const newItem = {
-              isUpdatePending: false,
-              isRemoval: false,
-              ...item,
-            };
-            byId[item.id] = newItem;
-            return byId;
-          }
-        }, {});
-        state.entities.byId = byId;
-        state.entities.ids = items.map((item) => item.id);
-        state.fetchExplorerItemsStatus = "success";
-      }
-    );
-    builder.addCase(fetchExplorerItemsTh.rejected, (state) => {
-      state.fetchExplorerItemsStatus = "failed";
-    });
+    // builder.addCase(fetchExplorerItemsTh.pending, (state) => {
+    //   state.fetchExplorerItemsStatus = "pending";
+    // });
+    // builder.addCase(
+    //   fetchExplorerItemsTh.fulfilled,
+    //   (state, action: PayloadAction<explorerItemFromServer[]>) => {
+    //     const items = action.payload;
+    //     const byId = action.payload.reduce((byId: byId, item) => {
+    //       if (item.category === "folder") {
+    //         const newItem = {
+    //           isUpdatePending: false,
+    //           isRemoval: false,
+    //           isOpen: false,
+    //           ...item,
+    //         };
+    //         byId[item.id] = newItem;
+    //         return byId;
+    //       } else {
+    //         const newItem = {
+    //           isUpdatePending: false,
+    //           isRemoval: false,
+    //           ...item,
+    //         };
+    //         byId[item.id] = newItem;
+    //         return byId;
+    //       }
+    //     }, {});
+    //     state.entities.byId = byId;
+    //     state.entities.ids = items.map((item) => item.id);
+    //     state.fetchExplorerItemsStatus = "success";
+    //   }
+    // );
+    // builder.addCase(fetchExplorerItemsTh.rejected, (state) => {
+    //   state.fetchExplorerItemsStatus = "failed";
+    // });
 
-    builder.addCase(addExplorerItemTh.pending, (state) => {
-      state.addExplorerItemStatus = "pending";
-    });
-    builder.addCase(
-      addExplorerItemTh.fulfilled,
-      (state, action: PayloadAction<explorerItemFromServer>) => {
-        if (state.entities.byId[action.payload.id]?.category === "folder") {
-          state.entities.byId[action.payload.id] = {
-            isUpdatePending: false,
-            isRemoval: false,
-            isOpen: false,
-            ...action.payload,
-          };
-        } else {
-          state.entities.byId[action.payload.id] = {
-            isUpdatePending: false,
-            isRemoval: false,
-            ...action.payload,
-          };
-        }
-        if (action.payload.parentId !== null) {
-          state.entities.byId[action.payload.parentId]?.children.push(
-            action.payload.id
-          );
-        }
-        state.entities.ids.push(action.payload.id);
-        state.addExplorerItemStatus = "success";
-      }
-    );
-    builder.addCase(addExplorerItemTh.rejected, (state) => {
-      state.addExplorerItemStatus = "failed";
-    });
+    // builder.addCase(addExplorerItemTh.pending, (state) => {
+    //   state.addExplorerItemStatus = "pending";
+    // });
+    // builder.addCase(
+    //   addExplorerItemTh.fulfilled,
+    //   (state, action: PayloadAction<explorerItemFromServer>) => {
+    //     if (state.entities.byId[action.payload.id]?.category === "folder") {
+    //       state.entities.byId[action.payload.id] = {
+    //         isUpdatePending: false,
+    //         isRemoval: false,
+    //         isOpen: false,
+    //         ...action.payload,
+    //       };
+    //     } else {
+    //       state.entities.byId[action.payload.id] = {
+    //         isUpdatePending: false,
+    //         isRemoval: false,
+    //         ...action.payload,
+    //       };
+    //     }
+    //     if (action.payload.parentId !== null) {
+    //       state.entities.byId[action.payload.parentId]?.children.push(
+    //         action.payload.id
+    //       );
+    //     }
+    //     state.entities.ids.push(action.payload.id);
+    //     state.addExplorerItemStatus = "success";
+    //   }
+    // );
+    // builder.addCase(addExplorerItemTh.rejected, (state) => {
+    //   state.addExplorerItemStatus = "failed";
+    // });
 
-    builder.addCase(removeExplorerItemTh.pending, (state, action) => {
-      const id = action.meta.arg;
-      if (!!state.entities.byId[id]) {
-        state.entities.byId[id].isRemoval = true;
-      }
+    // builder.addCase(removeExplorerItemTh.pending, (state, action) => {
+    //   const id = action.meta.arg;
+    //   if (!!state.entities.byId[id]) {
+    //     state.entities.byId[id].isRemoval = true;
+    //   }
 
-      state.removeExplorerItemStatus = "pending";
-    });
-    builder.addCase(
-      removeExplorerItemTh.fulfilled,
-      (state, action: PayloadAction<{ id: explorerItemId }>) => {
-        const { id } = action.payload;
+    //   state.removeExplorerItemStatus = "pending";
+    // });
+    // builder.addCase(
+    //   removeExplorerItemTh.fulfilled,
+    //   (state, action: PayloadAction<{ id: explorerItemId }>) => {
+    //     const { id } = action.payload;
 
-        const item = state.entities.byId[action.payload.id];
-        if (item && item.parentId !== null) {
-          const index = state.entities.byId[item.parentId]?.children.indexOf(
-            item.id
-          );
-          if (index) {
-            state.entities.byId[item.parentId]?.children.splice(index, 1);
-          }
-        }
+    //     const item = state.entities.byId[action.payload.id];
+    //     if (item && item.parentId !== null) {
+    //       const index = state.entities.byId[item.parentId]?.children.indexOf(
+    //         item.id
+    //       );
+    //       if (index) {
+    //         state.entities.byId[item.parentId]?.children.splice(index, 1);
+    //       }
+    //     }
 
-        let newById = state.entities.byId;
-        let newIds = state.entities.ids;
+    //     let newById = state.entities.byId;
+    //     let newIds = state.entities.ids;
 
-        function deleteElementTree(parentId: explorerItemId) {
-          let explorerItemsByIdToRemove: number[] = [];
-          delete newById[parentId];
-          newIds = newIds.filter((item) => item !== parentId);
+    //     function deleteElementTree(parentId: explorerItemId) {
+    //       let explorerItemsByIdToRemove: number[] = [];
+    //       delete newById[parentId];
+    //       newIds = newIds.filter((item) => item !== parentId);
 
-          for (let key in newById) {
-            if (!!newById[key]) {
-              if (newById[key].parentId === parentId) {
-                explorerItemsByIdToRemove.push(Number(key));
-              }
-            }
-          }
+    //       for (let key in newById) {
+    //         if (!!newById[key]) {
+    //           if (newById[key].parentId === parentId) {
+    //             explorerItemsByIdToRemove.push(Number(key));
+    //           }
+    //         }
+    //       }
 
-          explorerItemsByIdToRemove.map((itemId) => {
-            deleteElementTree(itemId);
-          });
-        }
-        deleteElementTree(id);
-        state.entities.byId = newById;
-        state.entities.ids = newIds;
+    //       explorerItemsByIdToRemove.map((itemId) => {
+    //         deleteElementTree(itemId);
+    //       });
+    //     }
+    //     deleteElementTree(id);
+    //     state.entities.byId = newById;
+    //     state.entities.ids = newIds;
 
-        state.removeExplorerItemStatus = "success";
-      }
-    );
-    builder.addCase(removeExplorerItemTh.rejected, (state, action) => {
-      const id = action.meta.arg;
-      if (!!state.entities.byId[id]) {
-        state.entities.byId[id].isRemoval = false;
-      }
-      state.removeExplorerItemStatus = "failed";
-    });
+    //     state.removeExplorerItemStatus = "success";
+    //   }
+    // );
+    // builder.addCase(removeExplorerItemTh.rejected, (state, action) => {
+    //   const id = action.meta.arg;
+    //   if (!!state.entities.byId[id]) {
+    //     state.entities.byId[id].isRemoval = false;
+    //   }
+    //   state.removeExplorerItemStatus = "failed";
+    // });
 
-    builder.addCase(removeExplorerItemsTh.pending, (state, action) => {
-      // const ids = action.meta.arg;
-      const ids = state.selectedItemIds;
-      if (ids) {
-        ids.forEach((id) => {
-          if (!!state.entities.byId[id]) {
-            state.entities.byId[id].isRemoval = true;
-          }
-        });
-      }
+    // builder.addCase(removeExplorerItemsTh.pending, (state, action) => {
+    //   // const ids = action.meta.arg;
+    //   const ids = state.selectedItemIds;
+    //   if (ids) {
+    //     ids.forEach((id) => {
+    //       if (!!state.entities.byId[id]) {
+    //         state.entities.byId[id].isRemoval = true;
+    //       }
+    //     });
+    //   }
 
-      state.removeExplorerItemsStatus = "pending";
-    });
-    builder.addCase(
-      removeExplorerItemsTh.fulfilled,
-      (state, action: PayloadAction<{ ids: explorerItemId[] } | undefined>) => {
-        const { ids } = action.payload || {};
-        if (ids) {
-          ids.forEach((id) => {
-            const item = state.entities.byId[id];
-            if (item && item.parentId !== null) {
-              const index = state.entities.byId[
-                item.parentId
-              ]?.children.indexOf(item.id);
-              if (index) {
-                state.entities.byId[item.parentId]?.children.splice(index, 1);
-              }
-            }
-          });
+    //   state.removeExplorerItemsStatus = "pending";
+    // });
+    // builder.addCase(
+    //   removeExplorerItemsTh.fulfilled,
+    //   (state, action: PayloadAction<{ ids: explorerItemId[] } | undefined>) => {
+    //     const { ids } = action.payload || {};
+    //     if (ids) {
+    //       ids.forEach((id) => {
+    //         const item = state.entities.byId[id];
+    //         if (item && item.parentId !== null) {
+    //           const index = state.entities.byId[
+    //             item.parentId
+    //           ]?.children.indexOf(item.id);
+    //           if (index) {
+    //             state.entities.byId[item.parentId]?.children.splice(index, 1);
+    //           }
+    //         }
+    //       });
 
-          let newById = { ...state.entities.byId };
-          let newIds = [...state.entities.ids];
+    //       let newById = { ...state.entities.byId };
+    //       let newIds = [...state.entities.ids];
 
-          function deleteElementTree(parentId: explorerItemId) {
-            if (newById[parentId]) {
-              console.log([...newById[parentId].children]);
-              newById[parentId].children.forEach((childId) =>
-                deleteElementTree(childId)
-              );
-              delete newById[parentId];
-              newIds = newIds.filter((item) => item !== parentId);
-            }
-          }
-          // console.log('before delete')
-          // console.log({...newById})
-          ids.forEach((id) => deleteElementTree(id));
-          // console.log('after delete')
-          // console.log({...newById})
-          // console.log('===')
+    //       function deleteElementTree(parentId: explorerItemId) {
+    //         if (newById[parentId]) {
+    //           console.log([...newById[parentId].children]);
+    //           newById[parentId].children.forEach((childId) =>
+    //             deleteElementTree(childId)
+    //           );
+    //           delete newById[parentId];
+    //           newIds = newIds.filter((item) => item !== parentId);
+    //         }
+    //       }
+    //       // console.log('before delete')
+    //       // console.log({...newById})
+    //       ids.forEach((id) => deleteElementTree(id));
+    //       // console.log('after delete')
+    //       // console.log({...newById})
+    //       // console.log('===')
 
-          state.entities.byId = newById;
-          state.entities.ids = newIds;
-        }
-        state.selectedItemIds = [];
-        state.removeExplorerItemsStatus = "success";
-      }
-    );
-    builder.addCase(removeExplorerItemsTh.rejected, (state, action) => {
-      // const ids = action.meta.arg;
-      const ids = state.selectedItemIds;
-      if (ids) {
-        ids.forEach((id) => {
-          if (!!state.entities.byId[id]) {
-            state.entities.byId[id].isRemoval = false;
-          }
-        });
-      }
+    //       state.entities.byId = newById;
+    //       state.entities.ids = newIds;
+    //     }
+    //     state.selectedItemIds = [];
+    //     state.removeExplorerItemsStatus = "success";
+    //   }
+    // );
+    // builder.addCase(removeExplorerItemsTh.rejected, (state, action) => {
+    //   // const ids = action.meta.arg;
+    //   const ids = state.selectedItemIds;
+    //   if (ids) {
+    //     ids.forEach((id) => {
+    //       if (!!state.entities.byId[id]) {
+    //         state.entities.byId[id].isRemoval = false;
+    //       }
+    //     });
+    //   }
 
-      state.removeExplorerItemsStatus = "failed";
-    });
+    //   state.removeExplorerItemsStatus = "failed";
+    // });
 
-    builder.addCase(updateExplorerItemTh.pending, (state, action) => {
-      const id = action.meta.arg.id;
+    // builder.addCase(updateExplorerItemTh.pending, (state, action) => {
+    //   const id = action.meta.arg.id;
 
-      if (!!state.entities.byId[id]) {
-        state.entities.byId[id].isUpdatePending = true;
-      }
-      state.updateExplorerItemStatus = "pending";
-    });
-    builder.addCase(
-      updateExplorerItemTh.fulfilled,
-      (state, action: PayloadAction<explorerItemFromServer>) => {
-        const explorerItem = state.entities.byId[action.payload.id];
-        if (explorerItem) {
-          explorerItem.name = action.payload.name;
-          explorerItem.isUpdatePending = false;
-        }
-        state.entities.byId[action.payload.id] = explorerItem;
+    //   if (!!state.entities.byId[id]) {
+    //     state.entities.byId[id].isUpdatePending = true;
+    //   }
+    //   state.updateExplorerItemStatus = "pending";
+    // });
+    // builder.addCase(
+    //   updateExplorerItemTh.fulfilled,
+    //   (state, action: PayloadAction<explorerItemFromServer>) => {
+    //     const explorerItem = state.entities.byId[action.payload.id];
+    //     if (explorerItem) {
+    //       explorerItem.name = action.payload.name;
+    //       explorerItem.isUpdatePending = false;
+    //     }
+    //     state.entities.byId[action.payload.id] = explorerItem;
 
-        state.updateExplorerItemStatus = "success";
-      }
-    );
-    builder.addCase(updateExplorerItemTh.rejected, (state, action) => {
-      const id = action.meta.arg.id;
+    //     state.updateExplorerItemStatus = "success";
+    //   }
+    // );
+    // builder.addCase(updateExplorerItemTh.rejected, (state, action) => {
+    //   const id = action.meta.arg.id;
 
-      if (!!state.entities.byId[id]) {
-        state.entities.byId[id].isUpdatePending = false;
-      }
-      state.updateExplorerItemStatus = "failed";
-    });
+    //   if (!!state.entities.byId[id]) {
+    //     state.entities.byId[id].isUpdatePending = false;
+    //   }
+    //   state.updateExplorerItemStatus = "failed";
+    // });
   },
 }).injectInto(rootReducer);
 

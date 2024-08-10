@@ -7,31 +7,24 @@ const explorerItemCategorySchema = z.union([
   z.null(),
 ]);
 const explorerItemParentIdSchema = z.union([z.number(), z.null()]);
-export const explorerItemFromServerSchema = z.object({
+export const explorerItemSchema = z.object({
   id: explorerItemIdSchema,
   category: explorerItemCategorySchema,
   name: explorerItemNameSchema,
   parentId: explorerItemParentIdSchema,
-  children: z.array(explorerItemIdSchema)
+  children: z.array(explorerItemIdSchema),
 });
-export const explorerItemsFromServerSchema = z.array(
-  explorerItemFromServerSchema
-);
-const explorerItemSchema = explorerItemFromServerSchema.extend({
-  isOpen: z.boolean().optional(),
-  isRemoval: z.boolean(),
-  isUpdatePending: z.boolean(),
-});
+const byIdSchema = z.record(z.string(), explorerItemSchema);
+const idsSchema = z.array(explorerItemIdSchema);
+
+export const dataFromServer = z.object({ byId: byIdSchema, ids: idsSchema });
+
 export const idDeletedExplorerItemSchema = z.object({
   id: explorerItemIdSchema,
 });
 export const idDeletedExplorerItemsSchema = z.object({
   ids: z.array(explorerItemIdSchema),
 });
-
-export type explorerItemFromServer = z.infer<
-  typeof explorerItemFromServerSchema
->;
 
 export type explorerItemId = z.infer<typeof explorerItemIdSchema>;
 export type explorerItemCategory = z.infer<typeof explorerItemCategorySchema>;
@@ -66,7 +59,7 @@ export type initialExplorerItem = {
   category: explorerItemCategory;
   parentId: explorerItemParentId;
 };
-export type initialExplorerItems = explorerItemFromServer[];
+// export type initialExplorerItems = explorerItemFromServer[];
 
 export type dataForUpdate = {
   id: explorerItemId;

@@ -15,8 +15,6 @@ import {
   closeFolder,
   explorerSlice,
   openFolder,
-  removeExplorerItemsTh,
-  removeExplorerItemTh,
   selectItem,
   toggleSelectItem,
 } from "../model";
@@ -27,6 +25,8 @@ import {
   explorerItemId,
 } from "src/04_entities/explorer/api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { useQuery } from "@tanstack/react-query";
+import { getExplorerItems } from "../api/explorer-api";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -45,9 +45,12 @@ export function ExplorerItem({
   const isFetchExplorerItemsPending = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFetchExplorerItemsPending(state)
   );
-  const explorerItem = useAppSelector((state) =>
-    explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
-  );
+  // const explorerItem = useAppSelector((state) =>
+  //   explorerSlice.selectors.selectExplorerItem(state, explorerItemId)
+  // );
+  const {data: explorerItems} = useQuery(getExplorerItems());
+  const explorerItem = explorerItems ? explorerItems[1] : undefined;
+
   const children = useAppSelector((state) =>
     explorerSlice.selectors.selectChildren(state, explorerItemId)
   );
@@ -127,11 +130,11 @@ export function ExplorerItem({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (isSelectedItem) {
-          dispatch(removeExplorerItemsTh());
-        } else {
-          dispatch(removeExplorerItemTh(explorerItemId));
-        }
+        // if (isSelectedItem) {
+        //   dispatch(removeExplorerItemsTh());
+        // } else {
+        //   dispatch(removeExplorerItemTh(explorerItemId));
+        // }
       },
       disabled: explorerItem?.isRemoval,
     },
@@ -195,11 +198,11 @@ export function ExplorerItem({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (isSelectedItem) {
-          dispatch(removeExplorerItemsTh());
-        } else {
-          dispatch(removeExplorerItemTh(explorerItemId));
-        }
+        // if (isSelectedItem) {
+        //   dispatch(removeExplorerItemsTh());
+        // } else {
+        //   dispatch(removeExplorerItemTh(explorerItemId));
+        // }
       },
       disabled: explorerItem?.isRemoval,
     },

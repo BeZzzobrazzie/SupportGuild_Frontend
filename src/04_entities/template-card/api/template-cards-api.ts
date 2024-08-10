@@ -1,4 +1,3 @@
-import { baseURL } from "../../../05_shared/api";
 import {
   dataForUpdatingTemplateCardType,
   removeTemplateCardIdSchema,
@@ -8,6 +7,7 @@ import {
   templateCardsSchema,
 } from "./types";
 
+const baseURL = ''
 const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
 
 export async function getTemplateCards() {

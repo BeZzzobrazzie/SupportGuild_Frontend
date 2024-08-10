@@ -2,7 +2,7 @@ import { IconChevronRight, IconFile } from "@tabler/icons-react";
 import { useContextMenu } from "mantine-contextmenu";
 import { useState } from "react";
 import classes from "./item-creator.module.css";
-import { addExplorerItemTh, explorerSlice } from "../model";
+import {  explorerSlice } from "../model";
 import {
   explorerItemCategory,
   explorerItemParentId,
@@ -103,15 +103,15 @@ function ExplorerItemCreatorInput({
 
   const canSave = initialEntity && !isAddEntitiesPending;
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (canSave) {
-      try {
-        await dispatch(addExplorerItemTh(initialEntity)).unwrap();
-        hideExplorerItemCreator();
-      } catch (err) {
-        console.error("Failed to save the entity: ", err);
-      }
-    }
+    // event.preventDefault();
+    // if (canSave) {
+    //   try {
+    //     await dispatch(addExplorerItemTh(initialEntity)).unwrap();
+    //     hideExplorerItemCreator();
+    //   } catch (err) {
+    //     console.error("Failed to save the entity: ", err);
+    //   }
+    // }
   }
 
   return (

@@ -10,10 +10,9 @@ import { ExplorerSmall } from "src/02_widgets/explorer-small";
 import { store } from "./store";
 import { Templates } from "src/02_widgets/templates";
 import { ModalsProvider } from "@mantine/modals";
-import { fetchExplorerItemsTh } from "src/04_entities/explorer/model";
 
 function App() {
-  store.dispatch(fetchExplorerItemsTh());
+  // store.dispatch(fetchExplorerItemsTh());
 
   return (
     <MantineProvider defaultColorScheme="dark">
