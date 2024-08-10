@@ -12,12 +12,21 @@ import { getExplorerItems } from "../api/explorer-api";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
-  const { data: explorerItems } = useQuery(getExplorerItems());
+  const { isPending, isError, data: explorerItems, error } = useQuery(getExplorerItems());
   console.log(explorerItems);
 
-  if (!explorerItems) {
-    return <></>;
+  if (isPending) {
+    return <span>Loading...</span>
   }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>
+  }
+
+  if (!explorerItems) {
+    return <span>Error: no data</span>
+  }
+
   const children = Object.values(explorerItems.byId).filter(
     (child) => child.parentId === null
   );
@@ -40,35 +49,30 @@ export function Root() {
   let content = <></>;
 
 
-  if (false) {
-    content = <div>Loading...</div>;
-  } else if (true) {
-    content = (
-      <>
-        {/* <ul
-        className={classes["root"]}
-        onContextMenu={showContextMenu(rootOptions)}
-      >
-        {isCreator && (
-          <ExplorerItemCreator
-            parentId={null}
-            category={creatorCategory}
-            nestingLevel={0}
-            hideExplorerItemCreator={hideCreator}
-          />
-        )}
-        {children.map((entity) => (
-          <ExplorerItem
-            key={entity.id}
-            explorerItemId={entity.id}
-            nestingLevel={0}
-            parentIsRemoval={false}
-          />
-        ))}
-      </ul> */}
-      </>
-    );
-  }
+  content = (
+    <>
+      <ul
+      className={classes["root"]}
+      onContextMenu={showContextMenu(rootOptions)}
+    >
+      {/* {isCreator && (
+        <ExplorerItemCreator
+          parentId={null}
+          category={creatorCategory}
+          nestingLevel={0}
+          hideExplorerItemCreator={hideCreator}
+        />
+      )} */}
+      {children.map((entity) => (
+        <ExplorerItem
+          key={entity.id}
+          explorerItemId={entity.id}
+          nestingLevel={0}
+        />
+      ))}
+    </ul>
+    </>
+  );
 
   return <>{content}</>;
 }

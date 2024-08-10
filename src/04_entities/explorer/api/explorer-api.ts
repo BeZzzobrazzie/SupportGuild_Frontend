@@ -12,7 +12,6 @@ import { queryOptions } from "@tanstack/react-query";
 // const explorerItemsURL = `${baseURL}api/template-manager/explorer-entities`;
 
 export const getExplorerItems = () => {
-  console.log("res");
   return queryOptions({
     queryKey: ["explorerItems"],
     queryFn: async () => {
