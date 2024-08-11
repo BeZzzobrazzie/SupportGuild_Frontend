@@ -2,12 +2,15 @@ import { IconChevronRight, IconFile } from "@tabler/icons-react";
 import { useContextMenu } from "mantine-contextmenu";
 import { useState } from "react";
 import classes from "./item-creator.module.css";
-import {  explorerSlice } from "../model";
+import { explorerSlice } from "../model";
 import {
   explorerItemCategory,
   explorerItemParentId,
+  initialExplorerItem,
 } from "src/04_entities/explorer/api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { useMutation } from "@tanstack/react-query";
+import { addExplorerItem } from "../api/explorer-api";
 
 type ExplorerItemCreator = {
   parentId: explorerItemParentId;
@@ -30,48 +33,25 @@ export function ExplorerItemCreator({
       <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
-  let result = <></>;
+  return (
+    <li>
+      <div
+        className={classes["explorer-item_header"]}
+        onContextMenu={showContextMenu([])}
+      >
+        {indent}
+        {category === "folder" && <IconChevronRight />}
+        {category === "file" && <IconFile />}
 
-  switch (category) {
-    case "folder":
-      result = (
-        <li>
-          <div
-            className={classes["explorer-item_header"]}
-            onContextMenu={showContextMenu([])}
-          >
-            {indent}
-            <IconChevronRight />
-            {/* <IconFolder /> */}
-            <ExplorerItemCreatorInput
-              category={category}
-              parentId={parentId}
-              hideExplorerItemCreator={hideExplorerItemCreator}
-            />
-          </div>
-        </li>
-      );
-      break;
-    case "file":
-      result = (
-        <li>
-          <div
-            className={classes["explorer-item_header"]}
-            onContextMenu={showContextMenu([])}
-          >
-            {indent}
-            <IconFile />
-            <ExplorerItemCreatorInput
-              category={category}
-              parentId={parentId}
-              hideExplorerItemCreator={hideExplorerItemCreator}
-            />
-          </div>
-        </li>
-      );
-      break;
-  }
-  return <>{result}</>;
+        {/* <IconFolder /> */}
+        <ExplorerItemCreatorInput
+          category={category}
+          parentId={parentId}
+          hideExplorerItemCreator={hideExplorerItemCreator}
+        />
+      </div>
+    </li>
+  );
 }
 
 function ExplorerItemCreatorInput({
@@ -90,10 +70,9 @@ function ExplorerItemCreatorInput({
     category: category,
     parentId: parentId,
   };
-
-  const isAddEntitiesPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsAddExplorerItemPending(state)
-  );
+  const mutation = useMutation({
+    mutationFn: (data: initialExplorerItem) => addExplorerItem(data)
+  })
 
   function handleBlur() {
     if (canSave) {
@@ -101,17 +80,12 @@ function ExplorerItemCreatorInput({
     }
   }
 
-  const canSave = initialEntity && !isAddEntitiesPending;
+  const canSave = initialEntity
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    // event.preventDefault();
-    // if (canSave) {
-    //   try {
-    //     await dispatch(addExplorerItemTh(initialEntity)).unwrap();
-    //     hideExplorerItemCreator();
-    //   } catch (err) {
-    //     console.error("Failed to save the entity: ", err);
-    //   }
-    // }
+    event.preventDefault();
+    if (canSave) {
+      mutation.mutate(initialEntity)
+    }
   }
 
   return (
@@ -126,7 +100,10 @@ function ExplorerItemCreatorInput({
           onBlur={handleBlur}
           disabled={!canSave}
         />
-        {isAddEntitiesPending && <div>Loading...</div>}
+        {mutation.isPending && <div>Loading...</div>}
+        {mutation.isError && <div>Error...</div>}
+        {mutation.isSuccess && <div>Success...</div>}
+
       </form>
     </>
   );

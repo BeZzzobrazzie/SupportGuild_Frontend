@@ -4,11 +4,21 @@ import classes from "./explorer-item.module.css";
 
 import {
   explorerItem,
+  explorerItemCategory,
   explorerItemId,
+  explorerItems,
 } from "src/04_entities/explorer/api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
-import { useQuery } from "@tanstack/react-query";
-import { getExplorerItems } from "../api/explorer-api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { addExplorerItem, getExplorerItems } from "../api/explorer-api";
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconFile,
+} from "@tabler/icons-react";
+import { useState } from "react";
+import { showContextMenu } from "src/04_entities/contextmenu/model";
+import { ExplorerItemCreator } from "./item-creator";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -42,7 +52,14 @@ export function ExplorerItem({
   let content = <></>;
 
   if (explorerItem.category === "folder") {
-    content = <Folder explorerItem={explorerItem} indent={indent} />;
+    content = (
+      <Folder
+        explorerItems={explorerItems}
+        explorerItem={explorerItem}
+        indent={indent}
+        nestingLevel={nestingLevel}
+      />
+    );
   } else if (explorerItem.category === "file") {
     content = <Collection explorerItem={explorerItem} indent={indent} />;
   } else return <span>Error: unexpected category explorerItem</span>;
@@ -51,35 +68,127 @@ export function ExplorerItem({
 }
 
 interface FolderProps {
-  explorerItems: 
+  explorerItems: explorerItems;
   explorerItem: explorerItem;
   indent: JSX.Element[];
+  nestingLevel: number;
 }
 
-function Folder({ explorerItem, indent }: FolderProps) {
-
-  const children = Object.values(explorerItems.byId).filter(
-    (child) => child.parentId === null
+function Folder({
+  explorerItems,
+  explorerItem,
+  indent,
+  nestingLevel,
+}: FolderProps) {
+  const { showContextMenu } = useContextMenu();
+  const children = explorerItem.children.map(
+    (childId) => explorerItems.byId[childId]
   );
+
+  const [isOpen, setIsOpen] = useState(false);
+  // const [isExplorerItemCreator, setIsExplorerItemCreator] = useState(false);
+  const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
+    useState<explorerItemCategory>(null);
+  const isExplorerItemCreator = categoryExplorerItemCreator !== null;
+  // function showExplorerItemCreator() {
+  //   setIsExplorerItemCreator(true);
+  // }
+  function hideExplorerItemCreator() {
+    setCategoryExplorerItemCreator(null);
+  }
+  const explorerItemCreator = (
+    <ExplorerItemCreator
+      parentId={explorerItem.parentId}
+      category={categoryExplorerItemCreator}
+      nestingLevel={nestingLevel}
+      hideExplorerItemCreator={hideExplorerItemCreator}
+    />
+  );
+
+  function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    setIsOpen(!isOpen);
+  }
+
+  // const mutation = useMutation({
+  //   mutationFn: addExplorerItem(initialData)
+  // })
+
+  const options = [
+    {
+      key: "new file",
+      onClick: () => {
+        console.log("new file");
+        if (!isOpen) setIsOpen(true);
+        setCategoryExplorerItemCreator("file");
+      },
+    },
+    {
+      key: "new folder",
+      onClick: () => {
+        console.log("new folder");
+        if (!isOpen) setIsOpen(true);
+        setCategoryExplorerItemCreator("folder");
+      },
+    },
+    { key: "divider-1" },
+    {
+      key: "cut",
+      onClick: () => console.log("cut"),
+      disabled: true,
+    },
+    {
+      key: "copy",
+      title: "Copy",
+      onClick: () => console.log("copy"),
+      disabled: true,
+    },
+    {
+      key: "past",
+      title: "Past",
+      onClick: () => console.log("past"),
+      disabled: true,
+    },
+    { key: "divider-2" },
+    {
+      key: "rename",
+      onClick: () => {
+        console.log("rename");
+      },
+    },
+    {
+      key: "delete",
+      onClick: () => {
+        console.log("delete");
+      },
+    },
+  ];
+
+  
+
   return (
     <>
       <li>
-        <div className={classes["explorer-item_header"]}>
+        <div
+          className={classes["explorer-item_header"]}
+          onClick={(event) => handleClick(event)}
+          onContextMenu={showContextMenu(options)}
+        >
           {indent}
+          {isOpen ? <IconChevronDown /> : <IconChevronRight />}
           {explorerItem.name}
         </div>
-        <ul className={classes["children-list"]}>
-                  {children.map((child) => (
-                    <ExplorerItem
-                      key={child.id}
-                      explorerItemId={child.id}
-                      nestingLevel={nestingLevel + 1}
-                      parentIsRemoval={
-                        parentIsRemoval || explorerItem.isRemoval
-                      }
-                    />
-                  ))}
-                </ul>
+        {isOpen && (
+          <ul className={classes["children-list"]}>
+            {isExplorerItemCreator && explorerItemCreator}
+            {children.map((child) => (
+              <ExplorerItem
+                key={child.id}
+                explorerItemId={child.id}
+                nestingLevel={nestingLevel + 1}
+              />
+            ))}
+          </ul>
+        )}
       </li>
     </>
   );
@@ -96,6 +205,7 @@ function Collection({ explorerItem, indent }: CollectionProps) {
       <li>
         <div className={classes["explorer-item_header"]}>
           {indent}
+          <IconFile />
           {explorerItem.name}
         </div>
       </li>

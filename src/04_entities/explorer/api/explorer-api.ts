@@ -3,6 +3,7 @@ import {
   dataForUpdate,
   dataFromServer,
   explorerItemId,
+  explorerItemSchema,
   idDeletedExplorerItemSchema,
   idDeletedExplorerItemsSchema,
   initialExplorerItem,
@@ -27,6 +28,23 @@ export const getExplorerItems = () => {
     staleTime: 5 * 1000 * 60,
   });
 };
+
+export async function addExplorerItem(initialData: initialExplorerItem) {
+  const data = await baseFetch("api/template-manager/explorer-entities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(initialData),
+  });
+
+  try {
+    return explorerItemSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
 
 // export async function getExplorerItems() {
 //   const response = await fetch(explorerItemsURL);

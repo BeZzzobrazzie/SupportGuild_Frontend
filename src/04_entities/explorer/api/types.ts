@@ -32,27 +32,29 @@ export type explorerItemName = z.infer<typeof explorerItemNameSchema>;
 export type explorerItemParentId = z.infer<typeof explorerItemParentIdSchema>;
 export type explorerItem = z.infer<typeof explorerItemSchema>;
 
-export type byId = Record<explorerItemId, explorerItem | undefined>;
-type entities = {
-  byId: byId;
-  ids: explorerItemId[];
-};
+export type explorerItems = z.infer<typeof dataFromServer>;
 
-export type explorerSliceType = {
-  entities: entities;
-  // activeCollection: explorerItemId | null;
-  activeCollection: {
-    currentId: explorerItemId | null;
-    nextId: explorerItemId | null;
-  };
-  selectedItemIds: explorerItemId[] | null;
-  fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
-  addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-  removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-  removeExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
-  updateExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-  error: string | null | undefined;
-};
+// export type byId = z.infer<typeof byIdSchema>;
+// type entities = {
+//   byId: byId;
+//   ids: explorerItemId[];
+// };
+
+// export type explorerSliceType = {
+//   entities: entities;
+//   // activeCollection: explorerItemId | null;
+//   activeCollection: {
+//     currentId: explorerItemId | null;
+//     nextId: explorerItemId | null;
+//   };
+//   selectedItemIds: explorerItemId[] | null;
+//   fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
+//   addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+//   removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+//   removeExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
+//   updateExplorerItemStatus: "idle" | "pending" | "success" | "failed";
+//   error: string | null | undefined;
+// };
 
 export type initialExplorerItem = {
   name: explorerItemName;
