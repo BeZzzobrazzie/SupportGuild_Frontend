@@ -98,7 +98,7 @@ function Folder({
   }
   const explorerItemCreator = (
     <ExplorerItemCreator
-      parentId={explorerItem.parentId}
+      parentId={explorerItem.id}
       category={categoryExplorerItemCreator}
       nestingLevel={nestingLevel}
       hideExplorerItemCreator={hideExplorerItemCreator}
