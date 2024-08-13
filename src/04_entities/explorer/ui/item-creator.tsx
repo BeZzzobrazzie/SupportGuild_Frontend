@@ -66,7 +66,6 @@ function ExplorerItemCreatorInput({
   parentId: explorerItemParentId;
   hideExplorerItemCreator(): void;
 }) {
-  const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState("");
   const initialEntity = {
     name: inputValue,
@@ -75,7 +74,7 @@ function ExplorerItemCreatorInput({
   };
 
   const mutation = useMutation({
-    mutationFn: (data: initialExplorerItem) => addExplorerItem(data),
+    mutationFn: async (data: initialExplorerItem) => await addExplorerItem(data),
     onSuccess: (data) => {
       // queryClient.invalidateQueries({queryKey: ["explorerItems"]})
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
@@ -88,12 +87,11 @@ function ExplorerItemCreatorInput({
           ids: [...oldData.ids, data.id],
         };
       });
+      hideExplorerItemCreator()
     },
+    mutationKey: ["addExplorerItem"]
   });
 
-  console.log('getQueryData')
-  console.log(queryClient.getQueryData(["explorerItems"]))
-  // console.log(queryClient.getQueryCache())
 
   function handleBlur() {
     if (canSave) {
@@ -101,7 +99,7 @@ function ExplorerItemCreatorInput({
     }
   }
 
-  const canSave = initialEntity;
+  const canSave = !mutation.isPending;
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (canSave) {

@@ -46,6 +46,23 @@ export async function addExplorerItem(initialData: initialExplorerItem) {
   }
 }
 
+export async function removeExplorerItem(id: explorerItemId) {
+  const data = await baseFetch("api/template-manager/explorer-entities", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  try {
+    return idDeletedExplorerItemSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
 // export async function getExplorerItems() {
 //   const response = await fetch(explorerItemsURL);
 //   const data = await response.json();

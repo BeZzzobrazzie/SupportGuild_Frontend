@@ -11,12 +11,12 @@ export function ListCards() {
     dispatch(fetchCards());
   }, []);
 
-  const activeCollection = useAppSelector((state) =>
-    explorerSlice.selectors.selectActiveCollection(state)
-  );
-  const cards = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectCollectionCards(state, activeCollection)
-  );
+  // const activeCollection = useAppSelector((state) =>
+  //   explorerSlice.selectors.selectActiveCollection(state)
+  // );
+  // const cards = useAppSelector((state) =>
+  //   templateCardsSlice.selectors.selectCollectionCards(state, activeCollection)
+  // );
 
-  return cards.map((item) => <Card key={item.id} id={item.id} />);
+  // return cards.map((item) => <Card key={item.id} id={item.id} />);
 }

@@ -1,4 +1,8 @@
-import { useContextMenu } from "mantine-contextmenu";
+import {
+  ContextMenuContent,
+  ContextMenuItemOptions,
+  useContextMenu,
+} from "mantine-contextmenu";
 
 import classes from "./explorer-item.module.css";
 
@@ -9,8 +13,17 @@ import {
   explorerItems,
 } from "src/04_entities/explorer/api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { addExplorerItem, getExplorerItems } from "../api/explorer-api";
+import {
+  useIsMutating,
+  useMutation,
+  UseMutationResult,
+  useQuery,
+} from "@tanstack/react-query";
+import {
+  addExplorerItem,
+  getExplorerItems,
+  removeExplorerItem,
+} from "../api/explorer-api";
 import {
   IconChevronDown,
   IconChevronRight,
@@ -19,6 +32,8 @@ import {
 import { useState } from "react";
 import { showContextMenu } from "src/04_entities/contextmenu/model";
 import { ExplorerItemCreator } from "./item-creator";
+import { clickOnFolder, deleteFolder, explorerSlice } from "../model";
+import { queryClient } from "src/05_shared/api";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -28,9 +43,7 @@ export function ExplorerItem({
   explorerItemId,
   nestingLevel,
 }: ExplorerItemProps) {
-  const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
-
   const {
     isPending,
     isError,
@@ -49,8 +62,60 @@ export function ExplorerItem({
       <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
-  let content = <></>;
+  
+  // const deleteItemMutation = useMutation({
+    mutationFn: async (data: explorerItemId) => await removeExplorerItem(data),
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries({queryKey: ["explorerItems"]})
+      queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
+        let newById = oldData.byId;
+        let newIds = oldData.ids;
 
+        function deleteElementTree(parentId: explorerItemId) {
+          let explorerItemsByIdToRemove: number[] = [];
+          delete newById[parentId];
+          newIds = newIds.filter((item) => item !== parentId);
+
+          for (let key in newById) {
+            if (!!newById[key]) {
+              if (newById[key].parentId === parentId) {
+                explorerItemsByIdToRemove.push(Number(key));
+              }
+            }
+          }
+
+          explorerItemsByIdToRemove.map((itemId) => {
+            deleteElementTree(itemId);
+          });
+        }
+        deleteElementTree(data.id);
+
+        // const { [data.id]: deleteVar, ...newById } = oldData.byId;
+        // const newIds = oldData.ids.filter((id) => id !== data.id);
+        return {
+          ...oldData,
+          byId: newById,
+          ids: newIds,
+        };
+      });
+      if (explorerItem.category === "folder") {
+        dispatch(deleteFolder(data.id));
+      }
+    },
+    mutationKey: ["removeExplorerItem"],
+  });
+
+  const isMutatingExplorerItems =
+    useIsMutating({ mutationKey: ["addExplorerItem"] }) > 0;
+  const loadingOptions = [
+    {
+      key: "Loading...",
+      onClick: () => {},
+      disabled: true,
+    },
+  ];
+
+  let content = <></>;
   if (explorerItem.category === "folder") {
     content = (
       <Folder
@@ -58,10 +123,21 @@ export function ExplorerItem({
         explorerItem={explorerItem}
         indent={indent}
         nestingLevel={nestingLevel}
+        isMutatingExplorerItems={isMutatingExplorerItems}
+        loadingOptions={loadingOptions}
+        deleteItemMutation={deleteItemMutation}
       />
     );
   } else if (explorerItem.category === "file") {
-    content = <Collection explorerItem={explorerItem} indent={indent} />;
+    content = (
+      <Collection
+        explorerItem={explorerItem}
+        indent={indent}
+        isMutatingExplorerItems={isMutatingExplorerItems}
+        loadingOptions={loadingOptions}
+        deleteItemMutation={deleteItemMutation}
+      />
+    );
   } else return <span>Error: unexpected category explorerItem</span>;
 
   return <>{content}</>;
@@ -72,6 +148,16 @@ interface FolderProps {
   explorerItem: explorerItem;
   indent: JSX.Element[];
   nestingLevel: number;
+  isMutatingExplorerItems: boolean;
+  loadingOptions: ContextMenuContent;
+  deleteItemMutation: UseMutationResult<
+    {
+      id: number;
+    },
+    Error,
+    number,
+    unknown
+  >;
 }
 
 function Folder({
@@ -79,20 +165,26 @@ function Folder({
   explorerItem,
   indent,
   nestingLevel,
+  isMutatingExplorerItems,
+  loadingOptions,
+  deleteItemMutation,
 }: FolderProps) {
   const { showContextMenu } = useContextMenu();
-  const children = explorerItem.children.map(
-    (childId) => explorerItems.byId[childId]
+  const dispatch = useAppDispatch();
+
+  const children = explorerItems.ids
+    .map((id) => explorerItems.byId[id])
+    .filter((item) => item.parentId === explorerItem.id);
+
+  // const [isOpen, setIsOpen] = useState(false);
+  const isOpen = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
 
-  const [isOpen, setIsOpen] = useState(false);
-  // const [isExplorerItemCreator, setIsExplorerItemCreator] = useState(false);
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
     useState<explorerItemCategory>(null);
   const isExplorerItemCreator = categoryExplorerItemCreator !== null;
-  // function showExplorerItemCreator() {
-  //   setIsExplorerItemCreator(true);
-  // }
+
   function hideExplorerItemCreator() {
     setCategoryExplorerItemCreator(null);
   }
@@ -100,25 +192,22 @@ function Folder({
     <ExplorerItemCreator
       parentId={explorerItem.id}
       category={categoryExplorerItemCreator}
-      nestingLevel={nestingLevel}
+      nestingLevel={nestingLevel + 1}
       hideExplorerItemCreator={hideExplorerItemCreator}
     />
   );
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    setIsOpen(!isOpen);
+    // setIsOpen(!isOpen);
+    dispatch(clickOnFolder(explorerItem.id));
   }
-
-  // const mutation = useMutation({
-  //   mutationFn: addExplorerItem(initialData)
-  // })
 
   const options = [
     {
       key: "new file",
       onClick: () => {
         console.log("new file");
-        if (!isOpen) setIsOpen(true);
+        if (!isOpen) dispatch(clickOnFolder(explorerItem.id));
         setCategoryExplorerItemCreator("file");
       },
     },
@@ -126,7 +215,7 @@ function Folder({
       key: "new folder",
       onClick: () => {
         console.log("new folder");
-        if (!isOpen) setIsOpen(true);
+        if (!isOpen) dispatch(clickOnFolder(explorerItem.id));
         setCategoryExplorerItemCreator("folder");
       },
     },
@@ -159,11 +248,10 @@ function Folder({
       key: "delete",
       onClick: () => {
         console.log("delete");
+        deleteItemMutation.mutate(explorerItem.id);
       },
     },
   ];
-
-  
 
   return (
     <>
@@ -171,7 +259,11 @@ function Folder({
         <div
           className={classes["explorer-item_header"]}
           onClick={(event) => handleClick(event)}
-          onContextMenu={showContextMenu(options)}
+          onContextMenu={
+            isMutatingExplorerItems
+              ? showContextMenu(loadingOptions)
+              : showContextMenu(options)
+          }
         >
           {indent}
           {isOpen ? <IconChevronDown /> : <IconChevronRight />}
@@ -197,13 +289,66 @@ function Folder({
 interface CollectionProps {
   explorerItem: explorerItem;
   indent: JSX.Element[];
+  isMutatingExplorerItems: boolean;
+  loadingOptions: ContextMenuContent;
+  deleteItemMutation: UseMutationResult<
+    {
+      id: number;
+    },
+    Error,
+    number,
+    unknown
+  >;
 }
 
-function Collection({ explorerItem, indent }: CollectionProps) {
+function Collection({
+  explorerItem,
+  indent,
+  isMutatingExplorerItems,
+  loadingOptions,
+  deleteItemMutation,
+}: CollectionProps) {
+  const { showContextMenu } = useContextMenu();
+
+  const options = [
+    {
+      key: "cut",
+      onClick: () => console.log("cut"),
+      disabled: true,
+    },
+    {
+      key: "copy",
+      title: "Copy",
+      onClick: () => console.log("copy"),
+      disabled: true,
+    },
+    { key: "divider-1" },
+    {
+      key: "rename",
+      onClick: () => {
+        console.log("rename");
+      },
+    },
+    {
+      key: "delete",
+      onClick: () => {
+        console.log("delete");
+        deleteItemMutation.mutate(explorerItem.id);
+      },
+    },
+  ];
+
   return (
     <>
       <li>
-        <div className={classes["explorer-item_header"]}>
+        <div
+          className={classes["explorer-item_header"]}
+          onContextMenu={
+            isMutatingExplorerItems
+              ? showContextMenu(loadingOptions)
+              : showContextMenu(options)
+          }
+        >
           {indent}
           <IconFile />
           {explorerItem.name}

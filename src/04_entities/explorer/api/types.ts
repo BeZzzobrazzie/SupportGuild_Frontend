@@ -56,6 +56,10 @@ export type explorerItems = z.infer<typeof dataFromServer>;
 //   error: string | null | undefined;
 // };
 
+export type explorerSliceType = {
+  openedItems: Record<explorerItemId, boolean>;
+};
+
 export type initialExplorerItem = {
   name: explorerItemName;
   category: explorerItemCategory;

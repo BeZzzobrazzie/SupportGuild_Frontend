@@ -11,10 +11,6 @@ import {
 } from "../model";
 import { useDisclosure } from "@mantine/hooks";
 import { Modal } from "@mantine/core";
-import {
-  changeCurrentCollectionToNext,
-  changeNextCollection,
-} from "src/04_entities/explorer/model";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 export function ModalUnsavedChanges({
