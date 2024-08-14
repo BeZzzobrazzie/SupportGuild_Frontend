@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addExplorerItem } from "../api/explorer-api";
 import { queryClient } from "src/05_shared/api";
+import { Loader } from "@mantine/core";
 
 type ExplorerItemCreator = {
   parentId: explorerItemParentId;
@@ -119,9 +120,11 @@ function ExplorerItemCreatorInput({
           onBlur={handleBlur}
           disabled={!canSave}
         />
-        {mutation.isPending && <div>Loading...</div>}
+
+
+        {mutation.isPending && <Loader color="yellow" size="xs" />}
         {mutation.isError && <div>Error...</div>}
-        {mutation.isSuccess && <div>Success...</div>}
+        {/* {mutation.isSuccess && <div>Success...</div>} */}
       </form>
     </>
   );

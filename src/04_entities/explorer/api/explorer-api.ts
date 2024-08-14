@@ -63,6 +63,24 @@ export async function removeExplorerItem(id: explorerItemId) {
   }
 }
 
+export async function updateExplorerItem(dataForUpdate: dataForUpdate) {
+  const data = await baseFetch("api/template-manager/explorer-entities", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(dataForUpdate),
+  });
+
+  try {
+    return explorerItemSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+
 // export async function getExplorerItems() {
 //   const response = await fetch(explorerItemsURL);
 //   const data = await response.json();

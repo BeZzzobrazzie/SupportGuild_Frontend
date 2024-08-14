@@ -12,19 +12,32 @@ import { getExplorerItems } from "../api/explorer-api";
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
-  const { isPending, isError, data: explorerItems, error } = useQuery(getExplorerItems());
+  const {
+    isPending,
+    isError,
+    data: explorerItems,
+    error,
+  } = useQuery(getExplorerItems());
   console.log(explorerItems);
 
+  const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
+    useState<explorerItemCategory>(null);
+  const isExplorerItemCreator = categoryExplorerItemCreator !== null;
+
+  function hideExplorerItemCreator() {
+    setCategoryExplorerItemCreator(null);
+  }
+
   if (isPending) {
-    return <span>Loading...</span>
+    return <span>Loading...</span>;
   }
 
   if (isError) {
-    return <span>Error: {error.message}</span>
+    return <span>Error: {error.message}</span>;
   }
 
   if (!explorerItems) {
-    return <span>Error: no data</span>
+    return <span>Error: no data</span>;
   }
 
   const children = Object.values(explorerItems.byId).filter(
@@ -36,26 +49,27 @@ export function Root() {
       key: "new file",
       onClick: () => {
         console.log("new file");
+        setCategoryExplorerItemCreator("file");
       },
     },
     {
       key: "new folder",
       onClick: () => {
         console.log("new folder");
+        setCategoryExplorerItemCreator("folder");
       },
     },
   ];
 
   let content = <></>;
 
-
   content = (
     <>
       <ul
-      className={classes["root"]}
-      onContextMenu={showContextMenu(rootOptions)}
-    >
-      {/* {isCreator && (
+        className={classes["root"]}
+        onContextMenu={showContextMenu(rootOptions)}
+      >
+        {/* {isCreator && (
         <ExplorerItemCreator
           parentId={null}
           category={creatorCategory}
@@ -63,17 +77,24 @@ export function Root() {
           hideExplorerItemCreator={hideCreator}
         />
       )} */}
-      {children.map((entity) => (
-        <ExplorerItem
-          key={entity.id}
-          explorerItemId={entity.id}
-          nestingLevel={0}
-        />
-      ))}
-    </ul>
+        {children.map((entity) => (
+          <ExplorerItem
+            key={entity.id}
+            explorerItemId={entity.id}
+            nestingLevel={0}
+          />
+        ))}
+        {isExplorerItemCreator && (
+          <ExplorerItemCreator
+            parentId={null}
+            category={categoryExplorerItemCreator}
+            nestingLevel={0}
+            hideExplorerItemCreator={hideExplorerItemCreator}
+          />
+        )}
+      </ul>
     </>
   );
 
   return <>{content}</>;
 }
-

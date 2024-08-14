@@ -33,6 +33,7 @@ export type explorerItemParentId = z.infer<typeof explorerItemParentIdSchema>;
 export type explorerItem = z.infer<typeof explorerItemSchema>;
 
 export type explorerItems = z.infer<typeof dataFromServer>;
+export type idDeletedExplorerItem = z.infer<typeof idDeletedExplorerItemSchema>;
 
 // export type byId = z.infer<typeof byIdSchema>;
 // type entities = {

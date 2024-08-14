@@ -7,6 +7,7 @@ import {
 import classes from "./explorer-item.module.css";
 
 import {
+  dataForUpdate,
   explorerItem,
   explorerItemCategory,
   explorerItemId,
@@ -23,6 +24,7 @@ import {
   addExplorerItem,
   getExplorerItems,
   removeExplorerItem,
+  updateExplorerItem,
 } from "../api/explorer-api";
 import {
   IconChevronDown,
@@ -34,6 +36,10 @@ import { showContextMenu } from "src/04_entities/contextmenu/model";
 import { ExplorerItemCreator } from "./item-creator";
 import { clickOnFolder, deleteFolder, explorerSlice } from "../model";
 import { queryClient } from "src/05_shared/api";
+import { useIsMutatingExplorerItems } from "../lib/use-is-mutating-explorer-items";
+import { Loader } from "@mantine/core";
+import { useDeleteItemMutation } from "../lib/use-delete-item-mutation";
+import { ExplorerItemUpdateInput } from "./item-update-input";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -62,51 +68,26 @@ export function ExplorerItem({
       <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
 
-  
-  // const deleteItemMutation = useMutation({
-    mutationFn: async (data: explorerItemId) => await removeExplorerItem(data),
+  const [isUpdating, setIsUpdating] = useState(false);
+  const updateMutation = useMutation({
+    mutationFn: async (data: dataForUpdate) => await updateExplorerItem(data),
     onSuccess: (data) => {
-      // queryClient.invalidateQueries({queryKey: ["explorerItems"]})
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
-        let newById = oldData.byId;
-        let newIds = oldData.ids;
-
-        function deleteElementTree(parentId: explorerItemId) {
-          let explorerItemsByIdToRemove: number[] = [];
-          delete newById[parentId];
-          newIds = newIds.filter((item) => item !== parentId);
-
-          for (let key in newById) {
-            if (!!newById[key]) {
-              if (newById[key].parentId === parentId) {
-                explorerItemsByIdToRemove.push(Number(key));
-              }
-            }
-          }
-
-          explorerItemsByIdToRemove.map((itemId) => {
-            deleteElementTree(itemId);
-          });
-        }
-        deleteElementTree(data.id);
-
-        // const { [data.id]: deleteVar, ...newById } = oldData.byId;
-        // const newIds = oldData.ids.filter((id) => id !== data.id);
         return {
           ...oldData,
-          byId: newById,
-          ids: newIds,
+          byId: {
+            ...oldData.byId,
+            [data.id]: data,
+          },
         };
       });
-      if (explorerItem.category === "folder") {
-        dispatch(deleteFolder(data.id));
-      }
+      setIsUpdating(false);
     },
-    mutationKey: ["removeExplorerItem"],
+    mutationKey: ["updateExplorerItem"],
   });
+  const deleteItemMutation = useDeleteItemMutation(explorerItem);
+  const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
-  const isMutatingExplorerItems =
-    useIsMutating({ mutationKey: ["addExplorerItem"] }) > 0;
   const loadingOptions = [
     {
       key: "Loading...",
@@ -119,13 +100,15 @@ export function ExplorerItem({
   if (explorerItem.category === "folder") {
     content = (
       <Folder
-        explorerItems={explorerItems}
         explorerItem={explorerItem}
         indent={indent}
         nestingLevel={nestingLevel}
         isMutatingExplorerItems={isMutatingExplorerItems}
         loadingOptions={loadingOptions}
         deleteItemMutation={deleteItemMutation}
+        isUpdating={isUpdating}
+        setIsUpdating={setIsUpdating}
+        updateMutation={updateMutation}
       />
     );
   } else if (explorerItem.category === "file") {
@@ -136,6 +119,9 @@ export function ExplorerItem({
         isMutatingExplorerItems={isMutatingExplorerItems}
         loadingOptions={loadingOptions}
         deleteItemMutation={deleteItemMutation}
+        isUpdating={isUpdating}
+        setIsUpdating={setIsUpdating}
+        updateMutation={updateMutation}
       />
     );
   } else return <span>Error: unexpected category explorerItem</span>;
@@ -144,7 +130,6 @@ export function ExplorerItem({
 }
 
 interface FolderProps {
-  explorerItems: explorerItems;
   explorerItem: explorerItem;
   indent: JSX.Element[];
   nestingLevel: number;
@@ -158,25 +143,49 @@ interface FolderProps {
     number,
     unknown
   >;
+  isUpdating: boolean;
+  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+  updateMutation: UseMutationResult<
+    {
+      id: number;
+      category: "file" | "folder" | null;
+      name: string;
+      parentId: number | null;
+      children: number[];
+    },
+    Error,
+    dataForUpdate,
+    unknown
+  >;
 }
 
 function Folder({
-  explorerItems,
   explorerItem,
   indent,
   nestingLevel,
   isMutatingExplorerItems,
   loadingOptions,
   deleteItemMutation,
+  isUpdating,
+  setIsUpdating,
+  updateMutation,
 }: FolderProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
+
+  const {
+    isPending,
+    isError,
+    data: explorerItems,
+    error,
+  } = useQuery(getExplorerItems());
+
+  if (!explorerItems) return <span>Error: no data</span>;
 
   const children = explorerItems.ids
     .map((id) => explorerItems.byId[id])
     .filter((item) => item.parentId === explorerItem.id);
 
-  // const [isOpen, setIsOpen] = useState(false);
   const isOpen = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
@@ -198,7 +207,6 @@ function Folder({
   );
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    // setIsOpen(!isOpen);
     dispatch(clickOnFolder(explorerItem.id));
   }
 
@@ -242,6 +250,7 @@ function Folder({
       key: "rename",
       onClick: () => {
         console.log("rename");
+        setIsUpdating(true);
       },
     },
     {
@@ -267,7 +276,19 @@ function Folder({
         >
           {indent}
           {isOpen ? <IconChevronDown /> : <IconChevronRight />}
-          {explorerItem.name}
+          {isUpdating ? (
+            <ExplorerItemUpdateInput
+              id={explorerItem.id}
+              name={explorerItem.name}
+              setIsUpdating={setIsUpdating}
+              updateMutation={updateMutation}
+            />
+          ) : (
+            explorerItem.name
+          )}
+          {(deleteItemMutation.isPending || updateMutation.isPending) && (
+            <Loader color="yellow" size="xs" />
+          )}
         </div>
         {isOpen && (
           <ul className={classes["children-list"]}>
@@ -299,6 +320,20 @@ interface CollectionProps {
     number,
     unknown
   >;
+  isUpdating: boolean;
+  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+  updateMutation: UseMutationResult<
+    {
+      id: number;
+      category: "file" | "folder" | null;
+      name: string;
+      parentId: number | null;
+      children: number[];
+    },
+    Error,
+    dataForUpdate,
+    unknown
+  >;
 }
 
 function Collection({
@@ -307,6 +342,9 @@ function Collection({
   isMutatingExplorerItems,
   loadingOptions,
   deleteItemMutation,
+  isUpdating,
+  setIsUpdating,
+  updateMutation,
 }: CollectionProps) {
   const { showContextMenu } = useContextMenu();
 
@@ -327,6 +365,7 @@ function Collection({
       key: "rename",
       onClick: () => {
         console.log("rename");
+        setIsUpdating(true);
       },
     },
     {
@@ -351,7 +390,19 @@ function Collection({
         >
           {indent}
           <IconFile />
-          {explorerItem.name}
+          {isUpdating ? (
+            <ExplorerItemUpdateInput
+              id={explorerItem.id}
+              name={explorerItem.name}
+              setIsUpdating={setIsUpdating}
+              updateMutation={updateMutation}
+            />
+          ) : (
+            explorerItem.name
+          )}
+          {(deleteItemMutation.isPending || updateMutation.isPending) && (
+            <Loader color="yellow" size="xs" />
+          )}
         </div>
       </li>
     </>

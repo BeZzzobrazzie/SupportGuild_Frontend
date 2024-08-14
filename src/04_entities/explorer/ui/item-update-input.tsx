@@ -1,37 +1,42 @@
 import { useState } from "react";
 import { explorerSlice } from "../model";
-import { explorerItemId } from "../api/types";
+import { dataForUpdate, explorerItemId, explorerItems } from "../api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { updateExplorerItem } from "../api/explorer-api";
+import { queryClient } from "src/05_shared/api";
 
 export function ExplorerItemUpdateInput({
   id,
   name,
   setIsUpdating,
+  updateMutation,
 }: {
   id: explorerItemId;
   name: string;
   setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
+  updateMutation: UseMutationResult<
+    {
+      id: number;
+      name: string;
+      children: number[];
+      category: "file" | "folder" | null;
+      parentId: number | null;
+    },
+    Error,
+    dataForUpdate,
+    unknown
+  >;
 }) {
-  const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState(name);
-  const isUpdateItemPending = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsUpdateExplorerItemPending(state)
-  );
 
   function handleBlur() {
-    if (!isUpdateItemPending) {
-      setIsUpdating(false);
-    }
+    setIsUpdating(false);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    // event.preventDefault();
-    // try {
-    //   await dispatch(updateExplorerItemTh({ id, name: inputValue })).unwrap();
-    //   setIsUpdating(false);
-    // } catch (err) {
-    //   console.error("Failed to update the entity: ", err);
-    // }
+    event.preventDefault();
+    updateMutation.mutate({ id, name: inputValue });
   }
 
   return (
