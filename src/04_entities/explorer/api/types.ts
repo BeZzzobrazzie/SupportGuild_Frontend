@@ -59,6 +59,8 @@ export type idDeletedExplorerItem = z.infer<typeof idDeletedExplorerItemSchema>;
 
 export type explorerSliceType = {
   openedItems: Record<explorerItemId, boolean>;
+  activeCollectionId: explorerItemId | null;
+  selectedItemIds: explorerItemId[];
 };
 
 export type initialExplorerItem = {

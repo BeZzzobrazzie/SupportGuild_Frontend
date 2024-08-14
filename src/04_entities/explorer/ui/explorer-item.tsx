@@ -274,6 +274,20 @@ function Folder({
               : showContextMenu(options)
           }
         >
+          <div
+            className={
+              isActiveCollection
+                ? classes["explorer-item__active"]
+                : classes["explorer-item__inactive"]
+            }
+          ></div>
+          <div
+            className={
+              isSelectedItem
+                ? classes["explorer-item__select"]
+                : classes["explorer-item__unselect"]
+            }
+          ></div>
           {indent}
           {isOpen ? <IconChevronDown /> : <IconChevronRight />}
           {isUpdating ? (
@@ -388,6 +402,20 @@ function Collection({
               : showContextMenu(options)
           }
         >
+          <div
+            className={
+              isActiveCollection
+                ? classes["explorer-item__active"]
+                : classes["explorer-item__inactive"]
+            }
+          ></div>
+          <div
+            className={
+              isSelectedItem
+                ? classes["explorer-item__select"]
+                : classes["explorer-item__unselect"]
+            }
+          ></div>
           {indent}
           <IconFile />
           {isUpdating ? (

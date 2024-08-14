@@ -5,6 +5,9 @@ import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: explorerSliceType = {
   openedItems: {},
+  activeCollectionId: null,
+  selectedItemIds: [],
+
 };
 
 export const explorerSlice = createSlice({
@@ -26,6 +29,7 @@ export const explorerSlice = createSlice({
       const {[action.payload]: deleteVar, ...newState} = state.openedItems;
       state.openedItems = newState
     },
+    
   },
   extraReducers: (builder) => {},
 }).injectInto(rootReducer);
