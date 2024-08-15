@@ -63,6 +63,26 @@ export async function removeExplorerItem(id: explorerItemId) {
   }
 }
 
+export async function removeSeveralExplorerItems(ids: explorerItemId[]) {
+  const data = await baseFetch(
+    "api/template-manager/explorer-entities/delete-several",
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify({ ids }),
+    }
+  );
+
+  try {
+    return idDeletedExplorerItemsSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
 export async function updateExplorerItem(dataForUpdate: dataForUpdate) {
   const data = await baseFetch("api/template-manager/explorer-entities", {
     method: "PATCH",
@@ -79,7 +99,6 @@ export async function updateExplorerItem(dataForUpdate: dataForUpdate) {
     throw e;
   }
 }
-
 
 // export async function getExplorerItems() {
 //   const response = await fetch(explorerItemsURL);

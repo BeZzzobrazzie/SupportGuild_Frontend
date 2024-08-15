@@ -34,12 +34,20 @@ import {
 import { useState } from "react";
 import { showContextMenu } from "src/04_entities/contextmenu/model";
 import { ExplorerItemCreator } from "./item-creator";
-import { clickOnFolder, deleteFolder, explorerSlice } from "../model";
+import {
+  clickOnCollection,
+  clickOnFolder,
+  deleteFolder,
+  explorerSlice,
+  selectItem,
+  toggleSelectItem,
+} from "../model";
 import { queryClient } from "src/05_shared/api";
 import { useIsMutatingExplorerItems } from "../lib/use-is-mutating-explorer-items";
 import { Loader } from "@mantine/core";
 import { useDeleteItemMutation } from "../lib/use-delete-item-mutation";
 import { ExplorerItemUpdateInput } from "./item-update-input";
+import { useDeleteItemsMutation } from "../lib/use-delete-items-mutation";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -62,11 +70,16 @@ export function ExplorerItem({
 
   const explorerItem = explorerItems.byId[explorerItemId];
 
+
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
       <div key={index} className={classes["explorer-item_indent"]}></div>
     ));
+
+  const isSelectedItem = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
+  );
 
   const [isUpdating, setIsUpdating] = useState(false);
   const updateMutation = useMutation({
@@ -86,6 +99,7 @@ export function ExplorerItem({
     mutationKey: ["updateExplorerItem"],
   });
   const deleteItemMutation = useDeleteItemMutation(explorerItem);
+  const deleteItemsMutation = useDeleteItemsMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
   const loadingOptions = [
@@ -97,6 +111,8 @@ export function ExplorerItem({
   ];
 
   let content = <></>;
+  if (!explorerItem) return <span>Error: no data</span>;
+
   if (explorerItem.category === "folder") {
     content = (
       <Folder
@@ -109,6 +125,8 @@ export function ExplorerItem({
         isUpdating={isUpdating}
         setIsUpdating={setIsUpdating}
         updateMutation={updateMutation}
+        isSelectedItem={isSelectedItem}
+        deleteItemsMutation={deleteItemsMutation}
       />
     );
   } else if (explorerItem.category === "file") {
@@ -122,6 +140,8 @@ export function ExplorerItem({
         isUpdating={isUpdating}
         setIsUpdating={setIsUpdating}
         updateMutation={updateMutation}
+        isSelectedItem={isSelectedItem}
+        deleteItemsMutation={deleteItemsMutation}
       />
     );
   } else return <span>Error: unexpected category explorerItem</span>;
@@ -157,6 +177,15 @@ interface FolderProps {
     dataForUpdate,
     unknown
   >;
+  isSelectedItem: boolean;
+  deleteItemsMutation: UseMutationResult<
+    {
+      ids: number[];
+    },
+    Error,
+    void,
+    unknown
+  >;
 }
 
 function Folder({
@@ -169,6 +198,8 @@ function Folder({
   isUpdating,
   setIsUpdating,
   updateMutation,
+  isSelectedItem,
+  deleteItemsMutation,
 }: FolderProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
@@ -189,6 +220,8 @@ function Folder({
   const isOpen = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
+  const selectedItemsIds = useAppSelector((state) => explorerSlice.selectors.selectSelectedItemsIds(state))
+  console.log(selectedItemsIds)
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
     useState<explorerItemCategory>(null);
@@ -207,7 +240,14 @@ function Folder({
   );
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    dispatch(clickOnFolder(explorerItem.id));
+    if (explorerItem) {
+      if (event.ctrlKey) {
+        dispatch(toggleSelectItem(explorerItem.id));
+      } else {
+        dispatch(selectItem(explorerItem.id));
+        dispatch(clickOnFolder(explorerItem.id));
+      }
+    }
   }
 
   const options = [
@@ -257,7 +297,11 @@ function Folder({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        deleteItemMutation.mutate(explorerItem.id);
+        if (isSelectedItem) {
+          deleteItemsMutation.mutate();
+        } else {
+          deleteItemMutation.mutate(explorerItem.id);
+        }
       },
     },
   ];
@@ -274,13 +318,7 @@ function Folder({
               : showContextMenu(options)
           }
         >
-          <div
-            className={
-              isActiveCollection
-                ? classes["explorer-item__active"]
-                : classes["explorer-item__inactive"]
-            }
-          ></div>
+          <div className={classes["explorer-item__inactive"]}></div>
           <div
             className={
               isSelectedItem
@@ -300,7 +338,7 @@ function Folder({
           ) : (
             explorerItem.name
           )}
-          {(deleteItemMutation.isPending || updateMutation.isPending) && (
+          {(deleteItemMutation.isPending || updateMutation.isPending || deleteItemsMutation.isPending) && (
             <Loader color="yellow" size="xs" />
           )}
         </div>
@@ -348,6 +386,15 @@ interface CollectionProps {
     dataForUpdate,
     unknown
   >;
+  isSelectedItem: boolean;
+  deleteItemsMutation: UseMutationResult<
+    {
+      ids: number[];
+    },
+    Error,
+    void,
+    unknown
+  >;
 }
 
 function Collection({
@@ -359,8 +406,26 @@ function Collection({
   isUpdating,
   setIsUpdating,
   updateMutation,
+  isSelectedItem,
+  deleteItemsMutation,
 }: CollectionProps) {
   const { showContextMenu } = useContextMenu();
+  const dispatch = useAppDispatch();
+
+  const isActiveCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsActiveCollection(state, explorerItem.id)
+  );
+
+  function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    if (explorerItem) {
+      if (event.ctrlKey) {
+        dispatch(toggleSelectItem(explorerItem.id));
+      } else {
+        dispatch(selectItem(explorerItem.id));
+        dispatch(clickOnCollection(explorerItem.id));
+      }
+    }
+  }
 
   const options = [
     {
@@ -386,7 +451,11 @@ function Collection({
       key: "delete",
       onClick: () => {
         console.log("delete");
-        deleteItemMutation.mutate(explorerItem.id);
+        if (isSelectedItem) {
+          deleteItemsMutation.mutate();
+        } else {
+          deleteItemMutation.mutate(explorerItem.id);
+        }
       },
     },
   ];
@@ -401,6 +470,7 @@ function Collection({
               ? showContextMenu(loadingOptions)
               : showContextMenu(options)
           }
+          onClick={handleClick}
         >
           <div
             className={
@@ -428,7 +498,7 @@ function Collection({
           ) : (
             explorerItem.name
           )}
-          {(deleteItemMutation.isPending || updateMutation.isPending) && (
+          {(deleteItemMutation.isPending || updateMutation.isPending || deleteItemsMutation.isPending) && (
             <Loader color="yellow" size="xs" />
           )}
         </div>

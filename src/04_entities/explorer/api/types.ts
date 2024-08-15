@@ -34,6 +34,8 @@ export type explorerItem = z.infer<typeof explorerItemSchema>;
 
 export type explorerItems = z.infer<typeof dataFromServer>;
 export type idDeletedExplorerItem = z.infer<typeof idDeletedExplorerItemSchema>;
+export type idDeletedExplorerItems = z.infer<typeof idDeletedExplorerItemsSchema>;
+
 
 // export type byId = z.infer<typeof byIdSchema>;
 // type entities = {
@@ -60,7 +62,7 @@ export type idDeletedExplorerItem = z.infer<typeof idDeletedExplorerItemSchema>;
 export type explorerSliceType = {
   openedItems: Record<explorerItemId, boolean>;
   activeCollectionId: explorerItemId | null;
-  selectedItemIds: explorerItemId[];
+  selectedItemsIds: explorerItemId[];
 };
 
 export type initialExplorerItem = {
