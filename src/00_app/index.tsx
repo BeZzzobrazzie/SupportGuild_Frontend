@@ -10,6 +10,8 @@ import { ExplorerSmall } from "src/02_widgets/explorer-small";
 import { store } from "./store";
 import { Templates } from "src/02_widgets/templates";
 import { ModalsProvider } from "@mantine/modals";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 function App() {
   // store.dispatch(fetchExplorerItemsTh());
@@ -18,8 +20,10 @@ function App() {
     <MantineProvider defaultColorScheme="dark">
       <ModalsProvider>
         <ContextMenuProvider>
-          <ExplorerSmall />
-          <Templates />
+          <DndProvider backend={HTML5Backend}>
+            <ExplorerSmall />
+            <Templates />
+          </DndProvider>
         </ContextMenuProvider>
       </ModalsProvider>
     </MantineProvider>

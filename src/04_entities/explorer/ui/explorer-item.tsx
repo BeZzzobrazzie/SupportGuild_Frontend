@@ -31,7 +31,7 @@ import {
   IconChevronRight,
   IconFile,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { showContextMenu } from "src/04_entities/contextmenu/model";
 import { ExplorerItemCreator } from "./item-creator";
 import {
@@ -48,6 +48,13 @@ import { Loader } from "@mantine/core";
 import { useDeleteItemMutation } from "../lib/use-delete-item-mutation";
 import { ExplorerItemUpdateInput } from "./item-update-input";
 import { useDeleteItemsMutation } from "../lib/use-delete-items-mutation";
+import {
+  ConnectDragSource,
+  DragPreviewImage,
+  useDrag,
+  useDrop,
+} from "react-dnd";
+import { ItemTypes } from "src/05_shared/dnd";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -70,7 +77,6 @@ export function ExplorerItem({
 
   const explorerItem = explorerItems.byId[explorerItemId];
 
-
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
@@ -79,6 +85,9 @@ export function ExplorerItem({
 
   const isSelectedItem = useAppSelector((state) =>
     explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
+  );
+  const selectedItemsIds = useAppSelector((state) =>
+    explorerSlice.selectors.selectSelectedItemsIds(state)
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -101,6 +110,21 @@ export function ExplorerItem({
   const deleteItemMutation = useDeleteItemMutation(explorerItem);
   const deleteItemsMutation = useDeleteItemsMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
+
+  const draggingItem = isSelectedItem ? selectedItemsIds : [explorerItem.id];
+  const [{ isDragging }, drag, preview] = useDrag(
+    () => ({
+      type: ItemTypes.EXPLORER_ITEM,
+      item: { ids: draggingItem },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+    }),
+    [draggingItem]
+  );
+  const dragPreviewImage = (
+    <DragPreviewImage connect={preview} src={"src/assets/drag-drop-2.svg"} />
+  );
 
   const loadingOptions = [
     {
@@ -127,6 +151,9 @@ export function ExplorerItem({
         updateMutation={updateMutation}
         isSelectedItem={isSelectedItem}
         deleteItemsMutation={deleteItemsMutation}
+        drag={drag}
+        dragPreviewImage={dragPreviewImage}
+        isDragging={isDragging}
       />
     );
   } else if (explorerItem.category === "file") {
@@ -142,6 +169,9 @@ export function ExplorerItem({
         updateMutation={updateMutation}
         isSelectedItem={isSelectedItem}
         deleteItemsMutation={deleteItemsMutation}
+        drag={drag}
+        dragPreviewImage={dragPreviewImage}
+        isDragging={isDragging}
       />
     );
   } else return <span>Error: unexpected category explorerItem</span>;
@@ -186,6 +216,9 @@ interface FolderProps {
     void,
     unknown
   >;
+  drag: ConnectDragSource;
+  dragPreviewImage: JSX.Element;
+  isDragging: boolean;
 }
 
 function Folder({
@@ -200,6 +233,9 @@ function Folder({
   updateMutation,
   isSelectedItem,
   deleteItemsMutation,
+  drag,
+  dragPreviewImage,
+  isDragging,
 }: FolderProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
@@ -220,13 +256,37 @@ function Folder({
   const isOpen = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
-  const selectedItemsIds = useAppSelector((state) => explorerSlice.selectors.selectSelectedItemsIds(state))
-  console.log(selectedItemsIds)
+
+  const [{ isOver }, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.EXPLORER_ITEM,
+      canDrop: (_, monitor) => {
+        if (monitor.isOver({ shallow: true })) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      drop: (item) => {
+        console.log("dnd" + explorerItem.id);
+        console.log(item);
+        return item;
+      },
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver({ shallow: true }),
+      }),
+    }),
+    [explorerItem]
+  );
+  const style =
+    // isDragging
+    //   ? classes["explorer-item_drag"]
+    //   :
+    isOver ? classes["explorer-item_drop"] : "";
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
     useState<explorerItemCategory>(null);
   const isExplorerItemCreator = categoryExplorerItemCreator !== null;
-
   function hideExplorerItemCreator() {
     setCategoryExplorerItemCreator(null);
   }
@@ -308,7 +368,8 @@ function Folder({
 
   return (
     <>
-      <li>
+      {dragPreviewImage}
+      <li ref={(node) => drag(drop(node))} className={style}>
         <div
           className={classes["explorer-item_header"]}
           onClick={(event) => handleClick(event)}
@@ -338,7 +399,9 @@ function Folder({
           ) : (
             explorerItem.name
           )}
-          {(deleteItemMutation.isPending || updateMutation.isPending || deleteItemsMutation.isPending) && (
+          {(deleteItemMutation.isPending ||
+            updateMutation.isPending ||
+            deleteItemsMutation.isPending) && (
             <Loader color="yellow" size="xs" />
           )}
         </div>
@@ -395,6 +458,9 @@ interface CollectionProps {
     void,
     unknown
   >;
+  drag: ConnectDragSource;
+  dragPreviewImage: JSX.Element;
+  isDragging: boolean;
 }
 
 function Collection({
@@ -408,6 +474,9 @@ function Collection({
   updateMutation,
   isSelectedItem,
   deleteItemsMutation,
+  drag,
+  dragPreviewImage,
+  isDragging,
 }: CollectionProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
@@ -460,9 +529,15 @@ function Collection({
     },
   ];
 
+  // const style = isDragging ? classes["explorer-item_drag"] : "";
+
   return (
     <>
-      <li>
+      {dragPreviewImage}
+      <li
+        ref={drag}
+        // className={style}
+      >
         <div
           className={classes["explorer-item_header"]}
           onContextMenu={
@@ -498,7 +573,9 @@ function Collection({
           ) : (
             explorerItem.name
           )}
-          {(deleteItemMutation.isPending || updateMutation.isPending || deleteItemsMutation.isPending) && (
+          {(deleteItemMutation.isPending ||
+            updateMutation.isPending ||
+            deleteItemsMutation.isPending) && (
             <Loader color="yellow" size="xs" />
           )}
         </div>

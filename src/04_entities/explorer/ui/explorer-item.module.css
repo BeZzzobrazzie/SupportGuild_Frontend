@@ -20,6 +20,13 @@
   border-left: 3px solid transparent;
 }
 
+.explorer-item_drag {
+  background-color: rgba(17, 61, 27, 0.5);
+}
+.explorer-item_drop {
+  background-color: rgba(38, 58, 110, 0.5);
+}
+
 .children-list {
   list-style-type: none;
   padding-left: 0;
