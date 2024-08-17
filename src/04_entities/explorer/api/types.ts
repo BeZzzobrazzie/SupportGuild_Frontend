@@ -12,7 +12,7 @@ export const explorerItemSchema = z.object({
   category: explorerItemCategorySchema,
   name: explorerItemNameSchema,
   parentId: explorerItemParentIdSchema,
-  children: z.array(explorerItemIdSchema),
+  children: z.optional(z.array(explorerItemIdSchema)),
 });
 const byIdSchema = z.record(z.string(), explorerItemSchema);
 const idsSchema = z.array(explorerItemIdSchema);
@@ -34,8 +34,9 @@ export type explorerItem = z.infer<typeof explorerItemSchema>;
 
 export type explorerItems = z.infer<typeof dataFromServer>;
 export type idDeletedExplorerItem = z.infer<typeof idDeletedExplorerItemSchema>;
-export type idDeletedExplorerItems = z.infer<typeof idDeletedExplorerItemsSchema>;
-
+export type idDeletedExplorerItems = z.infer<
+  typeof idDeletedExplorerItemsSchema
+>;
 
 // export type byId = z.infer<typeof byIdSchema>;
 // type entities = {
@@ -75,6 +76,10 @@ export type initialExplorerItem = {
 export type dataForUpdate = {
   id: explorerItemId;
   name: explorerItemName;
+};
+export type moveExplorerItemsData = {
+  parentId: explorerItemParentId;
+  ids: explorerItemId[];
 };
 
 // export type entityFromServerType = {

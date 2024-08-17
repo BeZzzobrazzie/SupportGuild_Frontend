@@ -19,7 +19,7 @@ export function ExplorerItemUpdateInput({
     {
       id: number;
       name: string;
-      children: number[];
+      children?: number[];
       category: "file" | "folder" | null;
       parentId: number | null;
     },

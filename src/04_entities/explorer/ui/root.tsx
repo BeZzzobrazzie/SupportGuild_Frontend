@@ -3,12 +3,18 @@ import { useContextMenu } from "mantine-contextmenu";
 
 import classes from "./root.module.css";
 import { explorerSlice } from "../model";
-import { explorerItemCategory } from "../api/types";
+import { explorerItemCategory, explorerItemId } from "../api/types";
 import { ExplorerItemCreator } from "./item-creator";
 import { ExplorerItem } from "./explorer-item";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useQuery } from "@tanstack/react-query";
 import { getExplorerItems } from "../api/explorer-api";
+import { useDrop } from "react-dnd";
+import { ItemTypes } from "src/05_shared/dnd";
+import { useMoveMutation } from "../lib/use-move-mutation";
+import cn from 'classnames/bind';
+
+const cx = cn.bind(classes);
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
@@ -27,6 +33,31 @@ export function Root() {
   function hideExplorerItemCreator() {
     setCategoryExplorerItemCreator(null);
   }
+  const moveMutation = useMoveMutation();
+
+  const [{ isOver }, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.EXPLORER_ITEM,
+      canDrop: (item, monitor) => {
+        if (monitor.isOver({ shallow: true })) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      drop: (item: { ids: explorerItemId[] }) => {
+        moveMutation.mutate({
+          parentId: null,
+          ids: item.ids,
+        });
+        // return item;
+      },
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver({ shallow: true }),
+      }),
+    }),
+    []
+  );
 
   if (isPending) {
     return <span>Loading...</span>;
@@ -43,6 +74,10 @@ export function Root() {
   const children = Object.values(explorerItems.byId).filter(
     (child) => child.parentId === null
   );
+
+  const rootClass = cx('root', {
+    'root_drop': isOver
+  })
 
   const rootOptions = [
     {
@@ -66,7 +101,8 @@ export function Root() {
   content = (
     <>
       <ul
-        className={classes["root"]}
+        ref={drop}
+        className={rootClass}
         onContextMenu={showContextMenu(rootOptions)}
       >
         {/* {isCreator && (

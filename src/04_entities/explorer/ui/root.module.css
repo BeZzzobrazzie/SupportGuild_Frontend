@@ -5,3 +5,7 @@
   min-height: 100px;
   
 }
+
+.root_drop {
+  background-color: rgba(38, 58, 110, 0.5);
+}

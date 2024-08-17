@@ -22,6 +22,7 @@
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "mantine-contextmenu": "^7.10.1",
     "react": "^18.2.0",

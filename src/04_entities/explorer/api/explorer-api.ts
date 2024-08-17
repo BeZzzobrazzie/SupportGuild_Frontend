@@ -7,6 +7,7 @@ import {
   idDeletedExplorerItemSchema,
   idDeletedExplorerItemsSchema,
   initialExplorerItem,
+  moveExplorerItemsData,
 } from "./types";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -94,6 +95,25 @@ export async function updateExplorerItem(dataForUpdate: dataForUpdate) {
 
   try {
     return explorerItemSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function moveExplorerItems(dataForUpdate: moveExplorerItemsData) {
+  const data = await baseFetch("api/template-manager/explorer-entities/move", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(dataForUpdate),
+  });
+
+
+  console.log(data)
+  try {
+    return dataFromServer.parse(data);
   } catch (e) {
     console.log(e);
     throw e;

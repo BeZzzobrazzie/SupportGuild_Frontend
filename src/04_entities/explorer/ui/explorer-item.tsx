@@ -11,7 +11,9 @@ import {
   explorerItem,
   explorerItemCategory,
   explorerItemId,
+  explorerItemParentId,
   explorerItems,
+  moveExplorerItemsData,
 } from "src/04_entities/explorer/api/types";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import {
@@ -23,6 +25,7 @@ import {
 import {
   addExplorerItem,
   getExplorerItems,
+  moveExplorerItems,
   removeExplorerItem,
   updateExplorerItem,
 } from "../api/explorer-api";
@@ -55,6 +58,8 @@ import {
   useDrop,
 } from "react-dnd";
 import { ItemTypes } from "src/05_shared/dnd";
+import { isChild } from "../lib/is-child";
+import { useMoveMutation } from "../lib/use-move-mutation";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -201,7 +206,7 @@ interface FolderProps {
       category: "file" | "folder" | null;
       name: string;
       parentId: number | null;
-      children: number[];
+      children?: number[];
     },
     Error,
     dataForUpdate,
@@ -257,20 +262,32 @@ function Folder({
     explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
 
+  const moveMutation = useMoveMutation()
+
+
+
   const [{ isOver }, drop] = useDrop(
     () => ({
       accept: ItemTypes.EXPLORER_ITEM,
-      canDrop: (_, monitor) => {
-        if (monitor.isOver({ shallow: true })) {
+      canDrop: (item, monitor) => {
+        if (
+          monitor.isOver({ shallow: true }) &&
+          !item.ids.includes(explorerItem.id) &&
+          !item.ids.some((id) => isChild(explorerItems, id, explorerItem.id))
+        ) {
           return true;
         } else {
           return false;
         }
       },
-      drop: (item) => {
+      drop: (item: { ids: explorerItemId[] }) => {
         console.log("dnd" + explorerItem.id);
         console.log(item);
-        return item;
+        moveMutation.mutate({
+          parentId: explorerItem.id,
+          ids: item.ids,
+        });
+        // return item;
       },
       collect: (monitor) => ({
         isOver: !!monitor.isOver({ shallow: true }),
@@ -443,7 +460,7 @@ interface CollectionProps {
       category: "file" | "folder" | null;
       name: string;
       parentId: number | null;
-      children: number[];
+      children?: number[];
     },
     Error,
     dataForUpdate,
