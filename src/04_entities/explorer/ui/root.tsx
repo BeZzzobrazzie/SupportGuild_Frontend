@@ -10,7 +10,6 @@ import {
   explorerItems,
 } from "../api/types";
 import { ExplorerItemCreator } from "./item-creator";
-import { ExplorerItem } from "./explorer-item";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { getExplorerItems } from "../api/explorer-api";
@@ -19,6 +18,8 @@ import { ItemTypes } from "src/05_shared/dnd";
 import cn from "classnames/bind";
 import { useSort } from "../lib/use-sort";
 import { useMoveMutation } from "../lib/mutations";
+import { Folder } from "./folder";
+import { Collection } from "./collection";
 
 const cx = cn.bind(classes);
 
@@ -30,10 +31,6 @@ export function Root() {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
-  const selectedItemsIds = useAppSelector((state) =>
-    explorerSlice.selectors.selectSelectedItemsIds(state)
-  );
-  console.log(selectedItemsIds);
   console.log(explorerItems);
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
@@ -107,6 +104,16 @@ export function Root() {
   ];
 
   let content = <></>;
+  const renderChildren = children.map((child) => {
+    if (child.category === "folder")
+      return (
+        <Folder key={child.id} explorerItemId={child.id} nestingLevel={0} />
+      );
+    else if (child.category === "file")
+      return (
+        <Collection key={child.id} explorerItemId={child.id} nestingLevel={0} />
+      );
+  });
 
   content = (
     <>
@@ -115,13 +122,7 @@ export function Root() {
         className={rootClass}
         onContextMenu={showContextMenu(rootOptions)}
       >
-        {children.map((entity) => (
-          <ExplorerItem
-            key={entity.id}
-            explorerItemId={entity.id}
-            nestingLevel={0}
-          />
-        ))}
+        {renderChildren}
         {isExplorerItemCreator && (
           <ExplorerItemCreator
             parentId={null}

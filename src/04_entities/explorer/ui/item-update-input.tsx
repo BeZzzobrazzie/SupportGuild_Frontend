@@ -5,30 +5,20 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { updateExplorerItem } from "../api/explorer-api";
 import { queryClient } from "src/05_shared/api";
+import { useUpdateMutation } from "../lib/mutations";
 
 export function ExplorerItemUpdateInput({
   id,
   name,
   setIsUpdating,
-  updateMutation,
 }: {
   id: explorerItemId;
   name: string;
   setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>;
-  updateMutation: UseMutationResult<
-    {
-      id: number;
-      name: string;
-      children?: number[];
-      category: "file" | "folder" | null;
-      parentId: number | null;
-    },
-    Error,
-    dataForUpdate,
-    unknown
-  >;
 }) {
   const [inputValue, setInputValue] = useState(name);
+  const updateMutation = useUpdateMutation(setIsUpdating);
+
 
   function handleBlur() {
     setIsUpdating(false);
