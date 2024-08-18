@@ -110,8 +110,7 @@ export async function moveExplorerItems(dataForUpdate: moveExplorerItemsData) {
     body: JSON.stringify(dataForUpdate),
   });
 
-
-  console.log(data)
+  console.log(data);
   try {
     return dataFromServer.parse(data);
   } catch (e) {

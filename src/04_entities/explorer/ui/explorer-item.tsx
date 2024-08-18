@@ -21,6 +21,7 @@ import {
   useMutation,
   UseMutationResult,
   useQuery,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
   addExplorerItem,
@@ -48,9 +49,7 @@ import {
 import { queryClient } from "src/05_shared/api";
 import { useIsMutatingExplorerItems } from "../lib/use-is-mutating-explorer-items";
 import { Loader } from "@mantine/core";
-import { useDeleteItemMutation } from "../lib/use-delete-item-mutation";
 import { ExplorerItemUpdateInput } from "./item-update-input";
-import { useDeleteItemsMutation } from "../lib/use-delete-items-mutation";
 import {
   ConnectDragSource,
   DragPreviewImage,
@@ -59,7 +58,13 @@ import {
 } from "react-dnd";
 import { ItemTypes } from "src/05_shared/dnd";
 import { isChild } from "../lib/is-child";
-import { useMoveMutation } from "../lib/use-move-mutation";
+import { useSort } from "../lib/use-sort";
+import {
+  useDeleteItemMutation,
+  useDeleteItemsMutation,
+  useMoveMutation,
+  useUpdateMutation,
+} from "../lib/mutations";
 
 interface ExplorerItemProps {
   explorerItemId: explorerItemId;
@@ -75,10 +80,7 @@ export function ExplorerItem({
     isError,
     data: explorerItems,
     error,
-  } = useQuery(getExplorerItems());
-  if (isPending) return <span>Loading...</span>;
-  if (isError) return <span>Error: {error.message}</span>;
-  if (!explorerItems) return <span>Error: no data</span>;
+  } = useSuspenseQuery(getExplorerItems());
 
   const explorerItem = explorerItems.byId[explorerItemId];
 
@@ -96,22 +98,7 @@ export function ExplorerItem({
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
-  const updateMutation = useMutation({
-    mutationFn: async (data: dataForUpdate) => await updateExplorerItem(data),
-    onSuccess: (data) => {
-      queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
-        return {
-          ...oldData,
-          byId: {
-            ...oldData.byId,
-            [data.id]: data,
-          },
-        };
-      });
-      setIsUpdating(false);
-    },
-    mutationKey: ["updateExplorerItem"],
-  });
+  const updateMutation = useUpdateMutation(setIsUpdating);
   const deleteItemMutation = useDeleteItemMutation(explorerItem);
   const deleteItemsMutation = useDeleteItemsMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
@@ -139,9 +126,10 @@ export function ExplorerItem({
     },
   ];
 
-  let content = <></>;
-  if (!explorerItem) return <span>Error: no data</span>;
+  if (isPending) return <span>Loading...</span>;
+  if (isError && error) return <span>Error: {error.message}</span>;
 
+  let content = <></>;
   if (explorerItem.category === "folder") {
     content = (
       <Folder
@@ -257,14 +245,13 @@ function Folder({
   const children = explorerItems.ids
     .map((id) => explorerItems.byId[id])
     .filter((item) => item.parentId === explorerItem.id);
+  useSort(children);
 
   const isOpen = useAppSelector((state) =>
     explorerSlice.selectors.selectIsFolderOpen(state, explorerItem.id)
   );
 
-  const moveMutation = useMoveMutation()
-
-
+  const moveMutation = useMoveMutation();
 
   const [{ isOver }, drop] = useDrop(
     () => ({
@@ -424,7 +411,6 @@ function Folder({
         </div>
         {isOpen && (
           <ul className={classes["children-list"]}>
-            {isExplorerItemCreator && explorerItemCreator}
             {children.map((child) => (
               <ExplorerItem
                 key={child.id}
@@ -432,6 +418,7 @@ function Folder({
                 nestingLevel={nestingLevel + 1}
               />
             ))}
+            {isExplorerItemCreator && explorerItemCreator}
           </ul>
         )}
       </li>

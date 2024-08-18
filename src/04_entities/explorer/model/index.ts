@@ -38,10 +38,15 @@ export const explorerSlice = createSlice({
       }
     },
     deleteFolder: (state, action: PayloadAction<explorerItemId>) => {
-      const { [action.payload]: deleteVar, ...newState } = state.openedItems;
-      state.openedItems = newState;
+      console.log(state.openedItems[action.payload]);
+      if (!!state.openedItems[action.payload]) {
+        const { [action.payload]: deleteVar, ...newState } = state.openedItems;
+        state.openedItems = newState;
 
-      state.selectedItemsIds = state.selectedItemsIds.filter(id => id !== action.payload)
+        state.selectedItemsIds = state.selectedItemsIds.filter(
+          (id) => id !== action.payload
+        );
+      }
     },
     selectItem: (state, action: PayloadAction<explorerItemId>) => {
       state.selectedItemsIds = [action.payload];
@@ -56,6 +61,9 @@ export const explorerSlice = createSlice({
         }
       }
     },
+    clearSelection: (state) => {
+      state.selectedItemsIds = [];
+    },
   },
   extraReducers: (builder) => {},
 }).injectInto(rootReducer);
@@ -66,5 +74,6 @@ export const {
   deleteFolder,
   selectItem,
   toggleSelectItem,
+  clearSelection,
 } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

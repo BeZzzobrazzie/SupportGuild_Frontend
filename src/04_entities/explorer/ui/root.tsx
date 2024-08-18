@@ -3,16 +3,22 @@ import { useContextMenu } from "mantine-contextmenu";
 
 import classes from "./root.module.css";
 import { explorerSlice } from "../model";
-import { explorerItemCategory, explorerItemId } from "../api/types";
+import {
+  explorerItem,
+  explorerItemCategory,
+  explorerItemId,
+  explorerItems,
+} from "../api/types";
 import { ExplorerItemCreator } from "./item-creator";
 import { ExplorerItem } from "./explorer-item";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { getExplorerItems } from "../api/explorer-api";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "src/05_shared/dnd";
-import { useMoveMutation } from "../lib/use-move-mutation";
-import cn from 'classnames/bind';
+import cn from "classnames/bind";
+import { useSort } from "../lib/use-sort";
+import { useMoveMutation } from "../lib/mutations";
 
 const cx = cn.bind(classes);
 
@@ -23,7 +29,11 @@ export function Root() {
     isError,
     data: explorerItems,
     error,
-  } = useQuery(getExplorerItems());
+  } = useSuspenseQuery(getExplorerItems());
+  const selectedItemsIds = useAppSelector((state) =>
+    explorerSlice.selectors.selectSelectedItemsIds(state)
+  );
+  console.log(selectedItemsIds);
   console.log(explorerItems);
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
@@ -58,12 +68,16 @@ export function Root() {
     }),
     []
   );
+  const children = Object.values(explorerItems.byId).filter(
+    (child) => child.parentId === null
+  );
+  useSort(children);
 
   if (isPending) {
     return <span>Loading...</span>;
   }
 
-  if (isError) {
+  if (isError && error) {
     return <span>Error: {error.message}</span>;
   }
 
@@ -71,13 +85,9 @@ export function Root() {
     return <span>Error: no data</span>;
   }
 
-  const children = Object.values(explorerItems.byId).filter(
-    (child) => child.parentId === null
-  );
-
-  const rootClass = cx('root', {
-    'root_drop': isOver
-  })
+  const rootClass = cx("root", {
+    root_drop: isOver,
+  });
 
   const rootOptions = [
     {
@@ -105,14 +115,6 @@ export function Root() {
         className={rootClass}
         onContextMenu={showContextMenu(rootOptions)}
       >
-        {/* {isCreator && (
-        <ExplorerItemCreator
-          parentId={null}
-          category={creatorCategory}
-          nestingLevel={0}
-          hideExplorerItemCreator={hideCreator}
-        />
-      )} */}
         {children.map((entity) => (
           <ExplorerItem
             key={entity.id}
