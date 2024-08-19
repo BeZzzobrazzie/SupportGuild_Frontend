@@ -4,7 +4,7 @@ export function Indent({ nestingLevel }: { nestingLevel: number }) {
   const indent = Array(nestingLevel)
     .fill(0)
     .map((_, index) => (
-      <div key={index} className={classes["explorer-item_indent"]}></div>
+      <div key={index} className={classes["explorer-item__indent"]}></div>
     ));
   return <>{indent}</>;
 }

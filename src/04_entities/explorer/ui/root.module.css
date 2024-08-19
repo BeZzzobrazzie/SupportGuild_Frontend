@@ -1,9 +1,9 @@
 .root {
   list-style-type: none;
+  margin: 0;
   padding-left: 0;
   padding-bottom: 30px;
   min-height: 100px;
-  
 }
 
 .root_drop {

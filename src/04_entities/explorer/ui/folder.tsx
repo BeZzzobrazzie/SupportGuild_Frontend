@@ -77,8 +77,11 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   );
 
   const folderClass = cx("folder", {
-    ["explorer-item_drop"]: isOver,
+    ["folder_drop"]: isOver,
     // ["explorer-item_drag"]: isDragging,
+  });
+  const headerClass = cx("explorer-item__header", {
+    ["explorer-item__header_select"]: isSelectedItem,
   });
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
@@ -199,36 +202,39 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     <>
       {dragPreviewImage}
       <li ref={(node) => drag(drop(node))} className={folderClass}>
-        <div
-          className={classes["explorer-item_header"]}
-          onClick={(event) => handleClick(event)}
-          onContextMenu={
-            isMutatingExplorerItems
-              ? showContextMenu(loadingOptions)
-              : showContextMenu(options)
-          }
-        >
-          <div className={classes["explorer-item__inactive"]}></div>
+        <div className={classes["explorer-item__row"]}>
+          {/* <div className={classes["explorer-item__inactive"]}></div>
           <div
             className={
               isSelectedItem
                 ? classes["explorer-item__select"]
                 : classes["explorer-item__unselect"]
             }
-          ></div>
+          ></div> */}
           <Indent nestingLevel={nestingLevel} />
-          {isOpen ? <IconChevronDown /> : <IconChevronRight />}
-          {isUpdating ? (
-            <ExplorerItemUpdateInput
-              id={explorerItem.id}
-              name={explorerItem.name}
-              setIsUpdating={setIsUpdating}
-            />
-          ) : (
-            explorerItem.name
-          )}
-          {isMutatingExplorerItems && <Loader color="yellow" size="xs" />}
+          <div
+            className={headerClass}
+            onClick={(event) => handleClick(event)}
+            onContextMenu={
+              isMutatingExplorerItems
+                ? showContextMenu(loadingOptions)
+                : showContextMenu(options)
+            }
+          >
+            {isOpen ? <IconChevronDown /> : <IconChevronRight />}
+            {isUpdating ? (
+              <ExplorerItemUpdateInput
+                id={explorerItem.id}
+                name={explorerItem.name}
+                setIsUpdating={setIsUpdating}
+              />
+            ) : (
+              explorerItem.name
+            )}
+            {isMutatingExplorerItems && <Loader color="yellow" size="xs" />}
+          </div>
         </div>
+
         {isOpen && (
           <ul className={classes["children-list"]}>
             {renderChildren}

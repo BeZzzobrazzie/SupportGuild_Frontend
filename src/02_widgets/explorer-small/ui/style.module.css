@@ -1,0 +1,5 @@
+.explorer-small {
+  max-width: calc(17.5rem * var(--mantine-scale));
+  padding: var(--mantine-spacing-xs);
+  border: 2px solid var(--mantine-color-default-border);
+}
