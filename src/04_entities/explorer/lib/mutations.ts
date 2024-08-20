@@ -7,9 +7,12 @@ import {
   explorerItemId,
   idDeletedExplorerItem,
   moveExplorerItemsData,
+  pasteExplorerItemsData,
+  explorerItemCategory,
 } from "../api/types";
 import {
   moveExplorerItems,
+  pasteExplorerItems,
   removeExplorerItem,
   removeSeveralExplorerItems,
   updateExplorerItem,
@@ -39,25 +42,28 @@ export function useUpdateMutation(
   });
 }
 
-export function useDeleteItemMutation(explorerItem: explorerItem) {
+export function useDeleteItemMutation(
+  explorerItemId: explorerItemId,
+  category: explorerItemCategory
+) {
   const dispatch = useAppDispatch();
   const isSelectedItem = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsSelectedItem(state, explorerItem.id)
+    explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
   );
   return useMutation({
-    mutationFn: async (data: explorerItemId) => await removeExplorerItem(data),
+    mutationFn: async (data: explorerItemId) => removeExplorerItem(data),
     onSuccess: (data: idDeletedExplorerItem) => {
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
-        let newById = oldData.byId;
+        const newById = oldData.byId;
         let newIds = oldData.ids;
 
         function deleteElementTree(parentId: explorerItemId) {
-          let explorerItemsByIdToRemove: number[] = [];
+          const explorerItemsByIdToRemove: number[] = [];
           delete newById[parentId];
           newIds = newIds.filter((item) => item !== parentId);
 
-          for (let key in newById) {
-            if (!!newById[key]) {
+          for (const key in newById) {
+            if (newById[key]) {
               if (newById[key].parentId === parentId) {
                 explorerItemsByIdToRemove.push(Number(key));
               }
@@ -72,18 +78,27 @@ export function useDeleteItemMutation(explorerItem: explorerItem) {
 
         // const { [data.id]: deleteVar, ...newById } = oldData.byId;
         // const newIds = oldData.ids.filter((id) => id !== data.id);
+        console.log("..");
+        console.log(newById);
+        console.log(newIds);
+        console.log({
+          ...oldData,
+          byId: newById,
+          ids: newIds,
+        });
         return {
           ...oldData,
           byId: newById,
           ids: newIds,
         };
+        // return data;
       });
-      if (explorerItem.category === "folder") {
-        dispatch(deleteFolder(data.id));
-      }
-      if (isSelectedItem) {
-        dispatch(clearSelection());
-      }
+      // if (category === "folder") {
+      //   dispatch(deleteFolder(explorerItemId));
+      // }
+      // if (isSelectedItem) {
+      //   dispatch(clearSelection());
+      // }
     },
     mutationKey: ["removeExplorerItem"],
   });
@@ -99,7 +114,7 @@ export function useDeleteItemsMutation() {
     mutationFn: async () => await removeSeveralExplorerItems(selectedItemsIds),
     onSuccess: (data: idDeletedExplorerItems) => {
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
-        let newById = oldData.byId;
+        const newById = oldData.byId;
         let newIds = oldData.ids;
 
         data.ids.forEach((id) => {
@@ -113,8 +128,8 @@ export function useDeleteItemsMutation() {
           ids: newIds,
         };
       });
-      data.ids.forEach((id) => dispatch(deleteFolder(id)));
-      dispatch(clearSelection());
+      // data.ids.forEach((id) => dispatch(deleteFolder(id)));
+      // dispatch(clearSelection());
     },
     mutationKey: ["removeSeveralExplorerItems"],
   });
@@ -130,5 +145,18 @@ export function useMoveMutation() {
       });
     },
     mutationKey: ["moveExplorerItems"],
+  });
+}
+
+export function usePasteMutation() {
+  return useMutation({
+    mutationFn: async (data: pasteExplorerItemsData) =>
+      await pasteExplorerItems(data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["explorerItems"], () => {
+        return data;
+      });
+    },
+    mutationKey: ["pasteExplorerItems"],
   });
 }

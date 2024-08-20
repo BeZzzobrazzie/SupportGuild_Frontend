@@ -75,7 +75,8 @@ function ExplorerItemCreatorInput({
   };
 
   const mutation = useMutation({
-    mutationFn: async (data: initialExplorerItem) => await addExplorerItem(data),
+    mutationFn: async (data: initialExplorerItem) =>
+      await addExplorerItem(data),
     onSuccess: (data) => {
       // queryClient.invalidateQueries({queryKey: ["explorerItems"]})
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
@@ -88,11 +89,10 @@ function ExplorerItemCreatorInput({
           ids: [...oldData.ids, data.id],
         };
       });
-      hideExplorerItemCreator()
+      hideExplorerItemCreator();
     },
-    mutationKey: ["addExplorerItem"]
+    mutationKey: ["addExplorerItem"],
   });
-
 
   function handleBlur() {
     if (canSave) {
@@ -120,7 +120,6 @@ function ExplorerItemCreatorInput({
           onBlur={handleBlur}
           disabled={!canSave}
         />
-
 
         {mutation.isPending && <Loader color="yellow" size="xs" />}
         {mutation.isError && <div>Error...</div>}

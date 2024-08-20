@@ -1,12 +1,13 @@
 import { rootReducer } from "src/05_shared/redux";
 import { explorerItemId, explorerSliceType } from "../api/types";
 
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: explorerSliceType = {
   openedItems: {},
   activeCollectionId: null,
   selectedItemsIds: [],
+  copiedItemsIds: [],
 };
 
 export const explorerSlice = createSlice({
@@ -24,6 +25,7 @@ export const explorerSlice = createSlice({
       }
     },
     selectSelectedItemsIds: (state) => state.selectedItemsIds,
+    selectCopiedItemsIds: (state) => state.copiedItemsIds,
   },
   reducers: {
     clickOnCollection: (state, action: PayloadAction<explorerItemId>) => {
@@ -38,8 +40,8 @@ export const explorerSlice = createSlice({
       }
     },
     deleteFolder: (state, action: PayloadAction<explorerItemId>) => {
-      console.log(state.openedItems[action.payload]);
-      if (!!state.openedItems[action.payload]) {
+      // console.log(state.openedItems[action.payload]);
+      if (state.openedItems[action.payload]) {
         const { [action.payload]: deleteVar, ...newState } = state.openedItems;
         state.openedItems = newState;
 
@@ -64,6 +66,9 @@ export const explorerSlice = createSlice({
     clearSelection: (state) => {
       state.selectedItemsIds = [];
     },
+    copyItemsIds: (state, action: PayloadAction<explorerItemId[]>) => {
+      state.copiedItemsIds = action.payload;
+    },
   },
   extraReducers: (builder) => {},
 }).injectInto(rootReducer);
@@ -75,5 +80,6 @@ export const {
   selectItem,
   toggleSelectItem,
   clearSelection,
+  copyItemsIds,
 } = explorerSlice.actions;
 export const reducer = explorerSlice.reducer;

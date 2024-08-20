@@ -2,10 +2,17 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { getExplorerItems } from "../api/explorer-api";
-import { explorerItemCategory, explorerItemId } from "../api/types";
+import {
+  explorerItemCategory,
+  explorerItemId,
+  explorerItems,
+} from "../api/types";
 import { useSort } from "../lib/use-sort";
 import {
+  clearSelection,
   clickOnFolder,
+  copyItemsIds,
+  deleteFolder,
   explorerSlice,
   selectItem,
   toggleSelectItem,
@@ -14,6 +21,7 @@ import {
   useDeleteItemMutation,
   useDeleteItemsMutation,
   useMoveMutation,
+  usePasteMutation,
 } from "../lib/mutations";
 import { DragPreviewImage, useDrop } from "react-dnd";
 import { useDropFolder } from "../lib/use-drop-folder";
@@ -29,6 +37,7 @@ import { ExplorerItemUpdateInput } from "./item-update-input";
 import { Loader } from "@mantine/core";
 import { Indent } from "./indent";
 import { Collection } from "./collection";
+import { getAllChildren } from "../lib/get-all-children";
 
 const cx = cn.bind(classes);
 
@@ -47,6 +56,9 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
+  console.log("folder");
+  console.log(explorerItems);
+  console.log(explorerItemId);
   const explorerItem = explorerItems.byId[explorerItemId];
   const children = explorerItems.ids
     .map((id) => explorerItems.byId[id])
@@ -62,13 +74,29 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   const selectedItemsIds = useAppSelector((state) =>
     explorerSlice.selectors.selectSelectedItemsIds(state)
   );
+  const copiedItemsIds = useAppSelector((state) =>
+    explorerSlice.selectors.selectCopiedItemsIds(state)
+  );
 
   const [isUpdating, setIsUpdating] = useState(false);
 
   const moveMutation = useMoveMutation();
-  const deleteItemMutation = useDeleteItemMutation(explorerItem);
+  const deleteItemMutation = useDeleteItemMutation(explorerItemId, "folder");
   const deleteItemsMutation = useDeleteItemsMutation();
+  const pasteMutation = usePasteMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
+
+  if (deleteItemMutation.isSuccess) {
+    dispatch(deleteFolder(explorerItemId));
+
+    if (isSelectedItem) {
+      dispatch(clearSelection());
+    }
+  }
+  if (deleteItemsMutation.isSuccess) {
+    selectedItemsIds.forEach((id) => dispatch(deleteFolder(id)));
+    dispatch(clearSelection());
+  }
 
   const [{ isOver }, drop] = useDropFolder(
     explorerItem,
@@ -142,14 +170,30 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     {
       key: "copy",
       title: "Copy",
-      onClick: () => console.log("copy"),
-      disabled: true,
+      onClick: () => {
+        console.log("copy");
+        dispatch(
+          copyItemsIds([
+            ...getAllChildren(explorerItemId, explorerItems).map(
+              (child) => child.id
+            ),
+            explorerItemId,
+          ])
+        );
+      },
+      // disabled: true,
     },
     {
-      key: "past",
-      title: "Past",
-      onClick: () => console.log("past"),
-      disabled: true,
+      key: "paste",
+      title: "Paste",
+      onClick: () => {
+        console.log("paste");
+        pasteMutation.mutate({
+          parentId: explorerItemId,
+          ids: copiedItemsIds,
+        });
+      },
+      // disabled: true,
     },
     { key: "divider-2" },
     {
@@ -166,7 +210,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
         if (isSelectedItem) {
           deleteItemsMutation.mutate();
         } else {
-          deleteItemMutation.mutate(explorerItem.id);
+          deleteItemMutation.mutate(explorerItemId);
         }
       },
     },

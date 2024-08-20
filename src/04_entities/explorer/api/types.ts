@@ -64,6 +64,7 @@ export type explorerSliceType = {
   openedItems: Record<explorerItemId, boolean>;
   activeCollectionId: explorerItemId | null;
   selectedItemsIds: explorerItemId[];
+  copiedItemsIds: explorerItemId[];
 };
 
 export type initialExplorerItem = {
@@ -81,6 +82,10 @@ export type moveExplorerItemsData = {
   parentId: explorerItemParentId;
   ids: explorerItemId[];
 };
+export type pasteExplorerItemsData = {
+  parentId: explorerItemParentId;
+  ids: explorerItemId[];
+}
 
 // export type entityFromServerType = {
 //   id: explorerItemId;

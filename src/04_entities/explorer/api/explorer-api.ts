@@ -8,6 +8,7 @@ import {
   idDeletedExplorerItemsSchema,
   initialExplorerItem,
   moveExplorerItemsData,
+  pasteExplorerItemsData,
 } from "./types";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -58,6 +59,8 @@ export async function removeExplorerItem(id: explorerItemId) {
 
   try {
     return idDeletedExplorerItemSchema.parse(data);
+    // return dataFromServer.parse(data);
+
   } catch (e) {
     console.log(e);
     throw e;
@@ -110,7 +113,23 @@ export async function moveExplorerItems(dataForUpdate: moveExplorerItemsData) {
     body: JSON.stringify(dataForUpdate),
   });
 
-  console.log(data);
+  try {
+    return dataFromServer.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function pasteExplorerItems(dataForUpdate: pasteExplorerItemsData) {
+  const data = await baseFetch("api/template-manager/explorer-entities/paste", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(dataForUpdate),
+  });
+
   try {
     return dataFromServer.parse(data);
   } catch (e) {

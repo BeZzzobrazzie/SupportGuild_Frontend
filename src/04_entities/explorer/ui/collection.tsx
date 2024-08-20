@@ -2,6 +2,7 @@ import { useContextMenu } from "mantine-contextmenu";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import {
   clickOnCollection,
+  copyItemsIds,
   explorerSlice,
   selectItem,
   toggleSelectItem,
@@ -55,7 +56,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
 
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const deleteItemMutation = useDeleteItemMutation(explorerItem);
+  const deleteItemMutation = useDeleteItemMutation(explorerItemId, 'file');
   const deleteItemsMutation = useDeleteItemsMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
@@ -83,8 +84,11 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
     {
       key: "copy",
       title: "Copy",
-      onClick: () => console.log("copy"),
-      disabled: true,
+      onClick: () => {
+        console.log("copy");
+        dispatch(copyItemsIds([explorerItemId]));
+      },
+      // disabled: true,
     },
     { key: "divider-1" },
     {

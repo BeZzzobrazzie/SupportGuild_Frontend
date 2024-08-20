@@ -17,7 +17,7 @@ import { useDrop } from "react-dnd";
 import { ItemTypes } from "src/05_shared/dnd";
 import cn from "classnames/bind";
 import { useSort } from "../lib/use-sort";
-import { useMoveMutation } from "../lib/mutations";
+import { useMoveMutation, usePasteMutation } from "../lib/mutations";
 import { Folder } from "./folder";
 import { Collection } from "./collection";
 
@@ -31,6 +31,7 @@ export function Root() {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
+  console.log('root')
   console.log(explorerItems);
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
@@ -100,6 +101,13 @@ export function Root() {
         console.log("new folder");
         setCategoryExplorerItemCreator("folder");
       },
+    },
+    { key: "divider-1" },
+    {
+      key: "paste",
+      title: "Paste",
+      onClick: () => console.log("paste"),
+      disabled: true,
     },
   ];
 
