@@ -6,6 +6,8 @@ import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { updateExplorerItem } from "../api/explorer-api";
 import { queryClient } from "src/05_shared/api";
 import { useUpdateMutation } from "../lib/mutations";
+import classes from "./explorer-item.module.css";
+import { TextInput } from "@mantine/core";
 
 export function ExplorerItemUpdateInput({
   id,
@@ -19,7 +21,6 @@ export function ExplorerItemUpdateInput({
   const [inputValue, setInputValue] = useState(name);
   const updateMutation = useUpdateMutation(setIsUpdating);
 
-
   function handleBlur() {
     setIsUpdating(false);
   }
@@ -32,13 +33,24 @@ export function ExplorerItemUpdateInput({
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <input
+        {/* <input
+          className={classes["explorer-item__input"]}
           type="text"
           autoFocus
           required
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           onBlur={handleBlur}
+        /> */}
+        <TextInput
+          className={classes["explorer-item__input"]}
+          autoFocus
+          required
+          value={inputValue}
+          onChange={(event) => setInputValue(event.target.value)}
+          onBlur={handleBlur}
+          variant="unstyled"
+          size="md"
         />
       </form>
     </>

@@ -7,5 +7,5 @@
 }
 
 .root_drop {
-  background-color: rgba(38, 58, 110, 0.5);
+  background-color: var(--mantine-color-dark-4);
 }

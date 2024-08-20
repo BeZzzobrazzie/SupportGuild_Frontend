@@ -24,9 +24,7 @@ import { ExplorerItemUpdateInput } from "./item-update-input";
 import { Loader } from "@mantine/core";
 import cn from "classnames/bind";
 
-
 const cx = cn.bind(classes);
-
 
 interface CollectionProps {
   explorerItemId: explorerItemId;
@@ -116,34 +114,16 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
     },
   ];
 
-  // const style = isDragging ? classes["explorer-item_drag"] : "";
   const headerClass = cx("explorer-item__header", {
     ["explorer-item__header_select"]: isSelectedItem,
-    ["explorer-item__header_active"]: isActiveCollection
+    ["explorer-item__header_active"]: isActiveCollection,
   });
 
   return (
     <>
       {dragPreviewImage}
-      <li
-        ref={drag}
-        // className={style}
-      >
+      <li ref={drag}>
         <div className={classes["explorer-item__row"]}>
-          {/* <div
-            className={
-              isActiveCollection
-                ? classes["explorer-item__active"]
-                : classes["explorer-item__inactive"]
-            }
-          ></div>
-          <div
-            className={
-              isSelectedItem
-                ? classes["explorer-item__select"]
-                : classes["explorer-item__unselect"]
-            }
-          ></div> */}
           <Indent nestingLevel={nestingLevel} />
 
           <div
@@ -163,7 +143,9 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
                 setIsUpdating={setIsUpdating}
               />
             ) : (
-              explorerItem.name
+              <div className={classes["explorer-item__label"]}>
+                {explorerItem.name}
+              </div>
             )}
             {isMutatingExplorerItems && <Loader color="yellow" size="xs" />}
           </div>

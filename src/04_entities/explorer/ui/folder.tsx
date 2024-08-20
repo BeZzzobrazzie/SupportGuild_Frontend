@@ -203,14 +203,6 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
       {dragPreviewImage}
       <li ref={(node) => drag(drop(node))} className={folderClass}>
         <div className={classes["explorer-item__row"]}>
-          {/* <div className={classes["explorer-item__inactive"]}></div>
-          <div
-            className={
-              isSelectedItem
-                ? classes["explorer-item__select"]
-                : classes["explorer-item__unselect"]
-            }
-          ></div> */}
           <Indent nestingLevel={nestingLevel} />
           <div
             className={headerClass}
@@ -229,7 +221,9 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
                 setIsUpdating={setIsUpdating}
               />
             ) : (
-              explorerItem.name
+              <div className={classes["explorer-item__label"]}>
+                {explorerItem.name}
+              </div>
             )}
             {isMutatingExplorerItems && <Loader color="yellow" size="xs" />}
           </div>
