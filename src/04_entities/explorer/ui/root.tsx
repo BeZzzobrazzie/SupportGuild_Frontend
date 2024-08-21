@@ -31,7 +31,7 @@ export function Root() {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
-  console.log('root')
+  // console.log('root')
   console.log(explorerItems);
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =

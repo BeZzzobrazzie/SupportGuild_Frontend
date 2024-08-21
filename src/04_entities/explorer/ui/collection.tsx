@@ -10,7 +10,6 @@ import {
 import { explorerItemId } from "../api/types";
 import { useState } from "react";
 import {
-  useDeleteItemMutation,
   useDeleteItemsMutation,
 } from "../lib/mutations";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -56,8 +55,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
 
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const deleteItemMutation = useDeleteItemMutation(explorerItemId, 'file');
-  const deleteItemsMutation = useDeleteItemsMutation();
+  const deleteItemsMutation = useDeleteItemsMutation(explorerItemId);
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -102,11 +100,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (isSelectedItem) {
-          deleteItemsMutation.mutate();
-        } else {
-          deleteItemMutation.mutate(explorerItem.id);
-        }
+        deleteItemsMutation.mutate();
       },
     },
   ];

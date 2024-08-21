@@ -13,7 +13,6 @@ import {
 import {
   moveExplorerItems,
   pasteExplorerItems,
-  removeExplorerItem,
   removeSeveralExplorerItems,
   updateExplorerItem,
 } from "../api/explorer-api";
@@ -42,76 +41,79 @@ export function useUpdateMutation(
   });
 }
 
-export function useDeleteItemMutation(
-  explorerItemId: explorerItemId,
-  category: explorerItemCategory
-) {
-  const dispatch = useAppDispatch();
-  const isSelectedItem = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
-  );
-  return useMutation({
-    mutationFn: async (data: explorerItemId) => removeExplorerItem(data),
-    onSuccess: (data: idDeletedExplorerItem) => {
-      queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
-        const newById = oldData.byId;
-        let newIds = oldData.ids;
+// export function useDeleteItemMutation(
+//   explorerItemId: explorerItemId,
+//   category: explorerItemCategory
+// ) {
+//   const dispatch = useAppDispatch();
+//   const isSelectedItem = useAppSelector((state) =>
+//     explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
+//   );
+//   return useMutation({
+//     mutationFn: async (data: explorerItemId) => removeExplorerItem(data),
+//     onSuccess: (data: idDeletedExplorerItem) => {
+//       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
+//         const newById = oldData.byId;
+//         let newIds = oldData.ids;
 
-        function deleteElementTree(parentId: explorerItemId) {
-          const explorerItemsByIdToRemove: number[] = [];
-          delete newById[parentId];
-          newIds = newIds.filter((item) => item !== parentId);
+//         function deleteElementTree(parentId: explorerItemId) {
+//           const explorerItemsByIdToRemove: number[] = [];
+//           delete newById[parentId];
+//           newIds = newIds.filter((item) => item !== parentId);
 
-          for (const key in newById) {
-            if (newById[key]) {
-              if (newById[key].parentId === parentId) {
-                explorerItemsByIdToRemove.push(Number(key));
-              }
-            }
-          }
+//           for (const key in newById) {
+//             if (newById[key]) {
+//               if (newById[key].parentId === parentId) {
+//                 explorerItemsByIdToRemove.push(Number(key));
+//               }
+//             }
+//           }
 
-          explorerItemsByIdToRemove.map((itemId) => {
-            deleteElementTree(itemId);
-          });
-        }
-        deleteElementTree(data.id);
+//           explorerItemsByIdToRemove.map((itemId) => {
+//             deleteElementTree(itemId);
+//           });
+//         }
+//         deleteElementTree(data.id);
 
-        // const { [data.id]: deleteVar, ...newById } = oldData.byId;
-        // const newIds = oldData.ids.filter((id) => id !== data.id);
-        console.log("..");
-        console.log(newById);
-        console.log(newIds);
-        console.log({
-          ...oldData,
-          byId: newById,
-          ids: newIds,
-        });
-        return {
-          ...oldData,
-          byId: newById,
-          ids: newIds,
-        };
-        // return data;
-      });
-      // if (category === "folder") {
-      //   dispatch(deleteFolder(explorerItemId));
-      // }
-      // if (isSelectedItem) {
-      //   dispatch(clearSelection());
-      // }
-    },
-    mutationKey: ["removeExplorerItem"],
-  });
-}
+//         // const { [data.id]: deleteVar, ...newById } = oldData.byId;
+//         // const newIds = oldData.ids.filter((id) => id !== data.id);
+//         console.log("..");
+//         console.log(newById);
+//         console.log(newIds);
+//         console.log({
+//           ...oldData,
+//           byId: newById,
+//           ids: newIds,
+//         });
+//         return {
+//           ...oldData,
+//           byId: newById,
+//           ids: newIds,
+//         };
+//         // return data;
+//       });
+//       // if (category === "folder") {
+//       //   dispatch(deleteFolder(explorerItemId));
+//       // }
+//       // if (isSelectedItem) {
+//       //   dispatch(clearSelection());
+//       // }
+//     },
+//     mutationKey: ["removeExplorerItem"],
+//   });
+// }
 
-export function useDeleteItemsMutation() {
-  const dispatch = useAppDispatch();
+export function useDeleteItemsMutation(explorerItemId: explorerItemId) {
   const selectedItemsIds = useAppSelector((state) =>
     explorerSlice.selectors.selectSelectedItemsIds(state)
   );
+  const isSelectedItem = useAppSelector((state) =>
+    explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
+  );
+  const requestData = isSelectedItem ? selectedItemsIds : [explorerItemId]
 
   return useMutation({
-    mutationFn: async () => await removeSeveralExplorerItems(selectedItemsIds),
+    mutationFn: async () => await removeSeveralExplorerItems(requestData),
     onSuccess: (data: idDeletedExplorerItems) => {
       queryClient.setQueryData(["explorerItems"], (oldData: explorerItems) => {
         const newById = oldData.byId;

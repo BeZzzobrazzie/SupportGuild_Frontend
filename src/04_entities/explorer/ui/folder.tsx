@@ -18,7 +18,6 @@ import {
   toggleSelectItem,
 } from "../model";
 import {
-  useDeleteItemMutation,
   useDeleteItemsMutation,
   useMoveMutation,
   usePasteMutation,
@@ -56,9 +55,9 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
-  console.log("folder");
-  console.log(explorerItems);
-  console.log(explorerItemId);
+  // console.log("folder");
+  // console.log(explorerItems);
+  // console.log(explorerItemId);
   const explorerItem = explorerItems.byId[explorerItemId];
   const children = explorerItems.ids
     .map((id) => explorerItems.byId[id])
@@ -81,21 +80,17 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const moveMutation = useMoveMutation();
-  const deleteItemMutation = useDeleteItemMutation(explorerItemId, "folder");
-  const deleteItemsMutation = useDeleteItemsMutation();
+  const deleteItemsMutation = useDeleteItemsMutation(explorerItemId);
   const pasteMutation = usePasteMutation();
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
-  if (deleteItemMutation.isSuccess) {
-    dispatch(deleteFolder(explorerItemId));
-
-    if (isSelectedItem) {
-      dispatch(clearSelection());
-    }
-  }
   if (deleteItemsMutation.isSuccess) {
-    selectedItemsIds.forEach((id) => dispatch(deleteFolder(id)));
-    dispatch(clearSelection());
+    if (isSelectedItem) {
+      selectedItemsIds.forEach((id) => dispatch(deleteFolder(id)));
+      dispatch(clearSelection());
+    } else {
+      dispatch(deleteFolder(explorerItemId));
+    }
   }
 
   const [{ isOver }, drop] = useDropFolder(
@@ -207,11 +202,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
-        if (isSelectedItem) {
-          deleteItemsMutation.mutate();
-        } else {
-          deleteItemMutation.mutate(explorerItemId);
-        }
+        deleteItemsMutation.mutate();
       },
     },
   ];
