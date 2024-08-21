@@ -9,9 +9,7 @@ import {
 } from "../model";
 import { explorerItemId } from "../api/types";
 import { useState } from "react";
-import {
-  useDeleteItemsMutation,
-} from "../lib/mutations";
+import { useDeleteItemsMutation } from "../lib/mutations";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getExplorerItems } from "../api/explorer-api";
 import { DragPreviewImage } from "react-dnd";
@@ -23,6 +21,7 @@ import { IconFile } from "@tabler/icons-react";
 import { ExplorerItemUpdateInput } from "./item-update-input";
 import { Loader } from "@mantine/core";
 import cn from "classnames/bind";
+import { copyItemsIdsThunk } from "../model/copy-items-ids";
 
 const cx = cn.bind(classes);
 
@@ -84,9 +83,8 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
       title: "Copy",
       onClick: () => {
         console.log("copy");
-        dispatch(copyItemsIds([explorerItemId]));
+        dispatch(copyItemsIdsThunk(explorerItemId));
       },
-      // disabled: true,
     },
     { key: "divider-1" },
     {

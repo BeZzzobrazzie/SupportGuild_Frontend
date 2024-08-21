@@ -67,6 +67,9 @@ export const explorerSlice = createSlice({
       state.selectedItemsIds = [];
     },
     copyItemsIds: (state, action: PayloadAction<explorerItemId[]>) => {
+      // if (state.selectedItemsIds.includes(action.payload)) {
+      //   state.selectedItemsIds.
+      // }
       state.copiedItemsIds = action.payload;
     },
   },

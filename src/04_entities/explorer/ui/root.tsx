@@ -31,7 +31,6 @@ export function Root() {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
-  // console.log('root')
   console.log(explorerItems);
 
   const [categoryExplorerItemCreator, setCategoryExplorerItemCreator] =
@@ -42,6 +41,7 @@ export function Root() {
     setCategoryExplorerItemCreator(null);
   }
   const moveMutation = useMoveMutation();
+  const pasteMutation = usePasteMutation();
 
   const [{ isOver }, drop] = useDrop(
     () => ({
@@ -106,8 +106,10 @@ export function Root() {
     {
       key: "paste",
       title: "Paste",
-      onClick: () => console.log("paste"),
-      disabled: true,
+      onClick: () => {
+        console.log("paste");
+        pasteMutation.mutate(null);
+      },
     },
   ];
 

@@ -9,6 +9,7 @@ import {
   moveExplorerItemsData,
   pasteExplorerItemsData,
   explorerItemCategory,
+  explorerItemParentId,
 } from "../api/types";
 import {
   moveExplorerItems,
@@ -151,9 +152,12 @@ export function useMoveMutation() {
 }
 
 export function usePasteMutation() {
+  const copiedItemsIds = useAppSelector((state) =>
+    explorerSlice.selectors.selectCopiedItemsIds(state)
+  );
   return useMutation({
-    mutationFn: async (data: pasteExplorerItemsData) =>
-      await pasteExplorerItems(data),
+    mutationFn: async (parentId: explorerItemParentId) =>
+      await pasteExplorerItems({parentId, ids: copiedItemsIds}),
     onSuccess: (data) => {
       queryClient.setQueryData(["explorerItems"], () => {
         return data;

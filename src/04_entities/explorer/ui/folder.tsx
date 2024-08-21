@@ -37,6 +37,7 @@ import { Loader } from "@mantine/core";
 import { Indent } from "./indent";
 import { Collection } from "./collection";
 import { getAllChildren } from "../lib/get-all-children";
+import { copyItemsIdsThunk } from "../model/copy-items-ids";
 
 const cx = cn.bind(classes);
 
@@ -55,9 +56,6 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     data: explorerItems,
     error,
   } = useSuspenseQuery(getExplorerItems());
-  // console.log("folder");
-  // console.log(explorerItems);
-  // console.log(explorerItemId);
   const explorerItem = explorerItems.byId[explorerItemId];
   const children = explorerItems.ids
     .map((id) => explorerItems.byId[id])
@@ -72,9 +70,6 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   );
   const selectedItemsIds = useAppSelector((state) =>
     explorerSlice.selectors.selectSelectedItemsIds(state)
-  );
-  const copiedItemsIds = useAppSelector((state) =>
-    explorerSlice.selectors.selectCopiedItemsIds(state)
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -167,28 +162,16 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
       title: "Copy",
       onClick: () => {
         console.log("copy");
-        dispatch(
-          copyItemsIds([
-            ...getAllChildren(explorerItemId, explorerItems).map(
-              (child) => child.id
-            ),
-            explorerItemId,
-          ])
-        );
+        dispatch(copyItemsIdsThunk(explorerItemId));
       },
-      // disabled: true,
     },
     {
       key: "paste",
       title: "Paste",
       onClick: () => {
         console.log("paste");
-        pasteMutation.mutate({
-          parentId: explorerItemId,
-          ids: copiedItemsIds,
-        });
+        pasteMutation.mutate(explorerItemId);
       },
-      // disabled: true,
     },
     { key: "divider-2" },
     {
