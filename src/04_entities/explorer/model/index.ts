@@ -17,6 +17,7 @@ export const explorerSlice = createSlice({
     selectIsFolderOpen: (state, id: explorerItemId) => state.openedItems[id],
     selectIsActiveCollection: (state, id: explorerItemId) =>
       state.activeCollectionId === id,
+    selectActiveCollection: (state) => state.activeCollectionId,
     selectIsSelectedItem: (state, id: explorerItemId) => {
       if (state.selectedItemsIds) {
         return state.selectedItemsIds.includes(id);

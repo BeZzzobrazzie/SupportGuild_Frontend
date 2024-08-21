@@ -1,22 +1,25 @@
 import { useEffect } from "react";
-import { fetchCards, templateCardsSlice } from "../model";
 import { explorerSlice } from "src/04_entities/explorer/model";
 import { Card } from "./card";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getTemplateCards } from "../api/template-cards-api";
 
 export function ListCards() {
-  const dispatch = useAppDispatch();
+  const {
+    isPending,
+    isError,
+    data: allCards,
+    error,
+  } = useSuspenseQuery(getTemplateCards());
 
-  useEffect(() => {
-    dispatch(fetchCards());
-  }, []);
+  const activeCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectActiveCollection(state)
+  );
 
-  // const activeCollection = useAppSelector((state) =>
-  //   explorerSlice.selectors.selectActiveCollection(state)
-  // );
-  // const cards = useAppSelector((state) =>
-  //   templateCardsSlice.selectors.selectCollectionCards(state, activeCollection)
-  // );
+  const cards = allCards.ids
+    .map((id) => allCards.byId[id])
+    .filter((card) => card.parentId === activeCollection);
 
-  // return cards.map((item) => <Card key={item.id} id={item.id} />);
+  return cards.map((card) => <Card key={card.id} id={card.id} card={card} />);
 }

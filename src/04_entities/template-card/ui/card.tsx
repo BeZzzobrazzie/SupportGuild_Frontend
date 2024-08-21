@@ -1,55 +1,56 @@
 import { RichTextEditor } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
+import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
-import { templateCardIdType } from "src/04_entities/template-card/api/types";
-import {
-  resetEditing,
-  startEditing,
-  templateCardsSlice,
-  updateCard,
-} from "../model";
-import { RemoveCard } from "./remove-card";
+
 import Link from "@tiptap/extension-link";
-import { ModalUnsavedChanges } from "./modal-unsaved-changes";
 import { explorerSlice } from "src/04_entities/explorer/model";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getTemplateCards } from "../api/template-cards-api";
+import { templateCard, templateCardId } from "../api/types";
+import { resetEditing, startEditing, templateCardsSlice } from "../model";
+import { useRemoveMutation, useUpdateMutation } from "../lib/mutations";
 
 interface cardProps {
-  id: templateCardIdType;
+  id: templateCardId;
+  card: templateCard;
 }
 
-export function Card({ id }: cardProps) {
+export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
-  const card = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectCard(state, id)
-  );
+
+  const updateMutation = useUpdateMutation();
+  const removeMutation = useRemoveMutation();
+  // const card = useAppSelector((state) =>
+  //   templateCardsSlice.selectors.selectCard(state, id)
+  // );
   const idEditingCard = useAppSelector((state) =>
     templateCardsSlice.selectors.selectIdEditingCard(state)
   );
-  const isUnsavedChanges = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
-  );
+  // const isUnsavedChanges = useAppSelector((state) =>
+  //   templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
+  // );
   const isEditing = idEditingCard === id;
 
-  const content = card?.content;
+  const content = card.content || "";
   const editor = useEditor({
     extensions: [StarterKit, Link],
     content,
     editable: isEditing,
   });
 
-  if (!editor || !card) {
-    return <>Error</>;
-  }
+  // if (!editor || !card) {
+  //   return <>Error</>;
+  // }
 
-  const dataForUpdate = {
-    ...card,
-    content: editor.getText(),
-  };
-  const isCollectionInQueue = useAppSelector((state) =>
-    explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
-  );
+  // const dataForUpdate = {
+  //   ...card,
+  //   content: editor.getText(),
+  // };
+  // const isCollectionInQueue = useAppSelector((state) =>
+  //   explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
+  // );
 
   // console.log('idEditingCard: ' + idEditingCard)
   // console.log('isUnsavedChanges: ' + isUnsavedChanges)
@@ -71,14 +72,21 @@ export function Card({ id }: cardProps) {
   //   });
 
   function handleClickEdit() {
-    // if (idEditingCard !== null) {
-    //   console.log("modal");
-    //   openModal();
-    // }
+    if (idEditingCard !== null) {
+      console.log("modal");
+      // openModal();
+    }
     dispatch(startEditing(id));
   }
   function handleClickSave() {
-    dispatch(updateCard(dataForUpdate));
+    updateMutation.mutate(
+      { ...card, content: editor?.getText() || "" },
+      {
+        onSuccess: () => {
+          dispatch(resetEditing());
+        },
+      }
+    );
   }
   function handleClickReset() {
     dispatch(resetEditing());
@@ -87,6 +95,9 @@ export function Card({ id }: cardProps) {
     } else {
       editor?.commands.setContent("");
     }
+  }
+  function handleClickRemove() {
+    removeMutation.mutate([card.id])
   }
 
   // useEffect(() => {
@@ -120,14 +131,14 @@ export function Card({ id }: cardProps) {
                 ) : (
                   <button onClick={handleClickEdit}>Edit</button>
                 )}
+                <button onClick={handleClickRemove}>Remove</button>
 
-                <RemoveCard id={card.id} />
               </RichTextEditor.ControlsGroup>
             </RichTextEditor.Toolbar>
             <RichTextEditor.Content />
           </RichTextEditor>
         </div>
-        {idEditingCard === card.id &&
+        {/* {idEditingCard === card.id &&
           (isUnsavedChanges || isCollectionInQueue) && (
             <ModalUnsavedChanges
               dataForUpdate={dataForUpdate}
@@ -136,7 +147,7 @@ export function Card({ id }: cardProps) {
               cardId={id}
               isCollectionInQueue={isCollectionInQueue}
             />
-          )}
+          )} */}
       </>
     );
   }

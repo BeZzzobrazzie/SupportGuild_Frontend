@@ -1,47 +1,86 @@
+import { queryOptions } from "@tanstack/react-query";
 import {
-  dataForUpdatingTemplateCardType,
-  removeTemplateCardIdSchema,
-  templateCardIdType,
-  templateCardInitialType,
+  dataForUpdateTemplateCard,
+  templateCardDataFromServerSchema,
+  templateCardId,
+  templateCardInitial,
   templateCardSchema,
-  templateCardsSchema,
 } from "./types";
+import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
+import { baseFetch } from "src/05_shared/api";
 
-const baseURL = ''
-const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
+// const baseURL = "";
+// const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
 
-export async function getTemplateCards() {
-  const response = await fetch(templateCardsUrl);
-  const data = await response.json();
+export const getTemplateCards = () => {
+  return queryOptions({
+    queryKey: [TEMPLATE_CARDS_QUERY_KEY],
+    queryFn: async () => {
+      const data = await baseFetch("api/template-manager/template-cards");
+      try {
+        return templateCardDataFromServerSchema.parse(data);
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+    },
 
-  try {
-    return templateCardsSchema.parse(data);
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-}
+    staleTime: 5 * 1000 * 60,
+  });
+};
 
-export async function addEmptyTemplateCard(
-  initialData: templateCardInitialType
-) {
-  const response = await fetch(templateCardsUrl, {
+export async function addEmptyTemplateCard(initialData: templateCardInitial) {
+  const data = await baseFetch("api/template-manager/template-cards", {
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=utf-8",
     },
     body: JSON.stringify(initialData),
   });
-  const data = await response.json();
 
   try {
     return templateCardSchema.parse(data);
   } catch (e) {
     console.log(e);
-
     throw e;
   }
 }
+
+export async function updateTemplateCard(
+  initialData: dataForUpdateTemplateCard
+) {
+  const data = await baseFetch("api/template-manager/template-cards", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(initialData),
+  });
+  try {
+    return templateCardSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function removeTemplateCard(ids: templateCardId[]) {
+  const data = await baseFetch("api/template-manager/template-cards", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify({ids}),
+  });
+  try {
+    return templateCardDataFromServerSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+
 
 // export async function addTemplateCard(initialData: templateCardInitialType) {
 //   const response = await fetch(templateCardsUrl, {
@@ -62,38 +101,38 @@ export async function addEmptyTemplateCard(
 //   }
 // }
 
-export async function removeTemplateCard(id: templateCardIdType) {
-  const response = await fetch(templateCardsUrl, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json;charset=utf-8",
-    },
-    body: JSON.stringify({ id }),
-  });
-  const data = await response.json();
-  try {
-    return removeTemplateCardIdSchema.parse(data);
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-}
+// export async function removeTemplateCard(id: templateCardIdType) {
+//   const response = await fetch(templateCardsUrl, {
+//     method: "DELETE",
+//     headers: {
+//       "Content-Type": "application/json;charset=utf-8",
+//     },
+//     body: JSON.stringify({ id }),
+//   });
+//   const data = await response.json();
+//   try {
+//     return removeTemplateCardIdSchema.parse(data);
+//   } catch (e) {
+//     console.log(e);
+//     throw e;
+//   }
+// }
 
-export async function updateTemplateCard(
-  initialData: dataForUpdatingTemplateCardType
-) {
-  const response = await fetch(templateCardsUrl, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json;charset=utf-8",
-    },
-    body: JSON.stringify(initialData),
-  });
-  const data = await response.json();
-  try {
-    return templateCardSchema.parse(data);
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-}
+// export async function updateTemplateCard(
+//   initialData: dataForUpdatingTemplateCardType
+// ) {
+//   const response = await fetch(templateCardsUrl, {
+//     method: "PATCH",
+//     headers: {
+//       "Content-Type": "application/json;charset=utf-8",
+//     },
+//     body: JSON.stringify(initialData),
+//   });
+//   const data = await response.json();
+//   try {
+//     return templateCardSchema.parse(data);
+//   } catch (e) {
+//     console.log(e);
+//     throw e;
+//   }
+// }

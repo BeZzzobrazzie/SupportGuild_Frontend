@@ -11,39 +11,43 @@ export const templateCardSchema = z.object({
 });
 export const templateCardsSchema = templateCardSchema.array();
 
+const byIdSchema = z.record(z.string(), templateCardSchema);
+const idsSchema = z.array(templateCardIdSchema);
+
+export const templateCardDataFromServerSchema = z.object({
+  byId: byIdSchema,
+  ids: idsSchema,
+});
+
 export const removeTemplateCardIdSchema = z.object({
   id: templateCardIdSchema,
 });
 
-export type templateCardType = z.infer<typeof templateCardSchema>;
+export type templateCard = z.infer<typeof templateCardSchema>;
 
-export type templateCardIdType = z.infer<typeof templateCardIdSchema>;
-export type templateCardNameType = z.infer<typeof templateCardNameSchema>;
-export type templateCardInitialType = {
+export type templateCardId = z.infer<typeof templateCardIdSchema>;
+export type templateCardName = z.infer<typeof templateCardNameSchema>;
+export type templateCardInitial = {
   // name?: templateCardNameType;
   // content: string;
   parentId: explorerItemParentId;
 };
-export type dataForUpdatingTemplateCardType = {
-  id: templateCardIdType;
-  name?: templateCardNameType;
+export type templateCardDataFromServer = z.infer<
+  typeof templateCardDataFromServerSchema
+>;
+
+export type dataForUpdateTemplateCard = {
+  id: templateCardId;
+  name?: templateCardName;
   content: string;
   parentId: explorerItemParentId;
 };
 
-export type byId = Record<templateCardIdType, templateCardType | undefined>;
+// export type byId = Record<templateCardId, templateCard | undefined>;
 export type templateCardsSliceType = {
-  entities: {
-    byId: byId;
-    ids: templateCardIdType[];
-  };
   // idEditingCard: templateCardIdType | null;
   cardsForEditing: {
-    currentId: templateCardIdType | null;
-    nextId: templateCardIdType | null;
+    currentId: templateCardId | null;
+    nextId: templateCardId | null;
   };
-  fetchCardsStatus: "idle" | "pending" | "success" | "failed";
-  addCardStatus: "idle" | "pending" | "success" | "failed";
-  removeCardStatus: "idle" | "pending" | "success" | "failed";
-  updateCardStatus: "idle" | "pending" | "success" | "failed";
 };
