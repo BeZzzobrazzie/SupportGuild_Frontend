@@ -1,7 +1,7 @@
 import { RichTextEditor } from "@mantine/tiptap";
 import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "@tiptap/extension-link";
 import { explorerSlice } from "src/04_entities/explorer/model";
@@ -9,7 +9,13 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTemplateCards } from "../api/template-cards-api";
 import { templateCard, templateCardId } from "../api/types";
-import { resetEditing, startEditing, templateCardsSlice } from "../model";
+import {
+  addToSelected,
+  removeFromSelected,
+  resetEditing,
+  startEditing,
+  templateCardsSlice,
+} from "../model";
 import { useRemoveMutation, useUpdateMutation } from "../lib/mutations";
 
 interface cardProps {
@@ -22,11 +28,15 @@ export function Card({ id, card }: cardProps) {
 
   const updateMutation = useUpdateMutation();
   const removeMutation = useRemoveMutation();
-  // const card = useAppSelector((state) =>
-  //   templateCardsSlice.selectors.selectCard(state, id)
-  // );
+
+  const isSelectedMode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsSelectedMode(state)
+  );
   const idEditingCard = useAppSelector((state) =>
     templateCardsSlice.selectors.selectIdEditingCard(state)
+  );
+  const isSelected = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsSelected(state, id)
   );
   // const isUnsavedChanges = useAppSelector((state) =>
   //   templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
@@ -97,7 +107,15 @@ export function Card({ id, card }: cardProps) {
     }
   }
   function handleClickRemove() {
-    removeMutation.mutate([card.id])
+    removeMutation.mutate([card.id]);
+  }
+
+  function handleChecked() {
+    if (isSelected) {
+      dispatch(removeFromSelected(card.id));
+    } else {
+      dispatch(addToSelected(card.id));
+    }
   }
 
   // useEffect(() => {
@@ -123,6 +141,13 @@ export function Card({ id, card }: cardProps) {
               {/* <span>Name: {card.name}</span> */}
 
               <RichTextEditor.ControlsGroup>
+                {isSelectedMode && (
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={handleChecked}
+                  />
+                )}
                 {isEditing ? (
                   <>
                     <button onClick={handleClickSave}>Save</button>
@@ -132,7 +157,6 @@ export function Card({ id, card }: cardProps) {
                   <button onClick={handleClickEdit}>Edit</button>
                 )}
                 <button onClick={handleClickRemove}>Remove</button>
-
               </RichTextEditor.ControlsGroup>
             </RichTextEditor.Toolbar>
             <RichTextEditor.Content />

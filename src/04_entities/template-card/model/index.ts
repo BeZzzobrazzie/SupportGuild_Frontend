@@ -23,6 +23,8 @@ const initialState: templateCardsSliceType = {
     currentId: null,
     nextId: null,
   },
+  idsSelectedTemplates: {},
+  selectedMode: false,
 };
 
 export const templateCardsSlice = createSlice({
@@ -34,6 +36,14 @@ export const templateCardsSlice = createSlice({
       state.cardsForEditing.currentId === id &&
       state.cardsForEditing.nextId !== null,
     // selectIdEditingCard: (state) => state.idEditingCard,
+    selectIsSelectedMode: (state) => state.selectedMode,
+    selectIsSelected: (state, id: templateCardId) =>
+      state.idsSelectedTemplates[id] === true,
+    selectAmountSelected: (state) => {
+      return Object.values(state.idsSelectedTemplates).filter(
+        (value) => value === true
+      ).length;
+    },
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardId>) => {
@@ -52,6 +62,21 @@ export const templateCardsSlice = createSlice({
     },
     continueEditing: (state) => {
       state.cardsForEditing.nextId = null;
+    },
+    selectedModeOn: (state) => {
+      state.selectedMode = true;
+    },
+    selectedModeOff: (state) => {
+      state.selectedMode = false;
+    },
+    addToSelected: (state, action: PayloadAction<templateCardId>) => {
+      state.idsSelectedTemplates[action.payload] = true;
+    },
+    removeFromSelected: (state, action: PayloadAction<templateCardId>) => {
+      state.idsSelectedTemplates[action.payload] = false;
+    },
+    resetSelected: (state) => {
+      state.idsSelectedTemplates = { ...{} };
     },
   },
   extraReducers: (builder) => {
@@ -136,5 +161,13 @@ export const templateCardsSlice = createSlice({
   },
 }).injectInto(rootReducer);
 
-export const { startEditing, resetEditing, continueEditing } =
-  templateCardsSlice.actions;
+export const {
+  startEditing,
+  resetEditing,
+  continueEditing,
+  selectedModeOn,
+  selectedModeOff,
+  addToSelected,
+  removeFromSelected,
+  resetSelected,
+} = templateCardsSlice.actions;

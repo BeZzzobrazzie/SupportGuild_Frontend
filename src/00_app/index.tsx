@@ -12,6 +12,7 @@ import { Templates } from "src/02_widgets/templates";
 import { ModalsProvider } from "@mantine/modals";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { TemplatesPage } from "src/01_pages/templates-page";
 
 function App() {
   // store.dispatch(fetchExplorerItemsTh());
@@ -21,8 +22,7 @@ function App() {
       <ModalsProvider>
         <ContextMenuProvider>
           <DndProvider backend={HTML5Backend}>
-            <ExplorerSmall />
-            <Templates />
+            <TemplatesPage />
           </DndProvider>
         </ContextMenuProvider>
       </ModalsProvider>

@@ -50,4 +50,6 @@ export type templateCardsSliceType = {
     currentId: templateCardId | null;
     nextId: templateCardId | null;
   };
+  idsSelectedTemplates: Record<templateCardId, boolean>;
+  selectedMode: boolean;
 };
