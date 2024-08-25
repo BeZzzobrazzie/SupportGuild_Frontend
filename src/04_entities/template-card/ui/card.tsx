@@ -11,12 +11,28 @@ import { getTemplateCards } from "../api/template-cards-api";
 import { templateCard, templateCardId } from "../api/types";
 import {
   addToSelected,
+  editModeOff,
+  editModeOn,
   removeFromSelected,
   resetEditing,
+  selectedModeOn,
   startEditing,
   templateCardsSlice,
 } from "../model";
 import { useRemoveMutation, useUpdateMutation } from "../lib/mutations";
+import { modals } from "@mantine/modals";
+import { ModalUnsavedChanges } from "./modal-unsaved-changes";
+import { ThemeIcon, Tooltip } from "@mantine/core";
+import {
+  IconArrowBackUp,
+  IconCheckbox,
+  IconEdit,
+  IconFileX,
+  IconSquareRoundedX,
+  IconX,
+} from "@tabler/icons-react";
+
+import classes from "./card.module.css";
 
 interface cardProps {
   id: templateCardId;
@@ -29,18 +45,24 @@ export function Card({ id, card }: cardProps) {
   const updateMutation = useUpdateMutation();
   const removeMutation = useRemoveMutation();
 
-  const isSelectedMode = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsSelectedMode(state)
+  // const isSelectedMode = useAppSelector((state) =>
+  //   templateCardsSlice.selectors.selectIsSelectedMode(state)
+  // );
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
+  const isReadMode = mode === "read";
+  const isEditMode = mode === "edit";
+  const isSelectedMode = mode === "select";
+  const isSelected = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsSelected(state, id)
+  );
+  const isUnsavedChanges = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
   );
   const idEditingCard = useAppSelector((state) =>
     templateCardsSlice.selectors.selectIdEditingCard(state)
   );
-  const isSelected = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsSelected(state, id)
-  );
-  // const isUnsavedChanges = useAppSelector((state) =>
-  //   templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
-  // );
   const isEditing = idEditingCard === id;
 
   const content = card.content || "";
@@ -50,36 +72,9 @@ export function Card({ id, card }: cardProps) {
     editable: isEditing,
   });
 
-  // if (!editor || !card) {
-  //   return <>Error</>;
-  // }
-
-  // const dataForUpdate = {
-  //   ...card,
-  //   content: editor.getText(),
-  // };
   // const isCollectionInQueue = useAppSelector((state) =>
   //   explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
   // );
-
-  // console.log('idEditingCard: ' + idEditingCard)
-  // console.log('isUnsavedChanges: ' + isUnsavedChanges)
-  // console.log('isCollectionInQueue: ' + isCollectionInQueue)
-  // console.log(idEditingCard && (isUnsavedChanges || isCollectionInQueue));
-
-  // const openModal = () =>
-  //   modals.openConfirmModal({
-  //     title: "Unsaved Changes Detected",
-  //     children: (
-  //       <div>
-  //         You have unsaved changes in the current template. Would you like to
-  //         save your changes before editing a new template?
-  //       </div>
-  //     ),
-  //     labels: { confirm: "Save Changes", cancel: "Discard Changes" },
-  //     onCancel: () => handleClickReset(),
-  //     onConfirm: () => handleClickSave(),
-  //   });
 
   function handleClickEdit() {
     if (idEditingCard !== null) {
@@ -87,6 +82,7 @@ export function Card({ id, card }: cardProps) {
       // openModal();
     }
     dispatch(startEditing(id));
+    dispatch(editModeOn());
   }
   function handleClickSave() {
     updateMutation.mutate(
@@ -94,12 +90,14 @@ export function Card({ id, card }: cardProps) {
       {
         onSuccess: () => {
           dispatch(resetEditing());
+          dispatch(editModeOff());
         },
       }
     );
   }
   function handleClickReset() {
     dispatch(resetEditing());
+    dispatch(editModeOff());
     if (content) {
       editor?.commands.setContent(content);
     } else {
@@ -117,12 +115,11 @@ export function Card({ id, card }: cardProps) {
       dispatch(addToSelected(card.id));
     }
   }
+  function handleClickSelect() {
+    dispatch(selectedModeOn());
+    dispatch(addToSelected(card.id));
+  }
 
-  // useEffect(() => {
-  //   if (isUnsavedChanges) {
-  //     // openModal();
-  //   }
-  // }, [isUnsavedChanges]);
   useEffect(() => {
     if (!editor) {
       return undefined;
@@ -137,7 +134,7 @@ export function Card({ id, card }: cardProps) {
       <>
         <div>
           <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar>
+            <RichTextEditor.Toolbar className={classes["toolbar"]}>
               {/* <span>Name: {card.name}</span> */}
 
               <RichTextEditor.ControlsGroup>
@@ -150,28 +147,56 @@ export function Card({ id, card }: cardProps) {
                 )}
                 {isEditing ? (
                   <>
-                    <button onClick={handleClickSave}>Save</button>
-                    <button onClick={handleClickReset}>Reset</button>
+                    <RichTextEditor.Control
+                      onClick={handleClickSave}
+                      aria-label="Save"
+                      title="Save"
+                    >
+                      <ThemeIcon variant="light">
+                        <IconCheckbox />
+                      </ThemeIcon>
+                    </RichTextEditor.Control>
+                    <RichTextEditor.Control>
+                      <Tooltip label="Reset" openDelay={500}>
+                        <ThemeIcon variant="light" onClick={handleClickReset}>
+                          <IconArrowBackUp />
+                        </ThemeIcon>
+                      </Tooltip>
+                    </RichTextEditor.Control>
                   </>
                 ) : (
-                  <button onClick={handleClickEdit}>Edit</button>
+                  isReadMode && (
+                    <>
+                      <ThemeIcon variant="light" onClick={handleClickEdit}>
+                        <IconEdit />
+                      </ThemeIcon>
+                      <button onClick={handleClickSelect}>Select</button>
+                    </>
+                  )
                 )}
-                <button onClick={handleClickRemove}>Remove</button>
+              </RichTextEditor.ControlsGroup>
+              <RichTextEditor.ControlsGroup>
+                {isReadMode && (
+                  <ThemeIcon variant="light" onClick={handleClickRemove}>
+                    <IconX />
+                  </ThemeIcon>
+                )}
               </RichTextEditor.ControlsGroup>
             </RichTextEditor.Toolbar>
             <RichTextEditor.Content />
           </RichTextEditor>
         </div>
-        {/* {idEditingCard === card.id &&
-          (isUnsavedChanges || isCollectionInQueue) && (
-            <ModalUnsavedChanges
-              dataForUpdate={dataForUpdate}
-              content={content}
-              editor={editor}
-              cardId={id}
-              isCollectionInQueue={isCollectionInQueue}
-            />
-          )} */}
+        {isEditing && isUnsavedChanges && (
+          // || isCollectionInQueue
+          <ModalUnsavedChanges
+            // dataForUpdate={dataForUpdate}
+            content={content}
+            editor={editor}
+            cardId={id}
+            card={card}
+            // isCollectionInQueue={isCollectionInQueue}
+          />
+        )}
       </>
     );
   }

@@ -24,7 +24,8 @@ const initialState: templateCardsSliceType = {
     nextId: null,
   },
   idsSelectedTemplates: {},
-  selectedMode: false,
+  mode: "read",
+  // selectedMode: false,
 };
 
 export const templateCardsSlice = createSlice({
@@ -36,13 +37,19 @@ export const templateCardsSlice = createSlice({
       state.cardsForEditing.currentId === id &&
       state.cardsForEditing.nextId !== null,
     // selectIdEditingCard: (state) => state.idEditingCard,
-    selectIsSelectedMode: (state) => state.selectedMode,
+    // selectIsSelectedMode: (state) => state.selectedMode,
+    selectMode: (state) => state.mode,
     selectIsSelected: (state, id: templateCardId) =>
       state.idsSelectedTemplates[id] === true,
     selectAmountSelected: (state) => {
       return Object.values(state.idsSelectedTemplates).filter(
         (value) => value === true
       ).length;
+    },
+    selectSelectedIds: (state) => {
+      return Object.keys(state.idsSelectedTemplates)
+        .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
+        .map((key) => Number(key));
     },
   },
   reducers: {
@@ -63,11 +70,17 @@ export const templateCardsSlice = createSlice({
     continueEditing: (state) => {
       state.cardsForEditing.nextId = null;
     },
+    editModeOn: (state) => {
+      state.mode = "edit";
+    },
+    editModeOff: (state) => {
+      state.mode = "read";
+    },
     selectedModeOn: (state) => {
-      state.selectedMode = true;
+      state.mode = "select";
     },
     selectedModeOff: (state) => {
-      state.selectedMode = false;
+      state.mode = "read";
     },
     addToSelected: (state, action: PayloadAction<templateCardId>) => {
       state.idsSelectedTemplates[action.payload] = true;
@@ -77,6 +90,11 @@ export const templateCardsSlice = createSlice({
     },
     resetSelected: (state) => {
       state.idsSelectedTemplates = { ...{} };
+    },
+    selectAll: (state, action: PayloadAction<templateCardId[]>) => {
+      action.payload.forEach((id) => {
+        state.idsSelectedTemplates[id] = true;
+      });
     },
   },
   extraReducers: (builder) => {
@@ -170,4 +188,7 @@ export const {
   addToSelected,
   removeFromSelected,
   resetSelected,
+  selectAll,
+  editModeOn,
+  editModeOff,
 } = templateCardsSlice.actions;

@@ -51,5 +51,6 @@ export type templateCardsSliceType = {
     nextId: templateCardId | null;
   };
   idsSelectedTemplates: Record<templateCardId, boolean>;
-  selectedMode: boolean;
+  // selectedMode: boolean;
+  mode: "read" | "edit" | "select";
 };
