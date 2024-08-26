@@ -1,10 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   addEmptyTemplateCard,
+  pasteTemplateCard,
   removeTemplateCard,
   updateTemplateCard,
 } from "../api/template-cards-api";
-import { explorerItemParentId } from "src/04_entities/explorer/api/types";
+import { explorerItemId, explorerItemParentId } from "src/04_entities/explorer/api/types";
 import { queryClient } from "src/05_shared/api";
 import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
 import {
@@ -72,5 +73,20 @@ export function useRemoveMutation() {
       );
     },
     mutationKey: ["removeTemplateCard"],
+  });
+}
+
+export function usePasteMutation() {
+  return useMutation({
+    mutationFn: async (data: {parentId: explorerItemId, ids: templateCardId[]}) => await pasteTemplateCard(data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        [TEMPLATE_CARDS_QUERY_KEY],
+        (oldData: templateCardDataFromServer) => {
+          return data;
+        }
+      );
+    },
+    mutationKey: ["pasteTemplateCard"],
   });
 }

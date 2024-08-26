@@ -11,6 +11,7 @@ import { getTemplateCards } from "../api/template-cards-api";
 import { templateCard, templateCardId } from "../api/types";
 import {
   addToSelected,
+  copyOne,
   editModeOff,
   editModeOn,
   removeFromSelected,
@@ -119,6 +120,10 @@ export function Card({ id, card }: cardProps) {
     dispatch(selectedModeOn());
     dispatch(addToSelected(card.id));
   }
+  function handleClickCopy() {
+    console.log('copyOne')
+    dispatch(copyOne(card.id))
+  }
 
   useEffect(() => {
     if (!editor) {
@@ -171,6 +176,7 @@ export function Card({ id, card }: cardProps) {
                         <IconEdit />
                       </ThemeIcon>
                       <button onClick={handleClickSelect}>Select</button>
+                      <button onClick={handleClickCopy}>Copy</button>
                     </>
                   )
                 )}

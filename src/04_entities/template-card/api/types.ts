@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { explorerItemParentId } from "src/04_entities/explorer/api/types";
+import { explorerItemId, explorerItemParentId } from "src/04_entities/explorer/api/types";
 
 export const templateCardIdSchema = z.number();
 const templateCardNameSchema = z.string().optional();
@@ -43,6 +43,11 @@ export type dataForUpdateTemplateCard = {
   parentId: explorerItemParentId;
 };
 
+export type pasteTemplateCardsData = {
+  parentId: explorerItemId;
+  ids: templateCardId[];
+}
+
 // export type byId = Record<templateCardId, templateCard | undefined>;
 export type templateCardsSliceType = {
   // idEditingCard: templateCardIdType | null;
@@ -51,6 +56,7 @@ export type templateCardsSliceType = {
     nextId: templateCardId | null;
   };
   idsSelectedTemplates: Record<templateCardId, boolean>;
+  idsCopiedTemplates: templateCardId[];
   // selectedMode: boolean;
   mode: "read" | "edit" | "select";
 };

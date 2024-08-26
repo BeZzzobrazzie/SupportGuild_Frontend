@@ -24,6 +24,7 @@ const initialState: templateCardsSliceType = {
     nextId: null,
   },
   idsSelectedTemplates: {},
+  idsCopiedTemplates: [],
   mode: "read",
   // selectedMode: false,
 };
@@ -51,6 +52,7 @@ export const templateCardsSlice = createSlice({
         .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
         .map((key) => Number(key));
     },
+    selectCopiedIds: (state) => state.idsCopiedTemplates,
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardId>) => {
@@ -95,6 +97,14 @@ export const templateCardsSlice = createSlice({
       action.payload.forEach((id) => {
         state.idsSelectedTemplates[id] = true;
       });
+    },
+    copyOne: (state, action: PayloadAction<templateCardId>) => {
+      state.idsCopiedTemplates = [action.payload];
+    },
+    copySelected: (state) => {
+      state.idsCopiedTemplates = Object.keys(state.idsSelectedTemplates)
+        .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
+        .map((key) => Number(key));
     },
   },
   extraReducers: (builder) => {
@@ -191,4 +201,6 @@ export const {
   selectAll,
   editModeOn,
   editModeOff,
+  copyOne,
+  copySelected,
 } = templateCardsSlice.actions;

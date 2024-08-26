@@ -1,13 +1,15 @@
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { AddCard } from "./add-card";
 import {
+  copySelected,
   resetSelected,
   selectedModeOff,
   selectedModeOn,
   templateCardsSlice,
 } from "../model";
-import { useRemoveMutation } from "../lib/mutations";
+import { usePasteMutation, useRemoveMutation } from "../lib/mutations";
 import { selectAllThunk } from "../model/select-all-thunk";
+import { explorerSlice } from "src/04_entities/explorer/model";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -26,8 +28,15 @@ export function CommandPanel() {
   const selectedIds = useAppSelector((state) =>
     templateCardsSlice.selectors.selectSelectedIds(state)
   );
+  const activeCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectActiveCollection(state)
+  );
+  const copiedIds = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectCopiedIds(state)
+  );
 
   const removeMutation = useRemoveMutation();
+  const pasteMutation = usePasteMutation();
 
   function handleClickSelect() {
     dispatch(selectedModeOn());
@@ -47,6 +56,17 @@ export function CommandPanel() {
   function handleClickSelectAll() {
     dispatch(selectAllThunk());
   }
+  function handleClickCopy() {
+    dispatch(copySelected());
+    dispatch(resetSelected());
+    dispatch(selectedModeOff());
+  }
+
+  function handleClickPaste() {
+    if (activeCollection !== null) {
+      pasteMutation.mutate({ parentId: activeCollection, ids: copiedIds });
+    }
+  }
 
   return (
     <>
@@ -57,12 +77,14 @@ export function CommandPanel() {
             <button onClick={handleClickCancelSelection}>Deselect</button>
             <button onClick={handleClickDelete}>Delete selected</button>
             <button onClick={handleClickSelectAll}>Select all</button>
+            <button onClick={handleClickCopy}>Copy selected</button>
           </>
         ) : (
           isReadMode && (
             <>
               <AddCard />
               <button onClick={handleClickSelect}>Select</button>
+              <button onClick={handleClickPaste}>Paste</button>
             </>
           )
         )}
