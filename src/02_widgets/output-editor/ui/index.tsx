@@ -29,7 +29,7 @@ export function OutputEditor() {
   return (
     // Add the editable component inside the context.
     <Slate editor={editor} initialValue={initialValue}>
-      <Editable />
+      <Editable style={{width: '100%'}}/>
     </Slate>
   )
 }

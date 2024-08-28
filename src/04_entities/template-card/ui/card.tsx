@@ -1,7 +1,7 @@
 import { RichTextEditor } from "@mantine/tiptap";
-import { Editor, useEditor } from "@tiptap/react";
+// import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Link from "@tiptap/extension-link";
 import { explorerSlice } from "src/04_entities/explorer/model";
@@ -34,6 +34,8 @@ import {
 } from "@tabler/icons-react";
 
 import classes from "./card.module.css";
+import { Editable, Slate, withReact } from "slate-react";
+import { createEditor, Descendant, Editor } from "slate";
 
 interface cardProps {
   id: templateCardId;
@@ -42,6 +44,20 @@ interface cardProps {
 
 export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
+  const [editor] = useState(() => withReact(createEditor()));
+
+  const content = card.content || "";
+  const initialValue = [
+    {
+      type: 'paragraph',
+      children: [{ text: content }],
+    },
+  ]
+  const [value, setValue] = useState<Descendant[]>(initialValue);
+
+  const handleChange = useCallback((newValue: Descendant[]) => {
+    setValue(newValue);
+  }, []);
 
   const updateMutation = useUpdateMutation();
   const removeMutation = useRemoveMutation();
@@ -66,12 +82,11 @@ export function Card({ id, card }: cardProps) {
   );
   const isEditing = idEditingCard === id;
 
-  const content = card.content || "";
-  const editor = useEditor({
-    extensions: [StarterKit, Link],
-    content,
-    editable: isEditing,
-  });
+  // const editor = useEditor({
+  //   extensions: [StarterKit, Link],
+  //   content,
+  //   editable: isEditing,
+  // });
 
   // const isCollectionInQueue = useAppSelector((state) =>
   //   explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
@@ -99,11 +114,11 @@ export function Card({ id, card }: cardProps) {
   function handleClickReset() {
     dispatch(resetEditing());
     dispatch(editModeOff());
-    if (content) {
-      editor?.commands.setContent(content);
-    } else {
-      editor?.commands.setContent("");
-    }
+    Editor.withoutNormalizing(editor, () => {
+      editor.children = initialValue;
+      editor.selection = null;
+    });
+    editor.onChange();
   }
   function handleClickRemove() {
     removeMutation.mutate([card.id]);
@@ -121,78 +136,75 @@ export function Card({ id, card }: cardProps) {
     dispatch(addToSelected(card.id));
   }
   function handleClickCopy() {
-    console.log('copyOne')
-    dispatch(copyOne(card.id))
+    console.log("copyOne");
+    dispatch(copyOne(card.id));
   }
 
-  useEffect(() => {
-    if (!editor) {
-      return undefined;
-    }
+  // useEffect(() => {
+  //   if (!editor) {
+  //     return undefined;
+  //   }
 
-    editor.setEditable(isEditing);
-  }, [editor, isEditing]);
+  //   editor.setEditable(isEditing);
+  // }, [editor, isEditing]);
 
+  
   let componentContent = <></>;
+  let toolbar = <></>;
   if (card) {
+    toolbar = (
+      <>
+        <div className={classes.toolbar}>
+          <div>
+            {isSelectedMode && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={handleChecked}
+              />
+            )}
+            {isEditing ? (
+              <>
+                <ThemeIcon variant="light" onClick={handleClickSave}>
+                  <IconCheckbox />
+                </ThemeIcon>
+                <Tooltip label="Reset" openDelay={500}>
+                  <ThemeIcon variant="light" onClick={handleClickReset}>
+                    <IconArrowBackUp />
+                  </ThemeIcon>
+                </Tooltip>
+              </>
+            ) : (
+              isReadMode && (
+                <>
+                  <ThemeIcon variant="light" onClick={handleClickEdit}>
+                    <IconEdit />
+                  </ThemeIcon>
+                  <button onClick={handleClickSelect}>Select</button>
+                  <button onClick={handleClickCopy}>Copy</button>
+                </>
+              )
+            )}
+          </div>
+          <div>
+            {isReadMode && (
+              <ThemeIcon variant="light" onClick={handleClickRemove}>
+                <IconX />
+              </ThemeIcon>
+            )}
+          </div>
+        </div>
+      </>
+    );
     componentContent = (
       <>
         <div>
-          <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar className={classes["toolbar"]}>
-              {/* <span>Name: {card.name}</span> */}
-
-              <RichTextEditor.ControlsGroup>
-                {isSelectedMode && (
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={handleChecked}
-                  />
-                )}
-                {isEditing ? (
-                  <>
-                    <RichTextEditor.Control
-                      onClick={handleClickSave}
-                      aria-label="Save"
-                      title="Save"
-                    >
-                      <ThemeIcon variant="light">
-                        <IconCheckbox />
-                      </ThemeIcon>
-                    </RichTextEditor.Control>
-                    <RichTextEditor.Control>
-                      <Tooltip label="Reset" openDelay={500}>
-                        <ThemeIcon variant="light" onClick={handleClickReset}>
-                          <IconArrowBackUp />
-                        </ThemeIcon>
-                      </Tooltip>
-                    </RichTextEditor.Control>
-                  </>
-                ) : (
-                  isReadMode && (
-                    <>
-                      <ThemeIcon variant="light" onClick={handleClickEdit}>
-                        <IconEdit />
-                      </ThemeIcon>
-                      <button onClick={handleClickSelect}>Select</button>
-                      <button onClick={handleClickCopy}>Copy</button>
-                    </>
-                  )
-                )}
-              </RichTextEditor.ControlsGroup>
-              <RichTextEditor.ControlsGroup>
-                {isReadMode && (
-                  <ThemeIcon variant="light" onClick={handleClickRemove}>
-                    <IconX />
-                  </ThemeIcon>
-                )}
-              </RichTextEditor.ControlsGroup>
-            </RichTextEditor.Toolbar>
-            <RichTextEditor.Content />
-          </RichTextEditor>
+          {toolbar}
+          <Slate editor={editor} initialValue={initialValue} onChange={handleChange}>
+            <Editable style={{ width: "100%" }} readOnly={!isEditing}/>
+          </Slate>
         </div>
-        {isEditing && isUnsavedChanges && (
+        {/* {isEditing && isUnsavedChanges && (
           // || isCollectionInQueue
           <ModalUnsavedChanges
             // dataForUpdate={dataForUpdate}
@@ -202,10 +214,64 @@ export function Card({ id, card }: cardProps) {
             card={card}
             // isCollectionInQueue={isCollectionInQueue}
           />
-        )}
+        )} */}
       </>
     );
   }
 
   return componentContent;
 }
+
+// <RichTextEditor editor={editor}>
+// <RichTextEditor.Toolbar className={classes["toolbar"]}>
+//   {/* <span>Name: {card.name}</span> */}
+
+//   <RichTextEditor.ControlsGroup>
+//     {isSelectedMode && (
+//       <input
+//         type="checkbox"
+//         checked={isSelected}
+//         onChange={handleChecked}
+//       />
+//     )}
+//     {isEditing ? (
+//       <>
+//         <RichTextEditor.Control
+//           onClick={handleClickSave}
+//           aria-label="Save"
+//           title="Save"
+//         >
+//           <ThemeIcon variant="light">
+//             <IconCheckbox />
+//           </ThemeIcon>
+//         </RichTextEditor.Control>
+//         <RichTextEditor.Control>
+//           <Tooltip label="Reset" openDelay={500}>
+//             <ThemeIcon variant="light" onClick={handleClickReset}>
+//               <IconArrowBackUp />
+//             </ThemeIcon>
+//           </Tooltip>
+//         </RichTextEditor.Control>
+//       </>
+//     ) : (
+//       isReadMode && (
+//         <>
+//           <ThemeIcon variant="light" onClick={handleClickEdit}>
+//             <IconEdit />
+//           </ThemeIcon>
+//           <button onClick={handleClickSelect}>Select</button>
+//           <button onClick={handleClickCopy}>Copy</button>
+//         </>
+//       )
+//     )}
+//   </RichTextEditor.ControlsGroup>
+//   <RichTextEditor.ControlsGroup>
+//     {isReadMode && (
+//       <ThemeIcon variant="light" onClick={handleClickRemove}>
+//         <IconX />
+//       </ThemeIcon>
+//     )}
+//   </RichTextEditor.ControlsGroup>
+// </RichTextEditor.Toolbar>
+// <RichTextEditor.Content />
+// </RichTextEditor>
