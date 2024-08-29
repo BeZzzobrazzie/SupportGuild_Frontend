@@ -16,6 +16,8 @@ import {
 } from "../api/template-cards-api";
 import { rootReducer } from "src/05_shared/redux";
 import { templateCardId, templateCardsSliceType } from "../api/types";
+import { BaseEditor, Descendant } from "slate";
+import { ReactEditor } from "slate-react";
 
 const initialState: templateCardsSliceType = {
   // idEditingCard: null,
@@ -25,6 +27,13 @@ const initialState: templateCardsSliceType = {
   },
   idsSelectedTemplates: {},
   idsCopiedTemplates: [],
+  outputEditorChanged: false,
+  outputEditorContent: [
+    {
+      type: "paragraph",
+      children: [{ text: "" }],
+    },
+  ],
   mode: "read",
   // selectedMode: false,
 };
@@ -53,6 +62,8 @@ export const templateCardsSlice = createSlice({
         .map((key) => Number(key));
     },
     selectCopiedIds: (state) => state.idsCopiedTemplates,
+    selectOutputEditorContent: (state) => state.outputEditorContent,
+    selectOutputEditorChanged: (state) => state.outputEditorChanged,
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardId>) => {
@@ -106,6 +117,13 @@ export const templateCardsSlice = createSlice({
         .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
         .map((key) => Number(key));
     },
+    addToOutputEditor: (state, action: PayloadAction<Descendant[]>) => {
+      state.outputEditorContent = action.payload;
+      state.outputEditorChanged = true;
+    },
+    saveOutputEditorChange: (state) => {
+      state.outputEditorChanged = false;
+    }
   },
   extraReducers: (builder) => {
     // builder.addCase(fetchCards.pending, (state) => {
@@ -203,4 +221,6 @@ export const {
   editModeOff,
   copyOne,
   copySelected,
+  addToOutputEditor,
+  saveOutputEditorChange
 } = templateCardsSlice.actions;

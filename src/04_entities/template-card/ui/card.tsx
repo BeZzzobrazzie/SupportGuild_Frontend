@@ -10,6 +10,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTemplateCards } from "../api/template-cards-api";
 import { templateCard, templateCardId } from "../api/types";
 import {
+  addToOutputEditor,
   addToSelected,
   copyOne,
   editModeOff,
@@ -34,7 +35,7 @@ import {
 } from "@tabler/icons-react";
 
 import classes from "./card.module.css";
-import { Editable, Slate, withReact } from "slate-react";
+import { Editable, Slate, useSlate, withReact } from "slate-react";
 import { createEditor, Descendant, Editor } from "slate";
 
 interface cardProps {
@@ -46,18 +47,18 @@ export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
   const [editor] = useState(() => withReact(createEditor()));
 
-  const content = card.content || "";
-  const initialValue = [
+  const content = card.content;
+  const initialValue: Descendant[] = content || [
     {
-      type: 'paragraph',
-      children: [{ text: content }],
+      type: "paragraph",
+      children: [{ text: "" }],
     },
-  ]
+  ];
   const [value, setValue] = useState<Descendant[]>(initialValue);
-
   const handleChange = useCallback((newValue: Descendant[]) => {
     setValue(newValue);
   }, []);
+
 
   const updateMutation = useUpdateMutation();
   const removeMutation = useRemoveMutation();
@@ -102,7 +103,7 @@ export function Card({ id, card }: cardProps) {
   }
   function handleClickSave() {
     updateMutation.mutate(
-      { ...card, content: editor?.getText() || "" },
+      { ...card, content: value },
       {
         onSuccess: () => {
           dispatch(resetEditing());
@@ -140,6 +141,10 @@ export function Card({ id, card }: cardProps) {
     dispatch(copyOne(card.id));
   }
 
+  function handleClickAddToOutputEditor() {
+    console.log('add')
+    dispatch(addToOutputEditor(value));
+  }
   // useEffect(() => {
   //   if (!editor) {
   //     return undefined;
@@ -148,7 +153,6 @@ export function Card({ id, card }: cardProps) {
   //   editor.setEditable(isEditing);
   // }, [editor, isEditing]);
 
-  
   let componentContent = <></>;
   let toolbar = <></>;
   if (card) {
@@ -182,6 +186,7 @@ export function Card({ id, card }: cardProps) {
                   </ThemeIcon>
                   <button onClick={handleClickSelect}>Select</button>
                   <button onClick={handleClickCopy}>Copy</button>
+                  <button onClick={handleClickAddToOutputEditor}>Add</button>
                 </>
               )
             )}
@@ -200,21 +205,26 @@ export function Card({ id, card }: cardProps) {
       <>
         <div>
           {toolbar}
-          <Slate editor={editor} initialValue={initialValue} onChange={handleChange}>
-            <Editable style={{ width: "100%" }} readOnly={!isEditing}/>
+          <Slate
+            editor={editor}
+            initialValue={initialValue}
+            onChange={handleChange}
+          >
+            <Editable style={{ width: "100%" }} readOnly={!isEditing} />
           </Slate>
         </div>
-        {/* {isEditing && isUnsavedChanges && (
+        {isEditing && isUnsavedChanges && (
           // || isCollectionInQueue
           <ModalUnsavedChanges
             // dataForUpdate={dataForUpdate}
-            content={content}
             editor={editor}
+            value={value}
+            content={content}
             cardId={id}
             card={card}
             // isCollectionInQueue={isCollectionInQueue}
           />
-        )} */}
+        )}
       </>
     );
   }

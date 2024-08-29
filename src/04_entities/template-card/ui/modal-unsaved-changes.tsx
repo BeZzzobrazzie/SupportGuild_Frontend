@@ -1,23 +1,26 @@
-import { Editor } from "@tiptap/react";
 
-import { continueEditing, resetEditing, templateCardsSlice } from "../model";
+import { continueEditing, editModeOff, resetEditing, templateCardsSlice } from "../model";
 import { useDisclosure } from "@mantine/hooks";
 import { Modal } from "@mantine/core";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
-import { templateCard, templateCardId } from "../api/types";
+import { templateCard, templateCardId, CustomBaseElement } from "../api/types";
 import { useUpdateMutation } from "../lib/mutations";
+import { BaseEditor, Descendant, Editor } from "slate";
+import { ReactEditor } from "slate-react";
 
 export function ModalUnsavedChanges({
   // dataForUpdate,
-  content,
+  value,
   editor,
+  content,
   cardId,
   card,
 }: // isCollectionInQueue,
 {
   // dataForUpdate: templateCard;
-  content: string | undefined;
-  editor: Editor | null;
+  value: Descendant[]
+  editor: BaseEditor & ReactEditor
+  content: CustomBaseElement[];
   cardId: templateCardId;
   card: templateCard;
 
@@ -42,7 +45,7 @@ export function ModalUnsavedChanges({
 
   function handleClickSave() {
     updateMutation.mutate(
-      { ...card, content: editor?.getText() || "" },
+      { ...card, content: value },
       {
         onSuccess: () => {
           dispatch(resetEditing());
@@ -55,15 +58,13 @@ export function ModalUnsavedChanges({
     // }
   }
   function handleClickReset() {
-    if (editor) {
-      if (content) {
-        editor.commands.setContent(content);
-      } else {
-        editor.commands.setContent("");
-      }
-    }
-
     dispatch(resetEditing());
+    dispatch(editModeOff());
+    Editor.withoutNormalizing(editor, () => {
+      editor.children = content;
+      editor.selection = null;
+    });
+    editor.onChange();
     // if (isCollectionInQueue) {
     //   dispatch(changeCurrentCollectionToNext());
     // }
