@@ -3,12 +3,21 @@ import Link from "@tiptap/extension-link";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useCallback, useEffect, useState } from "react";
-import { createEditor, Descendant } from "slate";
-import { Slate, Editable, withReact } from "slate-react";
-import { saveOutputEditorChange, templateCardsSlice } from "src/04_entities/template-card/model";
+import { BaseEditor, createEditor, Descendant } from "slate";
+import { Slate, Editable, withReact, ReactEditor } from "slate-react";
+import {
+  saveOutputEditorChange,
+  templateCardsSlice,
+} from "src/04_entities/template-card/model";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
-export function OutputEditor() {
+export function OutputEditor({
+  setOutputEditor,
+}: {
+  setOutputEditor: React.Dispatch<
+    React.SetStateAction<(BaseEditor & ReactEditor) | null>
+  >;
+}) {
   const dispatch = useAppDispatch();
   // const content = "";
   // const editor = useEditor({
@@ -23,7 +32,7 @@ export function OutputEditor() {
   // );
   const outputEditorChanged = useAppSelector(
     (state) => state.templateCards.outputEditorChanged
-  )
+  );
   const outputEditorContent = useAppSelector((state) =>
     templateCardsSlice.selectors.selectOutputEditorContent(state)
   );
@@ -41,7 +50,9 @@ export function OutputEditor() {
 
   const [editor] = useState(() => withReact(createEditor()));
 
-
+  useEffect(() => {
+    setOutputEditor(editor);
+  }, [editor, setOutputEditor]);
 
   return (
     // Add the editable component inside the context.

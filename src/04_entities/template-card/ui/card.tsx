@@ -1,7 +1,7 @@
 import { RichTextEditor } from "@mantine/tiptap";
 // import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import Link from "@tiptap/extension-link";
 import { explorerSlice } from "src/04_entities/explorer/model";
@@ -36,7 +36,9 @@ import {
 
 import classes from "./card.module.css";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
-import { createEditor, Descendant, Editor } from "slate";
+import { createEditor, Descendant, Editor, Transforms } from "slate";
+import { EditorContext } from "src/02_widgets/output-editor/lib/context";
+import { resetNodes } from "src/05_shared/slate-reset-nodes";
 
 interface cardProps {
   id: templateCardId;
@@ -59,6 +61,7 @@ export function Card({ id, card }: cardProps) {
     setValue(newValue);
   }, []);
 
+  const outputEditor = useContext(EditorContext);
 
   const updateMutation = useUpdateMutation();
   const removeMutation = useRemoveMutation();
@@ -142,8 +145,14 @@ export function Card({ id, card }: cardProps) {
   }
 
   function handleClickAddToOutputEditor() {
-    console.log('add')
-    dispatch(addToOutputEditor(value));
+    console.log("add");
+    if (outputEditor !== null) {
+      resetNodes(outputEditor, { nodes: value });
+      // outputEditor.children = [...outputEditor.children, ...value];
+      // outputEditor.onChange();
+      // Transforms.insertFragment(outputEditor, value);
+    }
+    // dispatch(addToOutputEditor(value));
   }
   // useEffect(() => {
   //   if (!editor) {
