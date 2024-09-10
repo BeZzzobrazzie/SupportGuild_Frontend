@@ -18,7 +18,8 @@ export function TemplatesPage() {
       <EditorContext.Provider value={outputEditor}>
         <Templates />
       </EditorContext.Provider>
-      <OutputEditor setOutputEditor={setOutputEditor} />
+      {/* <OutputEditor setOutputEditor={setOutputEditor} /> */}
+      <OutputEditor />
     </div>
   );
 }

@@ -36,16 +36,134 @@ import {
 
 import classes from "./card.module.css";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
-import { createEditor, Descendant, Editor, Transforms } from "slate";
+import { createEditor, Descendant, Editor, Transforms, Node } from "slate";
 import { EditorContext } from "src/02_widgets/output-editor/lib/context";
 import { resetNodes } from "src/05_shared/slate-reset-nodes";
+import { EditorState } from "lexical";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 interface cardProps {
   id: templateCardId;
   card: templateCard;
 }
 
+const theme = {};
+
+function onError(error: Error) {
+  console.log(error);
+}
 export function Card({ id, card }: cardProps) {
+  const dispatch = useAppDispatch();
+
+  const initialConfig = {
+    namespace: "CardEditor_" + id,
+    theme,
+    onError,
+    editable: false,
+  };
+
+  const [editorState, setEditorState] = useState<EditorState>();
+  function onChange(editorState: EditorState) {
+    setEditorState(editorState);
+  }
+
+  return (
+    <LexicalComposer initialConfig={initialConfig}>
+      <div className={classes["editor-container"]}>
+        <ToolbarCardPlugin id={id}/>
+        <RichTextPlugin
+          contentEditable={<ContentEditable />}
+          placeholder={<div>Enter some text...</div>}
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+        {/* <HistoryPlugin /> */}
+        <OnChangePlugin onChange={onChange} />
+      </div>
+    </LexicalComposer>
+  );
+}
+
+function ToolbarCardPlugin({id}: {id: templateCardId}) {
+  const dispatch = useAppDispatch();
+  const [editor] = useLexicalComposerContext();
+
+  const isEditable = editor.isEditable();
+
+
+
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
+  const isReadMode = mode === "read";
+  const isEditMode = mode === "edit";
+  const isSelectedMode = mode === "select";
+  const isSelected = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsSelected(state, id)
+  );
+  const isUnsavedChanges = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
+  );
+  const idEditingCard = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectIdEditingCard(state)
+  );
+  const isEditing = idEditingCard === id;
+
+
+
+  function handleClickEdit() {
+    if (idEditingCard !== null) {
+      console.log("modal");
+      // openModal();
+    }
+    dispatch(startEditing(id));
+    dispatch(editModeOn());
+    editor.setEditable(true);
+  }
+  function handleClickReset() {
+    dispatch(resetEditing());
+    dispatch(editModeOff());
+    editor.setEditable(false);
+  }
+
+
+  return (
+    <div className={classes.toolbar}>
+      <div>
+        {isSelectedMode && (
+          <input
+            type="checkbox"
+            // checked={isSelected} onChange={handleChecked}
+          />
+        )}
+        {isEditing && (
+          <>
+            <button>Save</button>
+            <button onClick={handleClickReset}>Reset</button>
+          </>
+        )}
+        {isReadMode && (
+          <>
+            <button onClick={handleClickEdit}>Edit</button>
+            <button>Select</button>
+            <button>Copy</button>
+            <button>Add</button>
+          </>
+        )}
+      </div>
+
+      <div>{isReadMode && <button>Delete</button>}</div>
+    </div>
+  );
+}
+
+export function CardQ({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
   const [editor] = useState(() => withReact(createEditor()));
 
@@ -147,7 +265,9 @@ export function Card({ id, card }: cardProps) {
   function handleClickAddToOutputEditor() {
     console.log("add");
     if (outputEditor !== null) {
-      resetNodes(outputEditor, { nodes: value });
+      console.log(value);
+
+      resetNodes(outputEditor, { nodes: [...outputEditor.children, ...value] });
       // outputEditor.children = [...outputEditor.children, ...value];
       // outputEditor.onChange();
       // Transforms.insertFragment(outputEditor, value);
