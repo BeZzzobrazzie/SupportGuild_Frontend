@@ -28,12 +28,12 @@ const initialState: templateCardsSliceType = {
   idsSelectedTemplates: {},
   idsCopiedTemplates: [],
   outputEditorChanged: false,
-  outputEditorContent: [
-    {
-      type: "paragraph",
-      children: [{ text: "" }],
-    },
-  ],
+  // outputEditorContent: [
+  //   {
+  //     type: "paragraph",
+  //     children: [{ text: "" }],
+  //   },
+  // ],
   mode: "read",
   // selectedMode: false,
 };
@@ -62,7 +62,7 @@ export const templateCardsSlice = createSlice({
         .map((key) => Number(key));
     },
     selectCopiedIds: (state) => state.idsCopiedTemplates,
-    selectOutputEditorContent: (state) => state.outputEditorContent,
+    // selectOutputEditorContent: (state) => state.outputEditorContent,
     selectOutputEditorChanged: (state) => state.outputEditorChanged,
   },
   reducers: {
@@ -118,7 +118,7 @@ export const templateCardsSlice = createSlice({
         .map((key) => Number(key));
     },
     addToOutputEditor: (state, action: PayloadAction<Descendant[]>) => {
-      state.outputEditorContent = action.payload;
+      // state.outputEditorContent = action.payload;
       state.outputEditorChanged = true;
     },
     saveOutputEditorChange: (state) => {

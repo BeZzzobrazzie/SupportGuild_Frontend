@@ -37,6 +37,7 @@ import {
 import { mergeRegister } from "@lexical/utils";
 
 import classes from "./style.module.css";
+import { useOutputEditor } from "../lib/context";
 
 // export function OutputEditor({
 //   setOutputEditor,
@@ -120,10 +121,24 @@ export function OutputEditor() {
         <HistoryPlugin />
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
+        <EditorInitializer />
       </div>
     </LexicalComposer>
   );
 }
+
+const EditorInitializer = () => {
+  const [editor] = useLexicalComposerContext();
+  const { setEditor } = useOutputEditor();
+
+  useEffect(() => {
+    if (editor) {
+      setEditor(editor); // Сохраняем инстанс редактора в контекст
+    }
+  }, [editor, setEditor]);
+
+  return null;
+};
 
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -217,6 +232,7 @@ function InsertExternalNodesPlugin() {
 
       const editorStateJSON = editor.getEditorState().toJSON();
       console.log(editorStateJSON);
+      console.log(JSON.stringify(editorStateJSON));
 
       const parsedNodes = editorStateJSON.root.children
       const nodesToReplace = parsedNodes.map($parseSerializedNode);

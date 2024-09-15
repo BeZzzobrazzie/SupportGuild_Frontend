@@ -5,21 +5,17 @@ import { OutputEditor } from "src/02_widgets/output-editor";
 import { useState } from "react";
 import { BaseEditor } from "slate";
 import { ReactEditor } from "slate-react";
-import { EditorContext } from "src/02_widgets/output-editor/lib/context";
+import { OutputEditorProvider } from "src/02_widgets/output-editor/lib/context";
 
 export function TemplatesPage() {
-  const [outputEditor, setOutputEditor] = useState<
-    (BaseEditor & ReactEditor) | null
-  >(null);
-
   return (
     <div className={classes["template-page"]}>
       <ExplorerSmall />
-      <EditorContext.Provider value={outputEditor}>
+      <OutputEditorProvider>
         <Templates />
-      </EditorContext.Provider>
-      {/* <OutputEditor setOutputEditor={setOutputEditor} /> */}
-      <OutputEditor />
+        {/* <OutputEditor setOutputEditor={setOutputEditor} /> */}
+        <OutputEditor />
+      </OutputEditorProvider>
     </div>
   );
 }

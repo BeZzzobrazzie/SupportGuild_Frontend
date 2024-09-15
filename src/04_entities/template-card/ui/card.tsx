@@ -37,9 +37,7 @@ import {
 import classes from "./card.module.css";
 import { Editable, Slate, useSlate, withReact } from "slate-react";
 import { createEditor, Descendant, Editor, Transforms, Node } from "slate";
-import { EditorContext } from "src/02_widgets/output-editor/lib/context";
-import { resetNodes } from "src/05_shared/slate-reset-nodes";
-import { EditorState } from "lexical";
+import { $createParagraphNode, $createTextNode, $getRoot, $parseSerializedNode, EditorState, LexicalNode } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -48,6 +46,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useOutputEditor } from "src/02_widgets/output-editor/lib/context";
 
 interface cardProps {
   id: templateCardId;
@@ -67,6 +66,7 @@ export function Card({ id, card }: cardProps) {
     theme,
     onError,
     editable: false,
+    editorState: card.content,
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -77,7 +77,7 @@ export function Card({ id, card }: cardProps) {
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes["editor-container"]}>
-        <ToolbarCardPlugin id={id}/>
+        <ToolbarCardPlugin id={id} card={card} />
         <RichTextPlugin
           contentEditable={<ContentEditable />}
           placeholder={<div>Enter some text...</div>}
@@ -90,13 +90,19 @@ export function Card({ id, card }: cardProps) {
   );
 }
 
-function ToolbarCardPlugin({id}: {id: templateCardId}) {
+function ToolbarCardPlugin({
+  id,
+  card,
+}: {
+  id: templateCardId;
+  card: templateCard;
+}) {
   const dispatch = useAppDispatch();
   const [editor] = useLexicalComposerContext();
+  const { editor: outputEditor} = useOutputEditor()
+
 
   const isEditable = editor.isEditable();
-
-
 
   const mode = useAppSelector((state) =>
     templateCardsSlice.selectors.selectMode(state)
@@ -115,7 +121,7 @@ function ToolbarCardPlugin({id}: {id: templateCardId}) {
   );
   const isEditing = idEditingCard === id;
 
-
+  const updateMutation = useUpdateMutation();
 
   function handleClickEdit() {
     if (idEditingCard !== null) {
@@ -130,8 +136,42 @@ function ToolbarCardPlugin({id}: {id: templateCardId}) {
     dispatch(resetEditing());
     dispatch(editModeOff());
     editor.setEditable(false);
+    editor.setEditorState(editor.parseEditorState(card.content));
   }
 
+  function handleClickSave() {
+    updateMutation.mutate(
+      { ...card, content: JSON.stringify(editor.getEditorState().toJSON()) },
+      {
+        onSuccess: () => {
+          dispatch(resetEditing());
+          dispatch(editModeOff());
+        },
+      }
+    );
+  }
+
+  function handleClickAdd() {
+    if (outputEditor) {
+
+
+      outputEditor.update(() => {
+        const root = $getRoot();
+        // const text = $createTextNode("text");
+        // root.append($createParagraphNode().append(text));
+        
+        const editorStateJSON = editor.getEditorState().toJSON();
+        const parsedNodes = editorStateJSON.root.children
+        const nodesToReplace = parsedNodes.map($parseSerializedNode);
+
+        nodesToReplace.forEach((node) => {
+          root.append(node);
+        })
+
+      })
+
+    }
+  }
 
   return (
     <div className={classes.toolbar}>
@@ -144,7 +184,7 @@ function ToolbarCardPlugin({id}: {id: templateCardId}) {
         )}
         {isEditing && (
           <>
-            <button>Save</button>
+            <button onClick={handleClickSave}>Save</button>
             <button onClick={handleClickReset}>Reset</button>
           </>
         )}
@@ -153,7 +193,7 @@ function ToolbarCardPlugin({id}: {id: templateCardId}) {
             <button onClick={handleClickEdit}>Edit</button>
             <button>Select</button>
             <button>Copy</button>
-            <button>Add</button>
+            <button onClick={handleClickAdd}>Add</button>
           </>
         )}
       </div>
@@ -163,254 +203,254 @@ function ToolbarCardPlugin({id}: {id: templateCardId}) {
   );
 }
 
-export function CardQ({ id, card }: cardProps) {
-  const dispatch = useAppDispatch();
-  const [editor] = useState(() => withReact(createEditor()));
+// export function CardQ({ id, card }: cardProps) {
+//   const dispatch = useAppDispatch();
+//   const [editor] = useState(() => withReact(createEditor()));
 
-  const content = card.content;
-  const initialValue: Descendant[] = content || [
-    {
-      type: "paragraph",
-      children: [{ text: "" }],
-    },
-  ];
-  const [value, setValue] = useState<Descendant[]>(initialValue);
-  const handleChange = useCallback((newValue: Descendant[]) => {
-    setValue(newValue);
-  }, []);
+//   const content = card.content;
+//   const initialValue: Descendant[] = content || [
+//     {
+//       type: "paragraph",
+//       children: [{ text: "" }],
+//     },
+//   ];
+//   const [value, setValue] = useState<Descendant[]>(initialValue);
+//   const handleChange = useCallback((newValue: Descendant[]) => {
+//     setValue(newValue);
+//   }, []);
 
-  const outputEditor = useContext(EditorContext);
+//   const outputEditor = useContext(EditorContext);
 
-  const updateMutation = useUpdateMutation();
-  const removeMutation = useRemoveMutation();
+//   const updateMutation = useUpdateMutation();
+//   const removeMutation = useRemoveMutation();
 
-  // const isSelectedMode = useAppSelector((state) =>
-  //   templateCardsSlice.selectors.selectIsSelectedMode(state)
-  // );
-  const mode = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectMode(state)
-  );
-  const isReadMode = mode === "read";
-  const isEditMode = mode === "edit";
-  const isSelectedMode = mode === "select";
-  const isSelected = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsSelected(state, id)
-  );
-  const isUnsavedChanges = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
-  );
-  const idEditingCard = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectIdEditingCard(state)
-  );
-  const isEditing = idEditingCard === id;
+//   // const isSelectedMode = useAppSelector((state) =>
+//   //   templateCardsSlice.selectors.selectIsSelectedMode(state)
+//   // );
+//   const mode = useAppSelector((state) =>
+//     templateCardsSlice.selectors.selectMode(state)
+//   );
+//   const isReadMode = mode === "read";
+//   const isEditMode = mode === "edit";
+//   const isSelectedMode = mode === "select";
+//   const isSelected = useAppSelector((state) =>
+//     templateCardsSlice.selectors.selectIsSelected(state, id)
+//   );
+//   const isUnsavedChanges = useAppSelector((state) =>
+//     templateCardsSlice.selectors.selectIsUnsavedChanges(state, id)
+//   );
+//   const idEditingCard = useAppSelector((state) =>
+//     templateCardsSlice.selectors.selectIdEditingCard(state)
+//   );
+//   const isEditing = idEditingCard === id;
 
-  // const editor = useEditor({
-  //   extensions: [StarterKit, Link],
-  //   content,
-  //   editable: isEditing,
-  // });
+//   // const editor = useEditor({
+//   //   extensions: [StarterKit, Link],
+//   //   content,
+//   //   editable: isEditing,
+//   // });
 
-  // const isCollectionInQueue = useAppSelector((state) =>
-  //   explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
-  // );
+//   // const isCollectionInQueue = useAppSelector((state) =>
+//   //   explorerSlice.selectors.selectIsCollectionInQueue(state, card.parentId)
+//   // );
 
-  function handleClickEdit() {
-    if (idEditingCard !== null) {
-      console.log("modal");
-      // openModal();
-    }
-    dispatch(startEditing(id));
-    dispatch(editModeOn());
-  }
-  function handleClickSave() {
-    updateMutation.mutate(
-      { ...card, content: value },
-      {
-        onSuccess: () => {
-          dispatch(resetEditing());
-          dispatch(editModeOff());
-        },
-      }
-    );
-  }
-  function handleClickReset() {
-    dispatch(resetEditing());
-    dispatch(editModeOff());
-    Editor.withoutNormalizing(editor, () => {
-      editor.children = initialValue;
-      editor.selection = null;
-    });
-    editor.onChange();
-  }
-  function handleClickRemove() {
-    removeMutation.mutate([card.id]);
-  }
+//   function handleClickEdit() {
+//     if (idEditingCard !== null) {
+//       console.log("modal");
+//       // openModal();
+//     }
+//     dispatch(startEditing(id));
+//     dispatch(editModeOn());
+//   }
+//   function handleClickSave() {
+//     updateMutation.mutate(
+//       { ...card, content: value },
+//       {
+//         onSuccess: () => {
+//           dispatch(resetEditing());
+//           dispatch(editModeOff());
+//         },
+//       }
+//     );
+//   }
+//   function handleClickReset() {
+//     dispatch(resetEditing());
+//     dispatch(editModeOff());
+//     Editor.withoutNormalizing(editor, () => {
+//       editor.children = initialValue;
+//       editor.selection = null;
+//     });
+//     editor.onChange();
+//   }
+//   function handleClickRemove() {
+//     removeMutation.mutate([card.id]);
+//   }
 
-  function handleChecked() {
-    if (isSelected) {
-      dispatch(removeFromSelected(card.id));
-    } else {
-      dispatch(addToSelected(card.id));
-    }
-  }
-  function handleClickSelect() {
-    dispatch(selectedModeOn());
-    dispatch(addToSelected(card.id));
-  }
-  function handleClickCopy() {
-    console.log("copyOne");
-    dispatch(copyOne(card.id));
-  }
+//   function handleChecked() {
+//     if (isSelected) {
+//       dispatch(removeFromSelected(card.id));
+//     } else {
+//       dispatch(addToSelected(card.id));
+//     }
+//   }
+//   function handleClickSelect() {
+//     dispatch(selectedModeOn());
+//     dispatch(addToSelected(card.id));
+//   }
+//   function handleClickCopy() {
+//     console.log("copyOne");
+//     dispatch(copyOne(card.id));
+//   }
 
-  function handleClickAddToOutputEditor() {
-    console.log("add");
-    if (outputEditor !== null) {
-      console.log(value);
+//   function handleClickAddToOutputEditor() {
+//     console.log("add");
+//     if (outputEditor !== null) {
+//       console.log(value);
 
-      resetNodes(outputEditor, { nodes: [...outputEditor.children, ...value] });
-      // outputEditor.children = [...outputEditor.children, ...value];
-      // outputEditor.onChange();
-      // Transforms.insertFragment(outputEditor, value);
-    }
-    // dispatch(addToOutputEditor(value));
-  }
-  // useEffect(() => {
-  //   if (!editor) {
-  //     return undefined;
-  //   }
+//       resetNodes(outputEditor, { nodes: [...outputEditor.children, ...value] });
+//       // outputEditor.children = [...outputEditor.children, ...value];
+//       // outputEditor.onChange();
+//       // Transforms.insertFragment(outputEditor, value);
+//     }
+//     // dispatch(addToOutputEditor(value));
+//   }
+//   // useEffect(() => {
+//   //   if (!editor) {
+//   //     return undefined;
+//   //   }
 
-  //   editor.setEditable(isEditing);
-  // }, [editor, isEditing]);
+//   //   editor.setEditable(isEditing);
+//   // }, [editor, isEditing]);
 
-  let componentContent = <></>;
-  let toolbar = <></>;
-  if (card) {
-    toolbar = (
-      <>
-        <div className={classes.toolbar}>
-          <div>
-            {isSelectedMode && (
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={handleChecked}
-              />
-            )}
-            {isEditing ? (
-              <>
-                <ThemeIcon variant="light" onClick={handleClickSave}>
-                  <IconCheckbox />
-                </ThemeIcon>
-                <Tooltip label="Reset" openDelay={500}>
-                  <ThemeIcon variant="light" onClick={handleClickReset}>
-                    <IconArrowBackUp />
-                  </ThemeIcon>
-                </Tooltip>
-              </>
-            ) : (
-              isReadMode && (
-                <>
-                  <ThemeIcon variant="light" onClick={handleClickEdit}>
-                    <IconEdit />
-                  </ThemeIcon>
-                  <button onClick={handleClickSelect}>Select</button>
-                  <button onClick={handleClickCopy}>Copy</button>
-                  <button onClick={handleClickAddToOutputEditor}>Add</button>
-                </>
-              )
-            )}
-          </div>
-          <div>
-            {isReadMode && (
-              <ThemeIcon variant="light" onClick={handleClickRemove}>
-                <IconX />
-              </ThemeIcon>
-            )}
-          </div>
-        </div>
-      </>
-    );
-    componentContent = (
-      <>
-        <div>
-          {toolbar}
-          <Slate
-            editor={editor}
-            initialValue={initialValue}
-            onChange={handleChange}
-          >
-            <Editable style={{ width: "100%" }} readOnly={!isEditing} />
-          </Slate>
-        </div>
-        {isEditing && isUnsavedChanges && (
-          // || isCollectionInQueue
-          <ModalUnsavedChanges
-            // dataForUpdate={dataForUpdate}
-            editor={editor}
-            value={value}
-            content={content}
-            cardId={id}
-            card={card}
-            // isCollectionInQueue={isCollectionInQueue}
-          />
-        )}
-      </>
-    );
-  }
-
-  return componentContent;
-}
-
-// <RichTextEditor editor={editor}>
-// <RichTextEditor.Toolbar className={classes["toolbar"]}>
-//   {/* <span>Name: {card.name}</span> */}
-
-//   <RichTextEditor.ControlsGroup>
-//     {isSelectedMode && (
-//       <input
-//         type="checkbox"
-//         checked={isSelected}
-//         onChange={handleChecked}
-//       />
-//     )}
-//     {isEditing ? (
+//   let componentContent = <></>;
+//   let toolbar = <></>;
+//   if (card) {
+//     toolbar = (
 //       <>
-//         <RichTextEditor.Control
-//           onClick={handleClickSave}
-//           aria-label="Save"
-//           title="Save"
-//         >
-//           <ThemeIcon variant="light">
-//             <IconCheckbox />
-//           </ThemeIcon>
-//         </RichTextEditor.Control>
-//         <RichTextEditor.Control>
-//           <Tooltip label="Reset" openDelay={500}>
-//             <ThemeIcon variant="light" onClick={handleClickReset}>
-//               <IconArrowBackUp />
-//             </ThemeIcon>
-//           </Tooltip>
-//         </RichTextEditor.Control>
+//         <div className={classes.toolbar}>
+//           <div>
+//             {isSelectedMode && (
+//               <input
+//                 type="checkbox"
+//                 checked={isSelected}
+//                 onChange={handleChecked}
+//               />
+//             )}
+//             {isEditing ? (
+//               <>
+//                 <ThemeIcon variant="light" onClick={handleClickSave}>
+//                   <IconCheckbox />
+//                 </ThemeIcon>
+//                 <Tooltip label="Reset" openDelay={500}>
+//                   <ThemeIcon variant="light" onClick={handleClickReset}>
+//                     <IconArrowBackUp />
+//                   </ThemeIcon>
+//                 </Tooltip>
+//               </>
+//             ) : (
+//               isReadMode && (
+//                 <>
+//                   <ThemeIcon variant="light" onClick={handleClickEdit}>
+//                     <IconEdit />
+//                   </ThemeIcon>
+//                   <button onClick={handleClickSelect}>Select</button>
+//                   <button onClick={handleClickCopy}>Copy</button>
+//                   <button onClick={handleClickAddToOutputEditor}>Add</button>
+//                 </>
+//               )
+//             )}
+//           </div>
+//           <div>
+//             {isReadMode && (
+//               <ThemeIcon variant="light" onClick={handleClickRemove}>
+//                 <IconX />
+//               </ThemeIcon>
+//             )}
+//           </div>
+//         </div>
 //       </>
-//     ) : (
-//       isReadMode && (
-//         <>
-//           <ThemeIcon variant="light" onClick={handleClickEdit}>
-//             <IconEdit />
-//           </ThemeIcon>
-//           <button onClick={handleClickSelect}>Select</button>
-//           <button onClick={handleClickCopy}>Copy</button>
-//         </>
-//       )
-//     )}
-//   </RichTextEditor.ControlsGroup>
-//   <RichTextEditor.ControlsGroup>
-//     {isReadMode && (
-//       <ThemeIcon variant="light" onClick={handleClickRemove}>
-//         <IconX />
-//       </ThemeIcon>
-//     )}
-//   </RichTextEditor.ControlsGroup>
-// </RichTextEditor.Toolbar>
-// <RichTextEditor.Content />
-// </RichTextEditor>
+//     );
+//     componentContent = (
+//       <>
+//         <div>
+//           {toolbar}
+//           <Slate
+//             editor={editor}
+//             initialValue={initialValue}
+//             onChange={handleChange}
+//           >
+//             <Editable style={{ width: "100%" }} readOnly={!isEditing} />
+//           </Slate>
+//         </div>
+//         {isEditing && isUnsavedChanges && (
+//           // || isCollectionInQueue
+//           <ModalUnsavedChanges
+//             // dataForUpdate={dataForUpdate}
+//             editor={editor}
+//             value={value}
+//             content={content}
+//             cardId={id}
+//             card={card}
+//             // isCollectionInQueue={isCollectionInQueue}
+//           />
+//         )}
+//       </>
+//     );
+//   }
+
+//   return componentContent;
+// }
+
+// // <RichTextEditor editor={editor}>
+// // <RichTextEditor.Toolbar className={classes["toolbar"]}>
+// //   {/* <span>Name: {card.name}</span> */}
+
+// //   <RichTextEditor.ControlsGroup>
+// //     {isSelectedMode && (
+// //       <input
+// //         type="checkbox"
+// //         checked={isSelected}
+// //         onChange={handleChecked}
+// //       />
+// //     )}
+// //     {isEditing ? (
+// //       <>
+// //         <RichTextEditor.Control
+// //           onClick={handleClickSave}
+// //           aria-label="Save"
+// //           title="Save"
+// //         >
+// //           <ThemeIcon variant="light">
+// //             <IconCheckbox />
+// //           </ThemeIcon>
+// //         </RichTextEditor.Control>
+// //         <RichTextEditor.Control>
+// //           <Tooltip label="Reset" openDelay={500}>
+// //             <ThemeIcon variant="light" onClick={handleClickReset}>
+// //               <IconArrowBackUp />
+// //             </ThemeIcon>
+// //           </Tooltip>
+// //         </RichTextEditor.Control>
+// //       </>
+// //     ) : (
+// //       isReadMode && (
+// //         <>
+// //           <ThemeIcon variant="light" onClick={handleClickEdit}>
+// //             <IconEdit />
+// //           </ThemeIcon>
+// //           <button onClick={handleClickSelect}>Select</button>
+// //           <button onClick={handleClickCopy}>Copy</button>
+// //         </>
+// //       )
+// //     )}
+// //   </RichTextEditor.ControlsGroup>
+// //   <RichTextEditor.ControlsGroup>
+// //     {isReadMode && (
+// //       <ThemeIcon variant="light" onClick={handleClickRemove}>
+// //         <IconX />
+// //       </ThemeIcon>
+// //     )}
+// //   </RichTextEditor.ControlsGroup>
+// // </RichTextEditor.Toolbar>
+// // <RichTextEditor.Content />
+// // </RichTextEditor>

@@ -5,7 +5,10 @@ import {
   removeTemplateCard,
   updateTemplateCard,
 } from "../api/template-cards-api";
-import { explorerItemId, explorerItemParentId } from "src/04_entities/explorer/api/types";
+import {
+  explorerItemId,
+  explorerItemParentId,
+} from "src/04_entities/explorer/api/types";
 import { queryClient } from "src/05_shared/api";
 import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
 import {
@@ -18,7 +21,11 @@ import {
 export function useAddMutation() {
   return useMutation({
     mutationFn: async (data: { parentId: explorerItemParentId }) =>
-      await addEmptyTemplateCard(data),
+      await addEmptyTemplateCard({
+        ...data,
+        content:
+          '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0,"textStyle":""}],"direction":null,"format":"","indent":0,"type":"root","version":1}}',
+      }),
     onSuccess: (data) => {
       // queryClient.invalidateQueries({queryKey: ["explorerItems"]})
       queryClient.setQueryData(
@@ -78,7 +85,10 @@ export function useRemoveMutation() {
 
 export function usePasteMutation() {
   return useMutation({
-    mutationFn: async (data: {parentId: explorerItemId, ids: templateCardId[]}) => await pasteTemplateCard(data),
+    mutationFn: async (data: {
+      parentId: explorerItemId;
+      ids: templateCardId[];
+    }) => await pasteTemplateCard(data),
     onSuccess: (data) => {
       queryClient.setQueryData(
         [TEMPLATE_CARDS_QUERY_KEY],
