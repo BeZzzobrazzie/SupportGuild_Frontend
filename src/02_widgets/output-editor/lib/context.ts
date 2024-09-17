@@ -1,5 +1,5 @@
 import { LexicalEditor } from "lexical";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 
 type OutputEditorContextType = {
   editor: LexicalEditor | null;
@@ -18,14 +18,4 @@ export function useOutputEditor() {
     );
   }
   return context;
-}
-
-export function OutputEditorProvider({children} : {children: ReactNode}) {
-  const [editor, setEditor] = useState<LexicalEditor | null>(null);
-
-  return (
-    <OutputEditorContext.Provider value={{ editor, setEditor }}>
-      {children}
-    </OutputEditorContext.Provider>
-  );
 }

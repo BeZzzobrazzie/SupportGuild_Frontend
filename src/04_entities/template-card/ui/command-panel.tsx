@@ -1,5 +1,4 @@
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
-import { AddCard } from "./add-card";
 import {
   copySelected,
   resetSelected,
@@ -7,7 +6,11 @@ import {
   selectedModeOn,
   templateCardsSlice,
 } from "../model";
-import { usePasteMutation, useRemoveMutation } from "../lib/mutations";
+import {
+  useAddMutation,
+  usePasteMutation,
+  useRemoveMutation,
+} from "../lib/mutations";
 import { selectAllThunk } from "../model/select-all-thunk";
 import { explorerSlice } from "src/04_entities/explorer/model";
 
@@ -37,12 +40,12 @@ export function CommandPanel() {
 
   const removeMutation = useRemoveMutation();
   const pasteMutation = usePasteMutation();
+  const addMutation = useAddMutation();
 
   function handleClickSelect() {
     dispatch(selectedModeOn());
   }
-  function handleClickCancelSelection() {
-    dispatch(selectedModeOff());
+  function handleClickResetSelection() {
     dispatch(resetSelected());
   }
   function handleClickDelete() {
@@ -56,6 +59,11 @@ export function CommandPanel() {
   function handleClickSelectAll() {
     dispatch(selectAllThunk());
   }
+  function handleClickSelectOff() {
+    dispatch(selectedModeOff());
+    dispatch(resetSelected());
+  }
+
   function handleClickCopy() {
     dispatch(copySelected());
     dispatch(resetSelected());
@@ -67,6 +75,10 @@ export function CommandPanel() {
       pasteMutation.mutate({ parentId: activeCollection, ids: copiedIds });
     }
   }
+  function handleClick() {
+    // dispatch(addCard(activeCollection));
+    addMutation.mutate({ parentId: activeCollection });
+  }
 
   return (
     <>
@@ -74,7 +86,8 @@ export function CommandPanel() {
         {isSelectedMode ? (
           <>
             <span>{amountSelected} selected</span>
-            <button onClick={handleClickCancelSelection}>Deselect</button>
+            <button onClick={handleClickSelectOff}>Turn off select mode</button>
+            <button onClick={handleClickResetSelection}>Deselect</button>
             <button onClick={handleClickDelete}>Delete selected</button>
             <button onClick={handleClickSelectAll}>Select all</button>
             <button onClick={handleClickCopy}>Copy selected</button>
@@ -82,7 +95,7 @@ export function CommandPanel() {
         ) : (
           isReadMode && (
             <>
-              <AddCard />
+              <button onClick={handleClick}>Add new card</button>
               <button onClick={handleClickSelect}>Select</button>
               <button onClick={handleClickPaste}>Paste</button>
             </>

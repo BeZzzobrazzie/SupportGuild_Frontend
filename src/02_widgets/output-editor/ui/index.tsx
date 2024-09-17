@@ -1,15 +1,4 @@
-import { RichTextEditor } from "@mantine/tiptap";
-import Link from "@tiptap/extension-link";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useCallback, useEffect, useState } from "react";
-import { BaseEditor, createEditor, Descendant } from "slate";
-import { Slate, Editable, withReact, ReactEditor } from "slate-react";
-import {
-  saveOutputEditorChange,
-  templateCardsSlice,
-} from "src/04_entities/template-card/model";
-import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -27,68 +16,21 @@ import {
   $isParagraphNode,
   $isRangeSelection,
   $parseSerializedNode,
+  createCommand,
   EditorState,
   FORMAT_TEXT_COMMAND,
+  LexicalCommand,
   LexicalEditor,
   LexicalNode,
   ParagraphNode,
   SELECTION_CHANGE_COMMAND,
+  KEY_ENTER_COMMAND,
 } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 
 import classes from "./style.module.css";
 import { useOutputEditor } from "../lib/context";
-
-// export function OutputEditor({
-//   setOutputEditor,
-// }: {
-//   setOutputEditor: React.Dispatch<
-//     React.SetStateAction<(BaseEditor & ReactEditor) | null>
-//   >;
-// }) {
-//   const dispatch = useAppDispatch();
-//   // const content = "";
-//   // const editor = useEditor({
-//   //   extensions: [StarterKit, Link],
-//   //   content,
-//   // });
-
-//   // return (
-//   //   <RichTextEditor editor={editor}>
-//   //     <RichTextEditor.Content />
-//   //   </RichTextEditor>
-//   // );
-//   const outputEditorChanged = useAppSelector(
-//     (state) => state.templateCards.outputEditorChanged
-//   );
-//   const outputEditorContent = useAppSelector((state) =>
-//     templateCardsSlice.selectors.selectOutputEditorContent(state)
-//   );
-//   // const initialValue: Descendant[] = [
-//   //   {
-//   //     type: "paragraph",
-//   //     children: [{ text: "A line of text in a paragraph." }],
-//   //   },
-//   // ];
-//   const initialValue = outputEditorContent;
-//   const [value, setValue] = useState<Descendant[]>(initialValue);
-//   const handleChange = useCallback((newValue: Descendant[]) => {
-//     setValue(newValue);
-//   }, []);
-
-//   const [editor] = useState(() => withReact(createEditor()));
-
-//   useEffect(() => {
-//     setOutputEditor(editor);
-//   }, [editor, setOutputEditor]);
-
-//   return (
-//     // Add the editable component inside the context.
-//     <Slate editor={editor} initialValue={initialValue} onChange={handleChange} >
-//       <Editable style={{ width: "100%" }} />
-//     </Slate>
-//   );
-// }
+import { EnterKeyPlugin } from "src/05_shared/lexical-plugins/enter-key-plugin";
 
 const theme = {};
 
@@ -112,7 +54,6 @@ export function OutputEditor() {
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes["editor-container"]}>
         <ToolbarPlugin />
-        <InsertExternalNodesPlugin />
         <RichTextPlugin
           contentEditable={<ContentEditable />}
           placeholder={<div>Enter some text...</div>}
@@ -121,6 +62,7 @@ export function OutputEditor() {
         <HistoryPlugin />
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
+        <EnterKeyPlugin />
         <EditorInitializer />
       </div>
     </LexicalComposer>
@@ -149,19 +91,13 @@ function ToolbarPlugin() {
   function handleClickEdit() {
     editor.setEditable(!isEditable);
   }
-
-  function handleClickClone() {
+  function handleClickClear() {
     editor.update(() => {
-      const root = $getRoot(); // Получаем корневой узел
-      const children = root.getChildren(); // Получаем дочерние узлы корня
-
-      const one = "";
-      // children.forEach((child) => {
-
-      // })
-      // root.append(children[0].constructor.clone())
+      const root = $getRoot();
+      root.clear();
     });
   }
+  function handleClickCopyToClipboard() {}
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -215,45 +151,8 @@ function ToolbarPlugin() {
       >
         Bold
       </button>
-      <button onClick={handleClickClone}>Clone</button>
+      <button onClick={handleClickClear}>Clear</button>
+      <button onClick={handleClickCopyToClipboard}>Copy to clipboard</button>
     </div>
   );
-}
-
-function InsertExternalNodesPlugin() {
-  const [editor] = useLexicalComposerContext();
-
-  const onClick = () => {
-    editor.update(() => {
-     
-
-      const children = $getRoot().getChildren();
-      const lastNode = children[children.length - 1];
-
-      const editorStateJSON = editor.getEditorState().toJSON();
-      console.log(editorStateJSON);
-      console.log(JSON.stringify(editorStateJSON));
-
-      const parsedNodes = editorStateJSON.root.children
-      const nodesToReplace = parsedNodes.map($parseSerializedNode);
-
-      let target: LexicalNode | null = null;
-
-      nodesToReplace.forEach((node) => {
-        // const clone = $copyNode(node);
-        // const clone = $copyNodeDeep(node);
-        const clone = node; // no cloning
-
-        if (target === null) {
-          lastNode.insertAfter(clone);
-        } else {
-          target.insertAfter(clone);
-        }
-        target = clone;
-      });
-
-    });
-  };
-
-  return (<button onClick={onClick}>Insert</button>);
 }
