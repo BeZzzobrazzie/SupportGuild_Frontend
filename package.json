@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lexical/clipboard": "^0.17.1",
     "@lexical/react": "^0.17.1",
     "@mantine/core": "^7.11.1",
     "@mantine/hooks": "^7.11.1",

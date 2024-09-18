@@ -33,9 +33,12 @@ import {
   $getSelection,
   $isRangeSelection,
   $parseSerializedNode,
+  CONTROLLED_TEXT_INSERTION_COMMAND,
   EditorState,
   LexicalNode,
   LineBreakNode,
+  SerializedEditorState,
+  SerializedLexicalNode,
 } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -47,14 +50,48 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useOutputEditor } from "src/02_widgets/output-editor/lib/context";
 import { EnterKeyPlugin } from "src/05_shared/lexical-plugins/enter-key-plugin";
+import { copyToClipboard } from "@lexical/clipboard";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
+import { AutoLinkNode } from "@lexical/link";
+import { $convertToMarkdownString, TRANSFORMERS } from "@lexical/markdown";
+
+const URL_MATCHER =
+  /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
+
+const MATCHERS = [
+  (text: string) => {
+    const match = URL_MATCHER.exec(text);
+    if (match === null) {
+      return null;
+    }
+    const fullMatch = match[0];
+    return {
+      index: match.index,
+      length: fullMatch.length,
+      text: fullMatch,
+      url: fullMatch.startsWith("http") ? fullMatch : `https://${fullMatch}`,
+      // attributes: { rel: 'noreferrer', target: '_blank' }, // Optional link attributes
+    };
+  },
+];
+
+const htmlToRtf = (html: string) => {
+  // Обертка для преобразования HTML в RTF формат
+  return `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}}\\f0\\fs20 ${html.replace(
+    /<[^>]+>/g,
+    ""
+  )}}`;
+};
 
 interface cardProps {
   id: templateCardId;
   card: templateCard;
 }
 
-const theme = {};
-
+const theme = {
+  paragraph: classes["editor-paragraph"],
+};
 function onError(error: Error) {
   console.log(error);
 }
@@ -67,6 +104,7 @@ export function Card({ id, card }: cardProps) {
     onError,
     editable: false,
     editorState: card.content,
+    nodes: [AutoLinkNode],
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -87,7 +125,9 @@ export function Card({ id, card }: cardProps) {
         />
         {/* <HistoryPlugin /> */}
         <OnChangePlugin onChange={onChange} />
-        <EnterKeyPlugin />
+
+        <AutoLinkPlugin matchers={MATCHERS} />
+        {/* <EnterKeyPlugin /> */}
       </div>
     </LexicalComposer>
   );
@@ -158,35 +198,21 @@ function ToolbarCardPlugin({
   function handleClickAdd() {
     if (outputEditor) {
       outputEditor.update(() => {
-          const editorStateJSON = editor.getEditorState().toJSON();
-          const parsedNodes = editorStateJSON.root.children;
+        const editorStateJSON = editor.getEditorState().toJSON();
+        const parsedNodes = editorStateJSON.root.children;
 
-          // Преобразуем сериализованные узлы в объекты узлов Lexical
-          const nodesToInsert = parsedNodes.map((serializedNode) => {
-              if (serializedNode.type === 'linebreak') {
-                  // Явное создание LineBreakNode для переносов строк
-                  return $createLineBreakNode();
-              }
+        const nodesToInsert = parsedNodes.map((serializedNode) => {
+          return $parseSerializedNode(serializedNode);
+        });
 
-              return $parseSerializedNode(serializedNode);
-          });
+        const selection = $getSelection();
 
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-              // Вставляем узлы на место курсора
-              nodesToInsert.forEach((node) => {
-                  selection.insertNodes([node]);
-
-                  // Проверяем, является ли узел LineBreakNode, и вставляем его корректно
-                  if (node instanceof LineBreakNode) {
-                      selection.insertNodes([$createLineBreakNode()]);
-                  }
-                  selection.insertNodes([$createLineBreakNode()]);
-
-              });
-          }
+        if ($isRangeSelection(selection)) {
+          selection.removeText();
+          selection.insertNodes(nodesToInsert);
+        }
       });
-  }
+    }
   }
 
   function handleChecked() {
@@ -211,6 +237,42 @@ function ToolbarCardPlugin({
     dispatch(copyOne(card.id));
   }
   function handleClickCopyToClipboard() {
+    // editor.read(() => {
+    //   const markdownString = $convertToMarkdownString(TRANSFORMERS, $getRoot());
+    //   const htmlString = $generateHtmlFromNodes(editor);
+    //   navigator.clipboard.writeText(markdownString);
+    // });
+
+    // editor.update(() => {
+    //   const root = $getRoot();
+    //   const htmlContent = $generateHtmlFromNodes(editor, null);
+
+    //   // Конвертируем HTML в RTF
+    //   const rtfContent = htmlToRtf(htmlContent);
+
+    //   // Копируем в буфер обмена
+    //   navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([rtfContent], { type: 'text/html' }) })]).then(() => {
+    //     console.log('Содержимое успешно скопировано в буфер обмена');
+    //   }).catch(err => {
+    //     console.error('Ошибка копирования в буфер обмена', err);
+    //   });
+    // })
+
+    // navigator.clipboard.read().then((data) => console.log(data))
+
+    editor.update(() => {
+      // const image = await fetch("myImage.png").then((response) =>
+      //   response.blob()
+      // );
+      const htmlString = $generateHtmlFromNodes(editor);
+      const html = new Blob([htmlString], { type: "text/html" });
+      // const text = new Blob(["this is alternative image text"], {
+      //   type: "text/plain",
+      // });
+      const text = new Blob([$getRoot().getTextContent()], { type: "text/plain" });
+      const item = new ClipboardItem({ "text/plain": text, "text/html": html });
+      navigator.clipboard.write([item]);
+    })
 
   }
 
@@ -220,8 +282,7 @@ function ToolbarCardPlugin({
       console.log(editorStateJSON);
       // const root = $getRoot();
       // console.log(root.getChildren());
-    })
-
+    });
   }
 
   return (
@@ -246,7 +307,9 @@ function ToolbarCardPlugin({
             <button onClick={handleClickSelect}>Select</button>
             <button onClick={handleClickCopy}>Copy</button>
             <button onClick={handleClickAdd}>Add</button>
-            <button onClick={handleClickCopyToClipboard}>Copy to clipboard</button>
+            <button onClick={handleClickCopyToClipboard}>
+              Copy to clipboard
+            </button>
             <button onClick={handleClickInfo}>Info</button>
           </>
         )}

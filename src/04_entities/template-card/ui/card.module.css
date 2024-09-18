@@ -8,3 +8,6 @@
 .editor-content {
   border: 1px solid rgb(163, 108, 25);
 }
+.editor-paragraph {
+  margin: 0;
+}

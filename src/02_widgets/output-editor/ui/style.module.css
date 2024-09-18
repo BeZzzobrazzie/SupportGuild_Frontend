@@ -1,3 +1,7 @@
 .editor-container {
   width: 100%;
 }
+
+.editor-paragraph {
+  margin: 0;
+}

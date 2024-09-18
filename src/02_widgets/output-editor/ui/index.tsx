@@ -25,14 +25,18 @@ import {
   ParagraphNode,
   SELECTION_CHANGE_COMMAND,
   KEY_ENTER_COMMAND,
+  CONTROLLED_TEXT_INSERTION_COMMAND,
 } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 
 import classes from "./style.module.css";
 import { useOutputEditor } from "../lib/context";
 import { EnterKeyPlugin } from "src/05_shared/lexical-plugins/enter-key-plugin";
+import TreeViewPlugin from "src/05_shared/lexical-plugins/tree-view-plugin";
 
-const theme = {};
+const theme = {
+  paragraph: classes["editor-paragraph"],
+};
 
 function onError(error: Error) {
   console.log(error);
@@ -62,7 +66,9 @@ export function OutputEditor() {
         <HistoryPlugin />
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
-        <EnterKeyPlugin />
+        {/* <EnterKeyPlugin /> */}
+        {true && <TreeViewPlugin />}
+
         <EditorInitializer />
       </div>
     </LexicalComposer>
@@ -121,7 +127,7 @@ function ToolbarPlugin() {
           return false;
         },
         1
-      )
+      ),
       // editor.registerCommand(
       //   CAN_UNDO_COMMAND,
       //   (payload) => {
@@ -138,6 +144,7 @@ function ToolbarPlugin() {
       //   },
       //   LowPriority,
       // ),
+
     );
   }, [editor, $updateToolbar]);
 
