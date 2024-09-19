@@ -18,9 +18,14 @@ import { useRemoveMutation, useUpdateMutation } from "../lib/mutations";
 import {
   IconArrowBackUp,
   IconCheckbox,
+  IconClipboardCopy,
+  IconCopy,
+  IconDots,
   IconEdit,
   IconFileX,
+  IconOutbound,
   IconSquareRoundedX,
+  IconTrash,
   IconX,
 } from "@tabler/icons-react";
 
@@ -55,34 +60,8 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { AutoLinkNode } from "@lexical/link";
 import { $convertToMarkdownString, TRANSFORMERS } from "@lexical/markdown";
-
-const URL_MATCHER =
-  /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
-
-const MATCHERS = [
-  (text: string) => {
-    const match = URL_MATCHER.exec(text);
-    if (match === null) {
-      return null;
-    }
-    const fullMatch = match[0];
-    return {
-      index: match.index,
-      length: fullMatch.length,
-      text: fullMatch,
-      url: fullMatch.startsWith("http") ? fullMatch : `https://${fullMatch}`,
-      // attributes: { rel: 'noreferrer', target: '_blank' }, // Optional link attributes
-    };
-  },
-];
-
-const htmlToRtf = (html: string) => {
-  // Обертка для преобразования HTML в RTF формат
-  return `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Arial;}}\\f0\\fs20 ${html.replace(
-    /<[^>]+>/g,
-    ""
-  )}}`;
-};
+import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
+import { ActionIcon, Menu, rem, Tooltip } from "@mantine/core";
 
 interface cardProps {
   id: templateCardId;
@@ -237,43 +216,15 @@ function ToolbarCardPlugin({
     dispatch(copyOne(card.id));
   }
   function handleClickCopyToClipboard() {
-    // editor.read(() => {
-    //   const markdownString = $convertToMarkdownString(TRANSFORMERS, $getRoot());
-    //   const htmlString = $generateHtmlFromNodes(editor);
-    //   navigator.clipboard.writeText(markdownString);
-    // });
-
-    // editor.update(() => {
-    //   const root = $getRoot();
-    //   const htmlContent = $generateHtmlFromNodes(editor, null);
-
-    //   // Конвертируем HTML в RTF
-    //   const rtfContent = htmlToRtf(htmlContent);
-
-    //   // Копируем в буфер обмена
-    //   navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([rtfContent], { type: 'text/html' }) })]).then(() => {
-    //     console.log('Содержимое успешно скопировано в буфер обмена');
-    //   }).catch(err => {
-    //     console.error('Ошибка копирования в буфер обмена', err);
-    //   });
-    // })
-
-    // navigator.clipboard.read().then((data) => console.log(data))
-
     editor.update(() => {
-      // const image = await fetch("myImage.png").then((response) =>
-      //   response.blob()
-      // );
       const htmlString = $generateHtmlFromNodes(editor);
       const html = new Blob([htmlString], { type: "text/html" });
-      // const text = new Blob(["this is alternative image text"], {
-      //   type: "text/plain",
-      // });
-      const text = new Blob([$getRoot().getTextContent()], { type: "text/plain" });
+      const text = new Blob([$getRoot().getTextContent()], {
+        type: "text/plain",
+      });
       const item = new ClipboardItem({ "text/plain": text, "text/html": html });
       navigator.clipboard.write([item]);
-    })
-
+    });
   }
 
   function handleClickInfo() {
@@ -303,20 +254,95 @@ function ToolbarCardPlugin({
         )}
         {isReadMode && (
           <>
-            <button onClick={handleClickEdit}>Edit</button>
-            <button onClick={handleClickSelect}>Select</button>
-            <button onClick={handleClickCopy}>Copy</button>
-            <button onClick={handleClickAdd}>Add</button>
-            <button onClick={handleClickCopyToClipboard}>
+            {/* <button onClick={handleClickEdit}>Edit</button> */}
+            {/* <button onClick={handleClickSelect}>Select</button> */}
+            {/* <button onClick={handleClickCopy}>Copy</button> */}
+            {/* <button onClick={handleClickAdd}>Add</button> */}
+            {/* <button onClick={handleClickCopyToClipboard}>
               Copy to clipboard
-            </button>
-            <button onClick={handleClickInfo}>Info</button>
+            </button> */}
+            {/* <button onClick={handleClickInfo}>Info</button> */}
+
+            <Tooltip label="Add to output editor">
+              <ActionIcon variant="default" onClick={handleClickAdd}>
+                <IconOutbound />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Copy to clipboard">
+              <ActionIcon
+                variant="default"
+                onClick={handleClickCopyToClipboard}
+              >
+                <IconCopy />
+              </ActionIcon>
+            </Tooltip>
           </>
         )}
       </div>
 
       <div>
-        {isReadMode && <button onClick={handleClickRemove}>Delete</button>}
+        {/* {isReadMode && <button onClick={handleClickRemove}>Delete</button>} */}
+
+        {isReadMode && (
+          <Menu>
+            <Menu.Target>
+              <ActionIcon variant="default">
+                <IconDots />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Label>Card actions</Menu.Label>
+              <Menu.Item
+                onClick={handleClickEdit}
+                leftSection={
+                  <IconEdit style={{ width: rem(16), height: rem(16) }} />
+                }
+              >
+                Edit
+              </Menu.Item>
+              <Menu.Item
+                onClick={handleClickSelect}
+                leftSection={
+                  <IconCheckbox style={{ width: rem(16), height: rem(16) }} />
+                }
+              >
+                Select
+              </Menu.Item>
+              <Menu.Item
+                onClick={handleClickCopy}
+                leftSection={
+                  <IconClipboardCopy
+                    style={{ width: rem(16), height: rem(16) }}
+                  />
+                }
+              >
+                Copy card
+              </Menu.Item>
+              <Menu.Item
+                disabled
+                // onClick={}
+                // leftSection={
+                //   <IconClipboardCopy
+                //     style={{ width: rem(16), height: rem(16) }}
+                //   />
+                // }
+              >
+                Move
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Label>Danger zone</Menu.Label>
+              <Menu.Item
+                onClick={handleClickRemove}
+                color="red"
+                leftSection={
+                  <IconTrash style={{ width: rem(16), height: rem(16) }} />
+                }
+              >
+                Delete
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </div>
     </div>
   );

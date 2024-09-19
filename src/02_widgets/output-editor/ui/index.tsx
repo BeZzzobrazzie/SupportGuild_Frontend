@@ -26,6 +26,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   KEY_ENTER_COMMAND,
   CONTROLLED_TEXT_INSERTION_COMMAND,
+  CLEAR_EDITOR_COMMAND,
 } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 
@@ -33,6 +34,11 @@ import classes from "./style.module.css";
 import { useOutputEditor } from "../lib/context";
 import { EnterKeyPlugin } from "src/05_shared/lexical-plugins/enter-key-plugin";
 import TreeViewPlugin from "src/05_shared/lexical-plugins/tree-view-plugin";
+import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
+import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
+import { AutoLinkNode } from "@lexical/link";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import {ClearEditorPlugin} from "@lexical/react/LexicalClearEditorPlugin"
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -47,6 +53,7 @@ export function OutputEditor() {
     namespace: "OutputEditor",
     theme,
     onError,
+    nodes: [AutoLinkNode],
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -66,8 +73,11 @@ export function OutputEditor() {
         <HistoryPlugin />
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
+        <AutoLinkPlugin matchers={MATCHERS} />
+        <ClearEditorPlugin />
+
         {/* <EnterKeyPlugin /> */}
-        {true && <TreeViewPlugin />}
+        {false && <TreeViewPlugin />}
 
         <EditorInitializer />
       </div>
@@ -98,12 +108,23 @@ function ToolbarPlugin() {
     editor.setEditable(!isEditable);
   }
   function handleClickClear() {
-    editor.update(() => {
-      const root = $getRoot();
-      root.clear();
-    });
+    // editor.update(() => {
+    //   const root = $getRoot();
+    //   root.clear();
+    // });
+
+    editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
   }
-  function handleClickCopyToClipboard() {}
+  function handleClickCopyToClipboard() {
+    editor.update(() => {
+
+      const htmlString = $generateHtmlFromNodes(editor);
+      const html = new Blob([htmlString], { type: "text/html" });
+      const text = new Blob([$getRoot().getTextContent()], { type: "text/plain" });
+      const item = new ClipboardItem({ "text/plain": text, "text/html": html });
+      navigator.clipboard.write([item]);
+    })
+  }
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
