@@ -6,6 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTemplateCards } from "../api/template-cards-api";
 
 import classes from "./list-cards.module.css"
+import { templateCard } from "../api/types";
 
 export function ListCards() {
   const {
@@ -19,9 +20,26 @@ export function ListCards() {
     explorerSlice.selectors.selectActiveCollection(state)
   );
 
-  const cards = allCards.ids
+  // const cards = allCards.ids
+  //   .map((id) => allCards.byId[id])
+  //   .filter((card) => card.parentId === activeCollection);
+
+  const cards: templateCard[] = [];
+
+  // Находим первую карточку в списке (у которой prevCardId === null)
+  let firstCard = allCards.ids
     .map((id) => allCards.byId[id])
-    .filter((card) => card.parentId === activeCollection);
+    .find((card) => card.parentId === activeCollection && card.prevCardId === null);
+
+  // Проходим по всему связанному списку, начиная с первой карточки
+  while (firstCard) {
+    cards.push(firstCard); // Добавляем текущую карточку в массив
+    if (firstCard.nextCardId !== null) {
+      firstCard = allCards.byId[firstCard.nextCardId]; // Переходим к следующей карточке
+    } else {
+      firstCard = undefined; // Конец списка
+    }
+  }
 
   return (
     <div className={classes["list-cards"]}>

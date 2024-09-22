@@ -1,6 +1,6 @@
 .list-cards {
   display: flex;
   flex-direction: column;
-  gap: 10px 0;
+  /* gap: 10px 0; */
   padding: 0 10px;
 }

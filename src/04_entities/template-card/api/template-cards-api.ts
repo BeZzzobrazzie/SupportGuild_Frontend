@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
   dataForUpdateTemplateCard,
+  moveTemplateCardData,
   pasteTemplateCardsData,
   templateCardDataFromServerSchema,
   templateCardId,
@@ -90,6 +91,25 @@ export async function pasteTemplateCard(
       "Content-Type": "application/json;charset=utf-8",
     },
     body: JSON.stringify(dataForUpdate),
+  });
+  try {
+    return templateCardDataFromServerSchema.parse(data);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+
+export async function moveTemplateCard(
+  initialData: moveTemplateCardData
+) {
+  const data = await baseFetch("api/template-manager/template-cards/move", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(initialData),
   });
   try {
     return templateCardDataFromServerSchema.parse(data);

@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
-import { templateCard, templateCardId } from "../api/types";
+import { moveTemplateCardData, templateCard, templateCardDataFromServer, templateCardId } from "../api/types";
 import {
   addToSelected,
   copyOne,
@@ -62,6 +62,16 @@ import { AutoLinkNode } from "@lexical/link";
 import { $convertToMarkdownString, TRANSFORMERS } from "@lexical/markdown";
 import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
 import { ActionIcon, Menu, rem, Tooltip } from "@mantine/core";
+import { useDrag, useDrop } from "react-dnd";
+import { ItemTypes } from "src/05_shared/dnd";
+import cn from "classnames/bind";
+import { useMutation } from "@tanstack/react-query";
+import { queryClient } from "src/05_shared/api";
+import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
+import { moveTemplateCard } from "../api/template-cards-api";
+
+
+const cx = cn.bind(classes);
 
 interface cardProps {
   id: templateCardId;
@@ -91,9 +101,17 @@ export function Card({ id, card }: cardProps) {
     setEditorState(editorState);
   }
 
-  return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes["editor-container"]}>
+  const [collected, drag] = useDrag(() => ({
+    type: ItemTypes.TEMPLATE_DIVIDER,
+    item: { movedCardId: id },
+    // collect: (monitor) => ({
+    //   isDragging: !!monitor.isDragging(),
+    // }),
+  })) 
+
+  return (<>
+    <LexicalComposer initialConfig={initialConfig} >
+      <div className={classes["editor-container"]} ref={drag}>
         <ToolbarCardPlugin id={id} card={card} />
         <RichTextPlugin
           contentEditable={
@@ -109,8 +127,103 @@ export function Card({ id, card }: cardProps) {
         {/* <EnterKeyPlugin /> */}
       </div>
     </LexicalComposer>
+      <Divider cardId={id}/>
+    </>
   );
 }
+
+function Divider({cardId} : {cardId: templateCardId}) {
+
+  const moveMutation = useMutation({
+    mutationFn: async (data: moveTemplateCardData) =>
+      await moveTemplateCard(data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({queryKey: [TEMPLATE_CARDS_QUERY_KEY]});
+
+      const previousData = queryClient.getQueryData([TEMPLATE_CARDS_QUERY_KEY]);
+
+      queryClient.setQueryData([TEMPLATE_CARDS_QUERY_KEY], (oldData: templateCardDataFromServer) => {
+        const movedCard = oldData.byId[newData.movedCardId];
+        const movedCardPrev = movedCard.prevCardId ? oldData.byId[movedCard.prevCardId] : null;
+        const movedCardNext = movedCard.prevCardId ? oldData.byId[movedCard.prevCardId] : null;
+
+        const targetCard = oldData.byId[newData.targetCardId];
+        // const targetCardPrev = targetCard.prevCardId ? oldData.byId[targetCard.prevCardId] : null;
+        const targetCardNext = targetCard.prevCardId ? oldData.byId[targetCard.prevCardId] : null;
+
+
+        if (movedCardPrev) {
+          movedCardPrev.nextCardId = movedCardNext ? movedCardNext.id : null;
+        }
+        if (movedCardNext) {
+          movedCardNext.prevCardId = movedCardPrev ? movedCardPrev.id : null;
+        }
+
+        if (targetCard) {
+          targetCard.nextCardId = movedCard.id;
+        }
+        if (targetCardNext) {
+          targetCardNext.prevCardId = movedCard.id;
+        }
+
+        movedCard.prevCardId = targetCard.id;
+        movedCard.nextCardId = targetCardNext ? targetCardNext.id : null;
+
+        return {
+          ...oldData,
+          byId: {
+            ...oldData.byId,
+            [newData.movedCardId]: movedCard,
+            ...(movedCardPrev && { [movedCardPrev.id]: movedCardPrev }),
+            ...(movedCardNext && { [movedCardNext.id]: movedCardNext }),
+            [targetCard.id]: targetCard,
+            ...(targetCardNext && { [targetCardNext.id]: targetCardNext }),
+          },
+        };
+      });
+
+      return {previousData};
+    },
+    onError: (err, newData, context) => {
+      queryClient.setQueryData([TEMPLATE_CARDS_QUERY_KEY], context?.previousData);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({queryKey: [TEMPLATE_CARDS_QUERY_KEY]});
+    },  
+  })
+
+  const [{isOver}, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.TEMPLATE_DIVIDER,
+      
+      drop: (item: {movedCardId: number}) => {
+        console.log("dnd");
+        console.log(item)
+        console.log(cardId)
+        moveMutation.mutate({
+          movedCardId: item.movedCardId,
+          targetCardId: cardId
+        })
+        // console.log(item);
+        // moveMutation.mutate({
+        //   parentId: explorerItem.id,
+        //   ids: item.ids,
+        // });
+      },
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+      }),
+    }),
+    []
+  );
+
+  const dividerClass = cx("divider", {
+    ["divider_drop"]: isOver,
+  });
+
+  return <div className={dividerClass} ref={drop}></div>
+}
+
 
 function ToolbarCardPlugin({
   id,
@@ -238,7 +351,7 @@ function ToolbarCardPlugin({
 
   return (
     <div className={classes.toolbar}>
-      <div>
+      <div className={classes["command-group"]}>
         {isSelectedMode && (
           <input
             type="checkbox"
@@ -280,7 +393,7 @@ function ToolbarCardPlugin({
         )}
       </div>
 
-      <div>
+      <div className={classes["command-group"]}>
         {/* {isReadMode && <button onClick={handleClickRemove}>Delete</button>} */}
 
         {isReadMode && (

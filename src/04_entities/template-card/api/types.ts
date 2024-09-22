@@ -48,6 +48,8 @@ export const templateCardSchema = z.object({
   name: z.string().optional(),
   content: z.string(),
   parentId: z.number(),
+  prevCardId: z.union([templateCardIdSchema, z.null()]),
+  nextCardId: z.union([templateCardIdSchema, z.null()])
 });
 export const templateCardsSchema = templateCardSchema.array();
 
@@ -87,6 +89,11 @@ export type pasteTemplateCardsData = {
   parentId: explorerItemId;
   ids: templateCardId[];
 };
+
+export type moveTemplateCardData = {
+  movedCardId: templateCardId;
+  targetCardId: templateCardId;
+}
 
 // export type byId = Record<templateCardId, templateCard | undefined>;
 export type templateCardsSliceType = {
