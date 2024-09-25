@@ -92,7 +92,7 @@ export type pasteTemplateCardsData = {
 
 export type moveTemplateCardData = {
   movedCardId: templateCardId;
-  targetCardId: templateCardId;
+  targetCardId: templateCardId | null;
 }
 
 // export type byId = Record<templateCardId, templateCard | undefined>;

@@ -2,7 +2,12 @@ import { useCallback, useContext, useEffect, useState } from "react";
 
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
-import { moveTemplateCardData, templateCard, templateCardDataFromServer, templateCardId } from "../api/types";
+import {
+  moveTemplateCardData,
+  templateCard,
+  templateCardDataFromServer,
+  templateCardId,
+} from "../api/types";
 import {
   addToSelected,
   copyOne,
@@ -14,7 +19,11 @@ import {
   startEditing,
   templateCardsSlice,
 } from "../model";
-import { useRemoveMutation, useUpdateMutation } from "../lib/mutations";
+import {
+  useMoveMutation,
+  useRemoveMutation,
+  useUpdateMutation,
+} from "../lib/mutations";
 import {
   IconArrowBackUp,
   IconCheckbox,
@@ -38,8 +47,10 @@ import {
   $getSelection,
   $isRangeSelection,
   $parseSerializedNode,
+  COMMAND_PRIORITY_NORMAL,
   CONTROLLED_TEXT_INSERTION_COMMAND,
   EditorState,
+  FOCUS_COMMAND,
   LexicalNode,
   LineBreakNode,
   SerializedEditorState,
@@ -65,11 +76,10 @@ import { ActionIcon, Menu, rem, Tooltip } from "@mantine/core";
 import { useDrag, useDrop } from "react-dnd";
 import { ItemTypes } from "src/05_shared/dnd";
 import cn from "classnames/bind";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { queryClient } from "src/05_shared/api";
 import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
-import { moveTemplateCard } from "../api/template-cards-api";
-
+import { getTemplateCards, moveTemplateCard } from "../api/template-cards-api";
 
 const cx = cn.bind(classes);
 
@@ -103,127 +113,83 @@ export function Card({ id, card }: cardProps) {
 
   const [collected, drag] = useDrag(() => ({
     type: ItemTypes.TEMPLATE_DIVIDER,
-    item: { movedCardId: id },
+    item: { movedCard: card },
     // collect: (monitor) => ({
     //   isDragging: !!monitor.isDragging(),
     // }),
-  })) 
+  }));
 
-  return (<>
-    <LexicalComposer initialConfig={initialConfig} >
-      <div className={classes["editor-container"]} ref={drag}>
-        <ToolbarCardPlugin id={id} card={card} />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable className={classes["editor-content"]} />
-          }
-          placeholder={<div>Enter some text...</div>}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-        {/* <HistoryPlugin /> */}
-        <OnChangePlugin onChange={onChange} />
-
-        <AutoLinkPlugin matchers={MATCHERS} />
-        {/* <EnterKeyPlugin /> */}
-      </div>
-    </LexicalComposer>
-      <Divider cardId={id}/>
+  return (
+    <>
+      {card.prevCardId === null && <Divider card={card} reverse />}
+      <LexicalComposer initialConfig={initialConfig}>
+        <div className={classes["editor-container"]} ref={drag}>
+          <ToolbarCardPlugin id={id} card={card} />
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable className={classes["editor-content"]} />
+            }
+            placeholder={<div>Enter some text...</div>}
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+          {/* <HistoryPlugin /> */}
+          <OnChangePlugin onChange={onChange} />
+          <AutoLinkPlugin matchers={MATCHERS} />
+          {/* <EnterKeyPlugin /> */}
+        </div>
+      </LexicalComposer>
+      <Divider card={card} />
     </>
   );
 }
 
-function Divider({cardId} : {cardId: templateCardId}) {
+export function Divider({
+  card,
+  reverse,
+}: {
+  card: templateCard;
+  reverse?: boolean;
+}) {
+  const moveMutation = useMoveMutation();
 
-  const moveMutation = useMutation({
-    mutationFn: async (data: moveTemplateCardData) =>
-      await moveTemplateCard(data),
-    onMutate: async (newData) => {
-      await queryClient.cancelQueries({queryKey: [TEMPLATE_CARDS_QUERY_KEY]});
-
-      const previousData = queryClient.getQueryData([TEMPLATE_CARDS_QUERY_KEY]);
-
-      queryClient.setQueryData([TEMPLATE_CARDS_QUERY_KEY], (oldData: templateCardDataFromServer) => {
-        const movedCard = oldData.byId[newData.movedCardId];
-        const movedCardPrev = movedCard.prevCardId ? oldData.byId[movedCard.prevCardId] : null;
-        const movedCardNext = movedCard.prevCardId ? oldData.byId[movedCard.prevCardId] : null;
-
-        const targetCard = oldData.byId[newData.targetCardId];
-        // const targetCardPrev = targetCard.prevCardId ? oldData.byId[targetCard.prevCardId] : null;
-        const targetCardNext = targetCard.prevCardId ? oldData.byId[targetCard.prevCardId] : null;
-
-
-        if (movedCardPrev) {
-          movedCardPrev.nextCardId = movedCardNext ? movedCardNext.id : null;
-        }
-        if (movedCardNext) {
-          movedCardNext.prevCardId = movedCardPrev ? movedCardPrev.id : null;
-        }
-
-        if (targetCard) {
-          targetCard.nextCardId = movedCard.id;
-        }
-        if (targetCardNext) {
-          targetCardNext.prevCardId = movedCard.id;
-        }
-
-        movedCard.prevCardId = targetCard.id;
-        movedCard.nextCardId = targetCardNext ? targetCardNext.id : null;
-
-        return {
-          ...oldData,
-          byId: {
-            ...oldData.byId,
-            [newData.movedCardId]: movedCard,
-            ...(movedCardPrev && { [movedCardPrev.id]: movedCardPrev }),
-            ...(movedCardNext && { [movedCardNext.id]: movedCardNext }),
-            [targetCard.id]: targetCard,
-            ...(targetCardNext && { [targetCardNext.id]: targetCardNext }),
-          },
-        };
-      });
-
-      return {previousData};
-    },
-    onError: (err, newData, context) => {
-      queryClient.setQueryData([TEMPLATE_CARDS_QUERY_KEY], context?.previousData);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({queryKey: [TEMPLATE_CARDS_QUERY_KEY]});
-    },  
-  })
-
-  const [{isOver}, drop] = useDrop(
+  const [{ isOver }, drop] = useDrop(
     () => ({
       accept: ItemTypes.TEMPLATE_DIVIDER,
-      
-      drop: (item: {movedCardId: number}) => {
-        console.log("dnd");
-        console.log(item)
-        console.log(cardId)
+
+      drop: (item: { movedCard: templateCard }) => {
         moveMutation.mutate({
-          movedCardId: item.movedCardId,
-          targetCardId: cardId
-        })
-        // console.log(item);
-        // moveMutation.mutate({
-        //   parentId: explorerItem.id,
-        //   ids: item.ids,
-        // });
+          movedCardId: item.movedCard.id,
+          targetCardId: reverse ? null : card.id,
+        });
+      },
+      canDrop: (item: { movedCard: templateCard }, monitor) => {
+        // console.log(item.movedCard);
+        if (reverse && item.movedCard.id !== card.id) {
+          return true;
+        } else if (reverse) {
+          return false;
+        }
+        if (
+          item.movedCard.id === card.id ||
+          item.movedCard.id === card.nextCardId
+        ) {
+          return false;
+        }
+        return true;
       },
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
       }),
     }),
-    []
+    [card]
   );
 
   const dividerClass = cx("divider", {
     ["divider_drop"]: isOver,
   });
 
-  return <div className={dividerClass} ref={drop}></div>
+  return <div className={dividerClass} ref={drop}></div>;
 }
-
 
 function ToolbarCardPlugin({
   id,
@@ -235,6 +201,18 @@ function ToolbarCardPlugin({
   const dispatch = useAppDispatch();
   const [editor] = useLexicalComposerContext();
   const { editor: outputEditor } = useOutputEditor();
+
+  useEffect(() => {
+    const removeEditableListener = editor.registerEditableListener(
+      (isEditable) => {
+        if (!isEditable) return;
+        // This is the key to make focus work.
+        setTimeout(() => editor.focus());
+      }
+    );
+
+    return removeEditableListener;
+  }, [editor]);
 
   const isEditable = editor.isEditable();
 
@@ -266,6 +244,13 @@ function ToolbarCardPlugin({
     dispatch(startEditing(id));
     dispatch(editModeOn());
     editor.setEditable(true);
+    // editor.dispatchCommand(FOCUS_COMMAND, new FocusEvent('focus'))
+    editor.update(() => {
+      const rootElement = editor.getRootElement();
+      if (rootElement !== null) {
+        rootElement.focus();
+      }
+    });
   }
   function handleClickReset() {
     dispatch(resetEditing());

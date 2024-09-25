@@ -41,7 +41,9 @@ export async function addEmptyTemplateCard(initialData: templateCardInitial) {
   });
 
   try {
-    return templateCardSchema.parse(data);
+    // return templateCardSchema.parse(data);
+    return templateCardDataFromServerSchema.parse(data);
+
   } catch (e) {
     console.log(e);
     throw e;
