@@ -102,13 +102,16 @@ export function usePasteMutation() {
       parentId: explorerItemId;
       ids: templateCardId[];
     }) => await pasteTemplateCard(data),
-    onSuccess: (data) => {
-      queryClient.setQueryData(
-        [TEMPLATE_CARDS_QUERY_KEY],
-        (oldData: templateCardDataFromServer) => {
-          return data;
-        }
-      );
+    // onSuccess: (data) => {
+    //   queryClient.setQueryData(
+    //     [TEMPLATE_CARDS_QUERY_KEY],
+    //     (oldData: templateCardDataFromServer) => {
+    //       return data;
+    //     }
+    //   );
+    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] })
     },
     mutationKey: ["pasteTemplateCard"],
   });

@@ -16,6 +16,8 @@ export function ListCards() {
     error,
   } = useSuspenseQuery(getTemplateCards());
 
+  console.log(allCards)
+
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
