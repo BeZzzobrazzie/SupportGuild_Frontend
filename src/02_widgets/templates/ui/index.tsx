@@ -9,6 +9,11 @@ export function Templates() {
       explorerSlice.selectors.selectActiveCollection(state)
     ) !== null;
 
+  console.log(
+    useAppSelector((state) =>
+      explorerSlice.selectors.selectActiveCollection(state)
+    )
+  );
   return (
     <div className={classes["templates"]}>
       {isActiveCollection && <CommandPanel />}

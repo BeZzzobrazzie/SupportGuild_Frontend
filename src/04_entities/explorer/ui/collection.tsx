@@ -4,6 +4,7 @@ import {
   clickOnCollection,
   copyItemsIds,
   explorerSlice,
+  resetActiveCollection,
   selectItem,
   toggleSelectItem,
 } from "../model";
@@ -53,7 +54,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
   );
 
   const [isUpdating, setIsUpdating] = useState(false);
-
+  const idsItemsToDelete = isSelectedItem ? selectedItemsIds : [explorerItemId];
   const deleteItemsMutation = useDeleteItemsMutation(explorerItemId);
   const isMutatingExplorerItems = useIsMutatingExplorerItems();
 
@@ -98,6 +99,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
       key: "delete",
       onClick: () => {
         console.log("delete");
+        idsItemsToDelete.map((id) => dispatch(resetActiveCollection(id))); // it's wrong decision. need to refactor
         deleteItemsMutation.mutate();
       },
     },

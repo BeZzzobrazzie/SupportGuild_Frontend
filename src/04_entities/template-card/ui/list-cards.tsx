@@ -16,7 +16,7 @@ export function ListCards() {
     error,
   } = useSuspenseQuery(getTemplateCards());
 
-  console.log(allCards)
+  console.log(allCards);
 
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
@@ -50,9 +50,11 @@ export function ListCards() {
 
   return (
     <div className={classes["list-cards"]}>
-      {cards.map((card) => (
-        <Card key={card.id} id={card.id} card={card} />
-      ))}
+      {activeCollection ? (
+        cards.map((card) => <Card key={card.id} id={card.id} card={card} />)
+      ) : (
+        <div>Select or create collection</div>
+      )}
     </div>
   );
 }

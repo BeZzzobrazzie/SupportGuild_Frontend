@@ -29,6 +29,10 @@ export const explorerSlice = createSlice({
     selectCopiedItemsIds: (state) => state.copiedItemsIds,
   },
   reducers: {
+    resetActiveCollection: (state, action: PayloadAction<explorerItemId>) => {
+      state.activeCollectionId === action.payload &&
+        (state.activeCollectionId = null);
+    },
     clickOnCollection: (state, action: PayloadAction<explorerItemId>) => {
       state.activeCollectionId = action.payload;
     },
@@ -51,6 +55,7 @@ export const explorerSlice = createSlice({
         );
       }
     },
+
     selectItem: (state, action: PayloadAction<explorerItemId>) => {
       state.selectedItemsIds = [action.payload];
     },
@@ -81,6 +86,7 @@ export const {
   clickOnCollection,
   clickOnFolder,
   deleteFolder,
+  resetActiveCollection,
   selectItem,
   toggleSelectItem,
   clearSelection,

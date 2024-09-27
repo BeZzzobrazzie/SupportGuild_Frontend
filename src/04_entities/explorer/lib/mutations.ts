@@ -111,7 +111,7 @@ export function useDeleteItemsMutation(explorerItemId: explorerItemId) {
   const isSelectedItem = useAppSelector((state) =>
     explorerSlice.selectors.selectIsSelectedItem(state, explorerItemId)
   );
-  const requestData = isSelectedItem ? selectedItemsIds : [explorerItemId]
+  const requestData = isSelectedItem ? selectedItemsIds : [explorerItemId];
 
   return useMutation({
     mutationFn: async () => await removeSeveralExplorerItems(requestData),
@@ -157,7 +157,7 @@ export function usePasteMutation() {
   );
   return useMutation({
     mutationFn: async (parentId: explorerItemParentId) =>
-      await pasteExplorerItems({parentId, ids: copiedItemsIds}),
+      await pasteExplorerItems({ parentId, ids: copiedItemsIds }),
     onSuccess: (data) => {
       queryClient.setQueryData(["explorerItems"], () => {
         return data;
