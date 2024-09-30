@@ -326,11 +326,9 @@ function ToolbarCardPlugin({
   }
 
   function handleClickInfo() {
-    editor.read(() => {
-      const editorStateJSON = editor.getEditorState().toJSON();
-      console.log(editorStateJSON);
-      // const root = $getRoot();
-      // console.log(root.getChildren());
+    editor.update(() => {
+      const markdown = $convertToMarkdownString(TRANSFORMERS);
+      console.log(markdown);
     });
   }
 
@@ -360,7 +358,6 @@ function ToolbarCardPlugin({
               Copy to clipboard
             </button> */}
             {/* <button onClick={handleClickInfo}>Info</button> */}
-
             <Tooltip label="Add to output editor">
               <ActionIcon variant="default" onClick={handleClickAdd}>
                 <IconOutbound />

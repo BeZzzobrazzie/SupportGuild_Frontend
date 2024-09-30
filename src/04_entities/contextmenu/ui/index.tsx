@@ -2,9 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 
 import classes from "./classes.module.css";
-import { RootState } from "src/00_app/store";
 import { contextMenuModel } from "src/04_entities/contextmenu";
 import { useCoordsContextMenu, useHideContextMenu } from "../lib/hooks";
+import { RootState } from "src/05_shared/redux";
 
 
 interface OptionData {

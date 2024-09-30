@@ -8,9 +8,9 @@ export const selectedCollectionThunk =
   async (dispatch, getState) => {
     const isTemplateEditing =
       templateCardsSlice.selectors.selectIdEditingCard(getState()) !== null;
-    if (isTemplateEditing) {
-      dispatch(explorerSlice.actions.changeNextCollection(explorerItemId));
-    } else {
-      dispatch(explorerSlice.actions.changeCurrentCollection(explorerItemId));
-    }
+    // if (isTemplateEditing) {
+    //   dispatch(explorerSlice.actions.changeNextCollection(explorerItemId));
+    // } else {
+    //   dispatch(explorerSlice.actions.changeCurrentCollection(explorerItemId));
+    // }
   };

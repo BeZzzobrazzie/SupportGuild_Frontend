@@ -9,23 +9,12 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
-  $createParagraphNode,
-  $createTextNode,
   $getRoot,
   $getSelection,
-  $isParagraphNode,
   $isRangeSelection,
-  $parseSerializedNode,
-  createCommand,
   EditorState,
   FORMAT_TEXT_COMMAND,
-  LexicalCommand,
-  LexicalEditor,
-  LexicalNode,
-  ParagraphNode,
   SELECTION_CHANGE_COMMAND,
-  KEY_ENTER_COMMAND,
-  CONTROLLED_TEXT_INSERTION_COMMAND,
   CLEAR_EDITOR_COMMAND,
 } from "lexical";
 import { mergeRegister } from "@lexical/utils";
@@ -38,7 +27,7 @@ import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
 import { AutoLinkNode } from "@lexical/link";
 import { $generateHtmlFromNodes } from "@lexical/html";
-import {ClearEditorPlugin} from "@lexical/react/LexicalClearEditorPlugin"
+import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -117,13 +106,14 @@ function ToolbarPlugin() {
   }
   function handleClickCopyToClipboard() {
     editor.update(() => {
-
       const htmlString = $generateHtmlFromNodes(editor);
       const html = new Blob([htmlString], { type: "text/html" });
-      const text = new Blob([$getRoot().getTextContent()], { type: "text/plain" });
+      const text = new Blob([$getRoot().getTextContent()], {
+        type: "text/plain",
+      });
       const item = new ClipboardItem({ "text/plain": text, "text/html": html });
       navigator.clipboard.write([item]);
-    })
+    });
   }
 
   const $updateToolbar = useCallback(() => {
@@ -148,7 +138,7 @@ function ToolbarPlugin() {
           return false;
         },
         1
-      ),
+      )
       // editor.registerCommand(
       //   CAN_UNDO_COMMAND,
       //   (payload) => {
@@ -165,7 +155,6 @@ function ToolbarPlugin() {
       //   },
       //   LowPriority,
       // ),
-
     );
   }, [editor, $updateToolbar]);
 

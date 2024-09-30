@@ -38,27 +38,6 @@ export type idDeletedExplorerItems = z.infer<
   typeof idDeletedExplorerItemsSchema
 >;
 
-// export type byId = z.infer<typeof byIdSchema>;
-// type entities = {
-//   byId: byId;
-//   ids: explorerItemId[];
-// };
-
-// export type explorerSliceType = {
-//   entities: entities;
-//   // activeCollection: explorerItemId | null;
-//   activeCollection: {
-//     currentId: explorerItemId | null;
-//     nextId: explorerItemId | null;
-//   };
-//   selectedItemIds: explorerItemId[] | null;
-//   fetchExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
-//   addExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-//   removeExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-//   removeExplorerItemsStatus: "idle" | "pending" | "success" | "failed";
-//   updateExplorerItemStatus: "idle" | "pending" | "success" | "failed";
-//   error: string | null | undefined;
-// };
 
 export type explorerSliceType = {
   openedItems: Record<explorerItemId, boolean>;
@@ -72,7 +51,6 @@ export type initialExplorerItem = {
   category: explorerItemCategory;
   parentId: explorerItemParentId;
 };
-// export type initialExplorerItems = explorerItemFromServer[];
 
 export type dataForUpdate = {
   id: explorerItemId;
@@ -87,12 +65,3 @@ export type pasteExplorerItemsData = {
   ids: explorerItemId[];
 }
 
-// export type entityFromServerType = {
-//   id: explorerItemId;
-//   name: string;
-//   category: explorerItemCategoryType;
-//   parent: entityFromServerType | null;
-//   parentId: explorerItemParentId;
-//   createdAt: string;
-//   updatedAt: string;
-// };

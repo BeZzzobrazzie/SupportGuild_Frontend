@@ -6,9 +6,6 @@ import "@mantine/tiptap/styles.css";
 import "mantine-contextmenu/styles.layer.css";
 // import "./style.module.css";
 
-import { ExplorerSmall } from "src/02_widgets/explorer-small";
-import { store } from "./store";
-import { Templates } from "src/02_widgets/templates";
 import { ModalsProvider } from "@mantine/modals";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
