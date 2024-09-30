@@ -1,14 +1,17 @@
-import { backup } from "../api";
+import { backup, restore } from "../api";
 
 
 export function BackupOptions() {
   
-  function handleClick() {
+  function handleClickBackup() {
     backup();
+  }
+  function handleClickRestore() {
+    restore();
   }
   
   return <div>
-    <button onClick={handleClick}>Backup</button>
-    <button>Restore</button>
+    <button onClick={handleClickBackup}>Backup</button>
+    <button onClick={handleClickRestore}>Restore</button>
   </div>;
 }

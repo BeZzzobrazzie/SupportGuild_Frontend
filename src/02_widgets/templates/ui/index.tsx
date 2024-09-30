@@ -4,16 +4,16 @@ import { explorerSlice } from "src/04_entities/explorer/model";
 import { useAppSelector } from "src/05_shared/redux";
 
 export function Templates() {
-  const isActiveCollection =
-    useAppSelector((state) =>
-      explorerSlice.selectors.selectActiveCollection(state)
-    ) !== null;
-
-  console.log(
-    useAppSelector((state) =>
-      explorerSlice.selectors.selectActiveCollection(state)
-    )
+  const activeCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectActiveCollection(state)
   );
+  const isActiveCollection = activeCollection !== null;
+
+  // console.log(
+  //   useAppSelector((state) =>
+  //     explorerSlice.selectors.selectActiveCollection(state)
+  //   )
+  // );
   return (
     <div className={classes["templates"]}>
       {isActiveCollection && <CommandPanel />}

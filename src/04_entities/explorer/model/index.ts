@@ -26,6 +26,7 @@ export const explorerSlice = createSlice({
       }
     },
     selectSelectedItemsIds: (state) => state.selectedItemsIds,
+    // selectSelectedItemsIds: (state) => state.selectedItemsIds,
     selectCopiedItemsIds: (state) => state.copiedItemsIds,
   },
   reducers: {

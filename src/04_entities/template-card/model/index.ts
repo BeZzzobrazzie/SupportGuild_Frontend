@@ -1,9 +1,6 @@
-import {
-  createSlice,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { rootReducer } from "src/05_shared/redux";
+import { createAppSelector, rootReducer } from "src/05_shared/redux";
 import { templateCardId, templateCardsSliceType } from "../api/types";
 
 const initialState: templateCardsSliceType = {
@@ -34,11 +31,12 @@ export const templateCardsSlice = createSlice({
         (value) => value === true
       ).length;
     },
-    selectSelectedIds: (state) => {
-      return Object.keys(state.idsSelectedTemplates)
-        .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
-        .map((key) => Number(key));
-    },
+    // selectSelectedIds: (state) => {
+    //   return Object.keys(state.idsSelectedTemplates)
+    //     .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
+    //     .map((key) => Number(key));
+    // },
+    selectIdsSelectedTemplates: (state) => state.idsSelectedTemplates,
     selectCopiedIds: (state) => state.idsCopiedTemplates,
     // selectOutputEditorContent: (state) => state.outputEditorContent,
     selectOutputEditorChanged: (state) => state.outputEditorChanged,
@@ -95,12 +93,17 @@ export const templateCardsSlice = createSlice({
         .filter((key) => state.idsSelectedTemplates[Number(key)] === true)
         .map((key) => Number(key));
     },
-
   },
-  extraReducers: (builder) => {
- 
-  },
+  extraReducers: (builder) => {},
 }).injectInto(rootReducer);
+
+export const selectSelectedIds = createAppSelector(
+  [templateCardsSlice.selectors.selectIdsSelectedTemplates],
+  (a) =>
+    Object.keys(a)
+      .filter((key) => a[Number(key)] === true)
+      .map((key) => Number(key))
+);
 
 export const {
   startEditing,

@@ -4,6 +4,7 @@ import {
   resetSelected,
   selectedModeOff,
   selectedModeOn,
+  selectSelectedIds,
   templateCardsSlice,
 } from "../model";
 import {
@@ -41,9 +42,10 @@ export function CommandPanel() {
   const amountSelected = useAppSelector((state) =>
     templateCardsSlice.selectors.selectAmountSelected(state)
   );
-  const selectedIds = useAppSelector((state) =>
-    templateCardsSlice.selectors.selectSelectedIds(state)
-  );
+  // const selectedIds = useAppSelector((state) =>
+  //   templateCardsSlice.selectors.selectSelectedIds(state)
+  // );
+  const selectedIds = useAppSelector((state) => selectSelectedIds(state));
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
