@@ -1,6 +1,9 @@
-
-
 .template-page {
   display: flex;
-  height: 100rem;
+  /* height: 100rem; */
+}
+
+.template-page__left-side {
+  max-width: calc(17.5rem * var(--mantine-scale));
+  width: 100%;
 }

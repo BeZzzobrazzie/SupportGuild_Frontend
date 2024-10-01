@@ -8,10 +8,10 @@ import { BackupOptions } from "src/02_widgets/backup-options";
 export function TemplatesPage() {
   return (
     <div className={classes["template-page"]}>
-      <>
+      <div className={classes["template-page__left-side"]}>
         <ExplorerSmall />
         <BackupOptions />
-      </>
+      </div>
       <OutputEditorProvider>
         <Templates />
         <OutputEditor />

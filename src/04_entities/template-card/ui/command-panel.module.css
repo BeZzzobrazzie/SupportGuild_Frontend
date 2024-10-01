@@ -5,8 +5,9 @@
   margin: 20px auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   min-height: 36px;
+  min-width: 300px;
 }
 
 .amount-selected {

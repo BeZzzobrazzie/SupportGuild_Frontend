@@ -3,4 +3,6 @@
   padding: var(--mantine-spacing-xs);
   border: 2px solid var(--mantine-color-default-border);
   width: 100%;
+
+  min-height: 400px;
 }
