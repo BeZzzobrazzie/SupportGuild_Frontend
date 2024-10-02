@@ -8,3 +8,7 @@
 .editor-paragraph {
   margin: 0;
 }
+
+.editor-content {
+  min-height: 400px;
+}

@@ -28,6 +28,15 @@ import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
 import { AutoLinkNode } from "@lexical/link";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import {
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+  ListItemNode,
+  ListNode,
+} from "@lexical/list";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -42,7 +51,7 @@ export function OutputEditor() {
     namespace: "OutputEditor",
     theme,
     onError,
-    nodes: [AutoLinkNode],
+    nodes: [AutoLinkNode, ListNode, ListItemNode],
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -55,7 +64,9 @@ export function OutputEditor() {
       <div className={classes["editor-container"]}>
         <ToolbarPlugin />
         <RichTextPlugin
-          contentEditable={<ContentEditable />}
+          contentEditable={
+            <ContentEditable className={classes["editor-content"]} />
+          }
           placeholder={<div>Enter some text...</div>}
           ErrorBoundary={LexicalErrorBoundary}
         />
@@ -63,6 +74,7 @@ export function OutputEditor() {
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
         <AutoLinkPlugin matchers={MATCHERS} />
+        <ListPlugin />
         <ClearEditorPlugin />
 
         {/* <EnterKeyPlugin /> */}
@@ -87,9 +99,35 @@ const EditorInitializer = () => {
   return null;
 };
 
+const blockTypeToBlockName = {
+  bullet: "Bulleted List",
+  number: "Numbered List",
+  check: "Check List",
+  paragraph: "Normal",
+};
+
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
+
+  const [blockType, setBlockType] =
+    useState<keyof typeof blockTypeToBlockName>("paragraph");
+  const formatList = (listType: "bullet" | "number" | "check") => {
+    console.log(blockType);
+    if (listType === "number" && blockType !== "number") {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+      setBlockType("number");
+    } else if (listType === "bullet" && blockType !== "bullet") {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      setBlockType("bullet");
+    } else if (listType === "check" && blockType !== "check") {
+      editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+      setBlockType("check");
+    } else {
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+      setBlockType("paragraph");
+    }
+  };
 
   const isEditable = editor.isEditable();
 
@@ -168,6 +206,27 @@ function ToolbarPlugin() {
       >
         Bold
       </button>
+      <button
+        disabled={false}
+        className={"toolbar-item spaced"}
+        onClick={() => formatList("bullet")}
+      >
+        <span className="text">Bullet List</span>
+      </button>
+      <button
+        disabled={false}
+        className={"toolbar-item spaced"}
+        onClick={() => formatList("number")}
+      >
+        <span className="text">Numbered List</span>
+      </button>
+      {/* <button
+        disabled={false}
+        className={"toolbar-item spaced"}
+        onClick={() => formatList("check")}
+      >
+        <span className="text">Check List</span>
+      </button> */}
       <button onClick={handleClickClear}>Clear</button>
       <button onClick={handleClickCopyToClipboard}>Copy to clipboard</button>
     </div>

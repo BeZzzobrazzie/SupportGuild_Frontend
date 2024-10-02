@@ -80,6 +80,15 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { queryClient } from "src/05_shared/api";
 import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
 import { getTemplateCards, moveTemplateCard } from "../api/template-cards-api";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import {
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+  ListItemNode,
+  ListNode,
+} from "@lexical/list";
 
 const cx = cn.bind(classes);
 
@@ -96,6 +105,10 @@ function onError(error: Error) {
 }
 export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
+  const isReadMode = mode === "read";
 
   const initialConfig = {
     namespace: "CardEditor_" + id,
@@ -103,7 +116,7 @@ export function Card({ id, card }: cardProps) {
     onError,
     editable: false,
     editorState: card.content,
-    nodes: [AutoLinkNode],
+    nodes: [AutoLinkNode, ListNode, ListItemNode],
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -111,23 +124,39 @@ export function Card({ id, card }: cardProps) {
     setEditorState(editorState);
   }
 
-  const [collected, drag] = useDrag(() => ({
-    type: ItemTypes.TEMPLATE_DIVIDER,
-    item: { movedCard: card },
-    // collect: (monitor) => ({
-    //   isDragging: !!monitor.isDragging(),
-    // }),
-  }));
+  const [collected, drag] = useDrag(
+    () => ({
+      type: ItemTypes.TEMPLATE_DIVIDER,
+      item: { movedCard: card },
+      canDrag: () => {
+        return isReadMode;
+      },
+      // collect: (monitor) => ({
+      //   isDragging: !!monitor.isDragging(),
+      // }),
+    }),
+    [isReadMode]
+  );
+
+  function handleKeyDown() {
+    console.log("keydown");
+  }
 
   return (
     <>
       {card.prevCardId === null && <Divider card={card} reverse />}
       <LexicalComposer initialConfig={initialConfig}>
-        <div className={classes["editor-container"]} ref={drag}>
+        <div
+          className={classes["editor-container"]}
+          ref={isReadMode ? drag : null}
+        >
           <ToolbarCardPlugin id={id} card={card} />
           <RichTextPlugin
             contentEditable={
-              <ContentEditable className={classes["editor-content"]} />
+              <ContentEditable
+                className={classes["editor-content"]}
+                onKeyDown={handleKeyDown}
+              />
             }
             placeholder={<div>Enter some text...</div>}
             ErrorBoundary={LexicalErrorBoundary}
@@ -135,6 +164,7 @@ export function Card({ id, card }: cardProps) {
           {/* <HistoryPlugin /> */}
           <OnChangePlugin onChange={onChange} />
           <AutoLinkPlugin matchers={MATCHERS} />
+          <ListPlugin />
           {/* <EnterKeyPlugin /> */}
         </div>
       </LexicalComposer>
