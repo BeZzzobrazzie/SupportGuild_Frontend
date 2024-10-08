@@ -328,7 +328,7 @@ function ToolbarCardPlugin({
           dispatch(resetEditing());
           dispatch(editModeOff());
         },
-        onSettled: () => {
+        onError: () => {
           setNameState(card.name);
         },
       }
@@ -410,12 +410,16 @@ function ToolbarCardPlugin({
               checked={isSelected}
               onChange={handleChecked}
             />
-            <div>{card.name}</div>
+            <CardName name={nameState} />
           </>
         )}
         {isEditing && (
           <>
-            <input value={nameState} onChange={handleChangeName} />
+            <input
+              value={nameState}
+              onChange={handleChangeName}
+              placeholder="Enter a name"
+            />
             <button onClick={handleClickSave}>Save</button>
             <button onClick={handleClickReset}>Reset</button>
           </>
@@ -430,7 +434,12 @@ function ToolbarCardPlugin({
               Copy to clipboard
             </button> */}
             {/* <button onClick={handleClickInfo}>Info</button> */}
-            <div>{card.name}</div>
+            <CardName name={nameState} />
+          </>
+        )}
+        {isEditMode && !isEditing && (
+          <>
+            <CardName name={nameState} />
           </>
         )}
       </div>
@@ -517,4 +526,8 @@ function ToolbarCardPlugin({
       </div>
     </div>
   );
+}
+
+function CardName({ name }: { name: string }) {
+  return <div className={classes["card-name"]}>{name}</div>;
 }

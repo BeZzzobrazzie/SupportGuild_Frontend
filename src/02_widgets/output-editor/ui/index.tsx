@@ -198,7 +198,7 @@ function ToolbarPlugin() {
 
   return (
     <div>
-      <button onClick={handleClickEdit}>Toggle editable</button>
+      {/* <button onClick={handleClickEdit}>Toggle editable</button> */}
       <button
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");

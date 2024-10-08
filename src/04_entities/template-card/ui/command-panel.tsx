@@ -130,155 +130,158 @@ export function CommandPanel() {
 
   return (
     <>
-      <div className={classes["command-panel"]}>
-        {isSelectedMode ? (
-          <>
-            {/* <Badge variant="default" color="blue" radius="sm">
+      <div className={classes["command-panel__container"]}>
+        <div className={classes["command-panel"]}>
+          {isSelectedMode ? (
+            <>
+              {/* <Badge variant="default" color="blue" radius="sm">
               Selected: {amountSelected}
             </Badge> */}
-            <ActionIcon.Group>
-              <Tooltip label={"Number of selected"}>
-                <ActionIcon
-                  variant="default"
-                  size={36}
-                  data-disabled
-                  className={classes["amount-selected"]}
-                  onClick={(event) => event.preventDefault()}
-                >
-                  <Text fw={600}>{amountSelected}</Text>
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label={"Select all"}>
-                <ActionIcon
-                  onClick={handleClickSelectAll}
-                  variant="default"
-                  size={36}
-                >
-                  <IconCheckbox />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label={"Deselect"}>
-                <ActionIcon
-                  onClick={handleClickResetSelection}
-                  variant="default"
-                  size={36}
-                >
-                  <IconSquare />
-                </ActionIcon>
-              </Tooltip>
-            </ActionIcon.Group>
+              <ActionIcon.Group>
+                <Tooltip label={"Number of selected"}>
+                  <ActionIcon
+                    variant="default"
+                    size={36}
+                    data-disabled
+                    className={classes["amount-selected"]}
+                    onClick={(event) => event.preventDefault()}
+                  >
+                    <Text fw={600}>{amountSelected}</Text>
+                  </ActionIcon>
+                </Tooltip>
+                <Tooltip label={"Select all"}>
+                  <ActionIcon
+                    onClick={handleClickSelectAll}
+                    variant="default"
+                    size={36}
+                  >
+                    <IconCheckbox />
+                  </ActionIcon>
+                </Tooltip>
+                <Tooltip label={"Deselect"}>
+                  <ActionIcon
+                    onClick={handleClickResetSelection}
+                    variant="default"
+                    size={36}
+                  >
+                    <IconSquare />
+                  </ActionIcon>
+                </Tooltip>
+              </ActionIcon.Group>
 
-            <Button.Group>
-              <Button
-                leftSection={<IconClipboardCopy />}
-                size="sm"
-                variant="default"
-                onClick={handleClickCopy}
-              >
-                Copy
-              </Button>
-              <Button
-                leftSection={<IconTrash />}
-                size="sm"
-                variant="default"
-                onClick={handleClickDelete}
-              >
-                Delete
-              </Button>
-            </Button.Group>
+              <Button.Group>
+                <Button
+                  leftSection={<IconClipboardCopy />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickCopy}
+                >
+                  Copy
+                </Button>
+                <Button
+                  leftSection={<IconTrash />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickDelete}
+                >
+                  Delete
+                </Button>
+              </Button.Group>
 
-            {/* <Tooltip label={"Delete selected"}>
+              {/* <Tooltip label={"Delete selected"}>
               <ActionIcon onClick={handleClickDelete} variant="default">
                 <IconTrash />
               </ActionIcon>
             </Tooltip> */}
-            <Tooltip label={"Turn off select mode"}>
-              <ActionIcon
-                onClick={handleClickSelectOff}
-                variant="default"
-                size={36}
-              >
-                <IconArrowBackUp />
-              </ActionIcon>
-            </Tooltip>
-            {/* <span>{amountSelected} selected</span> */}
-            {/* <button onClick={handleClickSelectOff}>Turn off select mode</button> */}
-            {/* <button onClick={handleClickResetSelection}>Deselect</button> */}
-            {/* <button onClick={handleClickDelete}>Delete selected</button> */}
-            {/* <button onClick={handleClickSelectAll}>Select all</button> */}
-            {/* <button onClick={handleClickCopy}>Copy selected</button> */}
-          </>
-        ) : isReadMode ? (
-          <>
-            {/* <Tooltip label={'Add new card'}>
+              <Tooltip label={"Turn off select mode"}>
+                <ActionIcon
+                  onClick={handleClickSelectOff}
+                  variant="default"
+                  size={36}
+                >
+                  <IconArrowBackUp />
+                </ActionIcon>
+              </Tooltip>
+              {/* <span>{amountSelected} selected</span> */}
+              {/* <button onClick={handleClickSelectOff}>Turn off select mode</button> */}
+              {/* <button onClick={handleClickResetSelection}>Deselect</button> */}
+              {/* <button onClick={handleClickDelete}>Delete selected</button> */}
+              {/* <button onClick={handleClickSelectAll}>Select all</button> */}
+              {/* <button onClick={handleClickCopy}>Copy selected</button> */}
+            </>
+          ) : isReadMode ? (
+            <>
+              {/* <Tooltip label={'Add new card'}>
                 <ActionIcon onClick={handleClickAdd}>
                   <IconSquarePlus />
                 </ActionIcon>
               </Tooltip> */}
-            {/* <Tooltip label={'Select mode'}>
+              {/* <Tooltip label={'Select mode'}>
                 <ActionIcon onClick={handleClickSelect}>
                   <IconListCheck />
                 </ActionIcon>
               </Tooltip> */}
 
-            <Button.Group>
-              <Button
-                leftSection={<IconSquarePlus />}
-                size="sm"
-                variant="default"
-                onClick={handleClickAdd}
-              >
-                Create
-              </Button>
-              <Button
-                leftSection={<IconListCheck />}
-                size="sm"
-                variant="default"
-                onClick={handleClickSelect}
-              >
-                Select
-              </Button>
-              <Button
-                leftSection={<IconClipboard />}
-                size="sm"
-                variant="default"
-                onClick={handleClickPaste}
-              >
-                Paste
-              </Button>
-            </Button.Group>
+              <Button.Group>
+                <Button
+                  leftSection={<IconSquarePlus />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickAdd}
+                >
+                  Create
+                </Button>
+                <Button
+                  leftSection={<IconListCheck />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickSelect}
+                >
+                  Select
+                </Button>
+                <Button
+                  leftSection={<IconClipboard />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickPaste}
+                >
+                  Paste
+                </Button>
+              </Button.Group>
 
-            {/* <button onClick={handleClickAdd}>Add new card</button> */}
-            {/* <button onClick={handleClickSelect}>Select</button> */}
-            {/* <button onClick={handleClickPaste}>Paste</button> */}
-          </>
-        ) : (
-          isEditMode && (
-            <>
-              <button
-                onClick={() => {
-                  editor && editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-                }}
-              >
-                Bold
-              </button>
-              <button
-                disabled={false}
-                className={"toolbar-item spaced"}
-                onClick={() => formatList("bullet")}
-              >
-                <span className="text">Bullet List</span>
-              </button>
-              <button
-                disabled={false}
-                className={"toolbar-item spaced"}
-                onClick={() => formatList("number")}
-              >
-                <span className="text">Numbered List</span>
-              </button>
+              {/* <button onClick={handleClickAdd}>Add new card</button> */}
+              {/* <button onClick={handleClickSelect}>Select</button> */}
+              {/* <button onClick={handleClickPaste}>Paste</button> */}
             </>
-          )
-        )}
+          ) : (
+            isEditMode && (
+              <>
+                <button
+                  onClick={() => {
+                    editor &&
+                      editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+                  }}
+                >
+                  Bold
+                </button>
+                <button
+                  disabled={false}
+                  className={"toolbar-item spaced"}
+                  onClick={() => formatList("bullet")}
+                >
+                  <span className="text">Bullet List</span>
+                </button>
+                <button
+                  disabled={false}
+                  className={"toolbar-item spaced"}
+                  onClick={() => formatList("number")}
+                >
+                  <span className="text">Numbered List</span>
+                </button>
+              </>
+            )
+          )}
+        </div>
       </div>
     </>
   );

@@ -1,13 +1,26 @@
-
-
 .command-panel {
-  width: 90%;
-  margin: 20px auto;
+  /* width: 90%; */
+  /* margin: 20px auto; */
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 36px;
   min-width: 300px;
+
+
+
+  padding: 20px 20px;
+}
+
+.command-panel__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(var(--mantine-color-body) 70%, rgba(1,1,1,0));
+
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .amount-selected {

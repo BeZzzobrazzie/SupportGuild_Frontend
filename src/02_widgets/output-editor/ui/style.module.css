@@ -3,6 +3,13 @@
   border: 2px solid var(--mantine-color-dark-4);
   border-radius: var(--mantine-radius-sm);
   padding: var(--mantine-spacing-xs);
+
+  position: sticky;
+  top: 0;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-paragraph {
@@ -11,4 +18,7 @@
 
 .editor-content {
   min-height: 400px;
+
+  flex-grow: 1;
+  overflow: auto;
 }

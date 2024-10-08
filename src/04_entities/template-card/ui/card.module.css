@@ -35,3 +35,11 @@
 .divider_drop {
   background-color: aqua;
 }
+
+.card-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  padding-left: 9px;
+}
