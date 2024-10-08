@@ -1,4 +1,10 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 
@@ -89,6 +95,7 @@ import {
   ListItemNode,
   ListNode,
 } from "@lexical/list";
+import { useCardEditor } from "../lib/context";
 
 const cx = cn.bind(classes);
 
@@ -105,10 +112,14 @@ function onError(error: Error) {
 }
 export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
+
   const mode = useAppSelector((state) =>
     templateCardsSlice.selectors.selectMode(state)
   );
   const isReadMode = mode === "read";
+  const isEditing = useAppSelector(
+    (state) => templateCardsSlice.selectors.selectIdEditingCard(state) === id
+  );
 
   const initialConfig = {
     namespace: "CardEditor_" + id,
@@ -166,12 +177,26 @@ export function Card({ id, card }: cardProps) {
           <AutoLinkPlugin matchers={MATCHERS} />
           <ListPlugin />
           {/* <EnterKeyPlugin /> */}
+          <EditorInitializer isEditing={isEditing} />
         </div>
       </LexicalComposer>
       <Divider card={card} />
     </>
   );
 }
+
+const EditorInitializer = ({ isEditing }: { isEditing: boolean }) => {
+  const [editor] = useLexicalComposerContext();
+  const { setEditor } = useCardEditor();
+
+  useEffect(() => {
+    if (editor && isEditing) {
+      setEditor(editor); // Сохраняем инстанс редактора в контекст
+    }
+  }, [editor, setEditor, isEditing]);
+
+  return null;
+};
 
 export function Divider({
   card,
@@ -231,6 +256,7 @@ function ToolbarCardPlugin({
   const dispatch = useAppDispatch();
   const [editor] = useLexicalComposerContext();
   const { editor: outputEditor } = useOutputEditor();
+  const [nameState, setNameState] = useState(card.name);
 
   useEffect(() => {
     const removeEditableListener = editor.registerEditableListener(
@@ -283,6 +309,7 @@ function ToolbarCardPlugin({
     });
   }
   function handleClickReset() {
+    setNameState(card.name);
     dispatch(resetEditing());
     dispatch(editModeOff());
     editor.setEditable(false);
@@ -291,11 +318,18 @@ function ToolbarCardPlugin({
 
   function handleClickSave() {
     updateMutation.mutate(
-      { ...card, content: JSON.stringify(editor.getEditorState().toJSON()) },
+      {
+        ...card,
+        content: JSON.stringify(editor.getEditorState().toJSON()),
+        name: nameState,
+      },
       {
         onSuccess: () => {
           dispatch(resetEditing());
           dispatch(editModeOff());
+        },
+        onSettled: () => {
+          setNameState(card.name);
         },
       }
     );
@@ -355,6 +389,10 @@ function ToolbarCardPlugin({
     });
   }
 
+  function handleChangeName(e: ChangeEvent<HTMLInputElement>) {
+    setNameState(e.target.value);
+  }
+
   function handleClickInfo() {
     editor.update(() => {
       const markdown = $convertToMarkdownString(TRANSFORMERS);
@@ -366,14 +404,18 @@ function ToolbarCardPlugin({
     <div className={classes.toolbar}>
       <div className={classes["command-group"]}>
         {isSelectedMode && (
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={handleChecked}
-          />
+          <>
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={handleChecked}
+            />
+            <div>{card.name}</div>
+          </>
         )}
         {isEditing && (
           <>
+            <input value={nameState} onChange={handleChangeName} />
             <button onClick={handleClickSave}>Save</button>
             <button onClick={handleClickReset}>Reset</button>
           </>
@@ -388,6 +430,16 @@ function ToolbarCardPlugin({
               Copy to clipboard
             </button> */}
             {/* <button onClick={handleClickInfo}>Info</button> */}
+            <div>{card.name}</div>
+          </>
+        )}
+      </div>
+
+      <div className={classes["command-group"]}>
+        {/* {isReadMode && <button onClick={handleClickRemove}>Delete</button>} */}
+
+        {isReadMode && (
+          <>
             <Tooltip label="Add to output editor">
               <ActionIcon variant="default" onClick={handleClickAdd}>
                 <IconOutbound />
@@ -401,72 +453,66 @@ function ToolbarCardPlugin({
                 <IconCopy />
               </ActionIcon>
             </Tooltip>
+
+            <Menu>
+              <Menu.Target>
+                <ActionIcon variant="default">
+                  <IconDots />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>Card actions</Menu.Label>
+                <Menu.Item
+                  onClick={handleClickEdit}
+                  leftSection={
+                    <IconEdit style={{ width: rem(16), height: rem(16) }} />
+                  }
+                >
+                  Edit
+                </Menu.Item>
+                <Menu.Item
+                  onClick={handleClickSelect}
+                  leftSection={
+                    <IconCheckbox style={{ width: rem(16), height: rem(16) }} />
+                  }
+                >
+                  Select
+                </Menu.Item>
+                <Menu.Item
+                  onClick={handleClickCopy}
+                  leftSection={
+                    <IconClipboardCopy
+                      style={{ width: rem(16), height: rem(16) }}
+                    />
+                  }
+                >
+                  Copy card
+                </Menu.Item>
+                <Menu.Item
+                  disabled
+                  // onClick={}
+                  // leftSection={
+                  //   <IconClipboardCopy
+                  //     style={{ width: rem(16), height: rem(16) }}
+                  //   />
+                  // }
+                >
+                  Move
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Label>Danger zone</Menu.Label>
+                <Menu.Item
+                  onClick={handleClickRemove}
+                  color="red"
+                  leftSection={
+                    <IconTrash style={{ width: rem(16), height: rem(16) }} />
+                  }
+                >
+                  Delete
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </>
-        )}
-      </div>
-
-      <div className={classes["command-group"]}>
-        {/* {isReadMode && <button onClick={handleClickRemove}>Delete</button>} */}
-
-        {isReadMode && (
-          <Menu>
-            <Menu.Target>
-              <ActionIcon variant="default">
-                <IconDots />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Label>Card actions</Menu.Label>
-              <Menu.Item
-                onClick={handleClickEdit}
-                leftSection={
-                  <IconEdit style={{ width: rem(16), height: rem(16) }} />
-                }
-              >
-                Edit
-              </Menu.Item>
-              <Menu.Item
-                onClick={handleClickSelect}
-                leftSection={
-                  <IconCheckbox style={{ width: rem(16), height: rem(16) }} />
-                }
-              >
-                Select
-              </Menu.Item>
-              <Menu.Item
-                onClick={handleClickCopy}
-                leftSection={
-                  <IconClipboardCopy
-                    style={{ width: rem(16), height: rem(16) }}
-                  />
-                }
-              >
-                Copy card
-              </Menu.Item>
-              <Menu.Item
-                disabled
-                // onClick={}
-                // leftSection={
-                //   <IconClipboardCopy
-                //     style={{ width: rem(16), height: rem(16) }}
-                //   />
-                // }
-              >
-                Move
-              </Menu.Item>
-              <Menu.Divider />
-              <Menu.Label>Danger zone</Menu.Label>
-              <Menu.Item
-                onClick={handleClickRemove}
-                color="red"
-                leftSection={
-                  <IconTrash style={{ width: rem(16), height: rem(16) }} />
-                }
-              >
-                Delete
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
         )}
       </div>
     </div>

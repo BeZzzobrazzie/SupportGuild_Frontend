@@ -113,7 +113,7 @@ function ToolbarPlugin() {
   const [blockType, setBlockType] =
     useState<keyof typeof blockTypeToBlockName>("paragraph");
   const formatList = (listType: "bullet" | "number" | "check") => {
-    console.log(blockType);
+    // console.log(blockType);
     if (listType === "number" && blockType !== "number") {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
       setBlockType("number");

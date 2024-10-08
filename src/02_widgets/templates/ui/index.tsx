@@ -2,6 +2,7 @@ import { CommandPanel, ListCards } from "src/04_entities/template-card";
 import classes from "./style.module.css";
 import { explorerSlice } from "src/04_entities/explorer/model";
 import { useAppSelector } from "src/05_shared/redux";
+import { CardEditorProvider } from "src/04_entities/template-card/lib/card-editor-provider";
 
 export function Templates() {
   const activeCollection = useAppSelector((state) =>
@@ -16,8 +17,10 @@ export function Templates() {
   // );
   return (
     <div className={classes["templates"]}>
-      {isActiveCollection && <CommandPanel />}
-      <ListCards />
+      <CardEditorProvider>
+        {isActiveCollection && <CommandPanel />}
+        <ListCards />
+      </CardEditorProvider>
     </div>
   );
 }

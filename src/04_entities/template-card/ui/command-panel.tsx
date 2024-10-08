@@ -27,6 +27,17 @@ import {
   IconSquarePlus,
   IconTrash,
 } from "@tabler/icons-react";
+import { useCardEditor } from "../lib/context";
+import { FORMAT_TEXT_COMMAND } from "lexical";
+import { useState } from "react";
+import {
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+  ListItemNode,
+  ListNode,
+} from "@lexical/list";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -52,6 +63,28 @@ export function CommandPanel() {
   const copiedIds = useAppSelector((state) =>
     templateCardsSlice.selectors.selectCopiedIds(state)
   );
+
+  const { editor } = useCardEditor();
+  const [blockType, setBlockType] =
+    useState<keyof typeof blockTypeToBlockName>("paragraph");
+  const formatList = (listType: "bullet" | "number" | "check") => {
+    // console.log(blockType);
+    if (editor) {
+      if (listType === "number" && blockType !== "number") {
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+        setBlockType("number");
+      } else if (listType === "bullet" && blockType !== "bullet") {
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+        setBlockType("bullet");
+      } else if (listType === "check" && blockType !== "check") {
+        editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
+        setBlockType("check");
+      } else {
+        editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+        setBlockType("paragraph");
+      }
+    }
+  };
 
   const removeMutation = useRemoveMutation();
   const pasteMutation = usePasteMutation();
@@ -175,50 +208,74 @@ export function CommandPanel() {
             {/* <button onClick={handleClickSelectAll}>Select all</button> */}
             {/* <button onClick={handleClickCopy}>Copy selected</button> */}
           </>
-        ) : (
-          isReadMode && (
-            <>
-              {/* <Tooltip label={'Add new card'}>
+        ) : isReadMode ? (
+          <>
+            {/* <Tooltip label={'Add new card'}>
                 <ActionIcon onClick={handleClickAdd}>
                   <IconSquarePlus />
                 </ActionIcon>
               </Tooltip> */}
-              {/* <Tooltip label={'Select mode'}>
+            {/* <Tooltip label={'Select mode'}>
                 <ActionIcon onClick={handleClickSelect}>
                   <IconListCheck />
                 </ActionIcon>
               </Tooltip> */}
 
-              <Button.Group>
-                <Button
-                  leftSection={<IconSquarePlus />}
-                  size="sm"
-                  variant="default"
-                  onClick={handleClickAdd}
-                >
-                  Create
-                </Button>
-                <Button
-                  leftSection={<IconListCheck />}
-                  size="sm"
-                  variant="default"
-                  onClick={handleClickSelect}
-                >
-                  Select
-                </Button>
-                <Button
-                  leftSection={<IconClipboard />}
-                  size="sm"
-                  variant="default"
-                  onClick={handleClickPaste}
-                >
-                  Paste
-                </Button>
-              </Button.Group>
+            <Button.Group>
+              <Button
+                leftSection={<IconSquarePlus />}
+                size="sm"
+                variant="default"
+                onClick={handleClickAdd}
+              >
+                Create
+              </Button>
+              <Button
+                leftSection={<IconListCheck />}
+                size="sm"
+                variant="default"
+                onClick={handleClickSelect}
+              >
+                Select
+              </Button>
+              <Button
+                leftSection={<IconClipboard />}
+                size="sm"
+                variant="default"
+                onClick={handleClickPaste}
+              >
+                Paste
+              </Button>
+            </Button.Group>
 
-              {/* <button onClick={handleClickAdd}>Add new card</button> */}
-              {/* <button onClick={handleClickSelect}>Select</button> */}
-              {/* <button onClick={handleClickPaste}>Paste</button> */}
+            {/* <button onClick={handleClickAdd}>Add new card</button> */}
+            {/* <button onClick={handleClickSelect}>Select</button> */}
+            {/* <button onClick={handleClickPaste}>Paste</button> */}
+          </>
+        ) : (
+          isEditMode && (
+            <>
+              <button
+                onClick={() => {
+                  editor && editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+                }}
+              >
+                Bold
+              </button>
+              <button
+                disabled={false}
+                className={"toolbar-item spaced"}
+                onClick={() => formatList("bullet")}
+              >
+                <span className="text">Bullet List</span>
+              </button>
+              <button
+                disabled={false}
+                className={"toolbar-item spaced"}
+                onClick={() => formatList("number")}
+              >
+                <span className="text">Numbered List</span>
+              </button>
             </>
           )
         )}
@@ -226,3 +283,10 @@ export function CommandPanel() {
     </>
   );
 }
+
+const blockTypeToBlockName = {
+  bullet: "Bulleted List",
+  number: "Numbered List",
+  check: "Check List",
+  paragraph: "Normal",
+};

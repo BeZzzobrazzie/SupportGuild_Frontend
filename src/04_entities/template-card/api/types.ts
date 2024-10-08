@@ -8,7 +8,7 @@ export const templateCardIdSchema = z.number();
 const templateCardNameSchema = z.string().optional();
 export const templateCardSchema = z.object({
   id: templateCardIdSchema,
-  name: z.string().optional(),
+  name: z.string(),
   content: z.string(),
   parentId: z.number(),
   prevCardId: z.union([templateCardIdSchema, z.null()]),
@@ -43,7 +43,7 @@ export type templateCardDataFromServer = z.infer<
 
 export type dataForUpdateTemplateCard = {
   id: templateCardId;
-  name?: templateCardName;
+  name: templateCardName;
   content: string;
   parentId: explorerItemParentId;
 };
