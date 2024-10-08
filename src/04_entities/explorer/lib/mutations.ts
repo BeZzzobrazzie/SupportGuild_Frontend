@@ -159,9 +159,12 @@ export function usePasteMutation() {
     mutationFn: async (parentId: explorerItemParentId) =>
       await pasteExplorerItems({ parentId, ids: copiedItemsIds }),
     onSuccess: (data) => {
-      queryClient.setQueryData(["explorerItems"], () => {
-        return data;
-      });
+      // queryClient.setQueryData(["explorerItems"], () => {
+      //   return data;
+      // });
+
+      queryClient.invalidateQueries({ queryKey: ["explorerItems"] });
+      queryClient.invalidateQueries({ queryKey: ["templateCards"] });
     },
     mutationKey: ["pasteExplorerItems"],
   });
