@@ -106,6 +106,16 @@ interface cardProps {
 
 const theme = {
   paragraph: classes["editor-paragraph"],
+  list: {
+    nested: {
+      listitem: "editor-nested-listitem",
+    },
+    ol: classes["editor-list-ol"],
+    ul: classes["editor-list-ul"],
+    listitem: "editor-listItem",
+    listitemChecked: "editor-listItemChecked",
+    listitemUnchecked: "editor-listItemUnchecked",
+  },
 };
 function onError(error: Error) {
   console.log(error);
@@ -172,7 +182,7 @@ export function Card({ id, card }: cardProps) {
             placeholder={<div>Enter some text...</div>}
             ErrorBoundary={LexicalErrorBoundary}
           />
-          {/* <HistoryPlugin /> */}
+          <HistoryPlugin />
           <OnChangePlugin onChange={onChange} />
           <AutoLinkPlugin matchers={MATCHERS} />
           <ListPlugin />
