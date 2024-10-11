@@ -19,6 +19,7 @@ import classes from "./command-panel.module.css";
 import { ActionIcon, Badge, Button, Tooltip, Text } from "@mantine/core";
 import {
   IconArrowBackUp,
+  IconBold,
   IconCheckbox,
   IconClipboard,
   IconClipboardCopy,
@@ -28,7 +29,14 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useCardEditor } from "../lib/context";
-import { FORMAT_TEXT_COMMAND } from "lexical";
+import {
+  $createParagraphNode,
+  $getSelection,
+  $isParagraphNode,
+  $isRangeSelection,
+  FORMAT_TEXT_COMMAND,
+  RangeSelection,
+} from "lexical";
 import { useState } from "react";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -37,7 +45,9 @@ import {
   REMOVE_LIST_COMMAND,
   ListItemNode,
   ListNode,
+  ListType,
 } from "@lexical/list";
+import { BoldActionIcon, ListActionIcon } from "src/03_features";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -188,11 +198,6 @@ export function CommandPanel() {
                 </Button>
               </Button.Group>
 
-              {/* <Tooltip label={"Delete selected"}>
-              <ActionIcon onClick={handleClickDelete} variant="default">
-                <IconTrash />
-              </ActionIcon>
-            </Tooltip> */}
               <Tooltip label={"Turn off select mode"}>
                 <ActionIcon
                   onClick={handleClickSelectOff}
@@ -202,26 +207,9 @@ export function CommandPanel() {
                   <IconArrowBackUp />
                 </ActionIcon>
               </Tooltip>
-              {/* <span>{amountSelected} selected</span> */}
-              {/* <button onClick={handleClickSelectOff}>Turn off select mode</button> */}
-              {/* <button onClick={handleClickResetSelection}>Deselect</button> */}
-              {/* <button onClick={handleClickDelete}>Delete selected</button> */}
-              {/* <button onClick={handleClickSelectAll}>Select all</button> */}
-              {/* <button onClick={handleClickCopy}>Copy selected</button> */}
             </>
           ) : isReadMode ? (
             <>
-              {/* <Tooltip label={'Add new card'}>
-                <ActionIcon onClick={handleClickAdd}>
-                  <IconSquarePlus />
-                </ActionIcon>
-              </Tooltip> */}
-              {/* <Tooltip label={'Select mode'}>
-                <ActionIcon onClick={handleClickSelect}>
-                  <IconListCheck />
-                </ActionIcon>
-              </Tooltip> */}
-
               <Button.Group>
                 <Button
                   leftSection={<IconSquarePlus />}
@@ -248,36 +236,15 @@ export function CommandPanel() {
                   Paste
                 </Button>
               </Button.Group>
-
-              {/* <button onClick={handleClickAdd}>Add new card</button> */}
-              {/* <button onClick={handleClickSelect}>Select</button> */}
-              {/* <button onClick={handleClickPaste}>Paste</button> */}
             </>
           ) : (
             isEditMode && (
               <>
-                <button
-                  onClick={() => {
-                    editor &&
-                      editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-                  }}
-                >
-                  Bold
-                </button>
-                <button
-                  disabled={false}
-                  className={"toolbar-item spaced"}
-                  onClick={() => formatList("bullet")}
-                >
-                  <span className="text">Bullet List</span>
-                </button>
-                <button
-                  disabled={false}
-                  className={"toolbar-item spaced"}
-                  onClick={() => formatList("number")}
-                >
-                  <span className="text">Numbered List</span>
-                </button>
+                <BoldActionIcon editor={editor} />
+                <ActionIcon.Group>
+                  <ListActionIcon func={formatList} type="bullet" />
+                  <ListActionIcon func={formatList} type="number" />
+                </ActionIcon.Group>
               </>
             )
           )}

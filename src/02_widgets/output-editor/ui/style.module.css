@@ -22,3 +22,18 @@
   flex-grow: 1;
   overflow: auto;
 }
+
+.editor-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.editor-toolbar__action-icons {
+  display: flex;
+  gap: 0 5px;
+}
+.editor-toolbar__buttons {
+  display: flex;
+  justify-content: space-between;
+}

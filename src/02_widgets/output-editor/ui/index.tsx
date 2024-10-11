@@ -37,6 +37,9 @@ import {
   ListItemNode,
   ListNode,
 } from "@lexical/list";
+import { BoldActionIcon, ListActionIcon } from "src/03_features";
+import { ActionIcon, Button, Tooltip } from "@mantine/core";
+import { IconCopy, IconEraser, IconItalic } from "@tabler/icons-react";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -197,38 +200,54 @@ function ToolbarPlugin() {
   }, [editor, $updateToolbar]);
 
   return (
-    <div>
+    <div className={classes["editor-toolbar"]}>
       {/* <button onClick={handleClickEdit}>Toggle editable</button> */}
-      <button
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-        }}
-      >
-        Bold
-      </button>
-      <button
-        disabled={false}
-        className={"toolbar-item spaced"}
-        onClick={() => formatList("bullet")}
-      >
-        <span className="text">Bullet List</span>
-      </button>
-      <button
-        disabled={false}
-        className={"toolbar-item spaced"}
-        onClick={() => formatList("number")}
-      >
-        <span className="text">Numbered List</span>
-      </button>
-      {/* <button
-        disabled={false}
-        className={"toolbar-item spaced"}
-        onClick={() => formatList("check")}
-      >
-        <span className="text">Check List</span>
-      </button> */}
-      <button onClick={handleClickClear}>Clear</button>
-      <button onClick={handleClickCopyToClipboard}>Copy to clipboard</button>
+      <div className={classes["editor-toolbar__action-icons"]}>
+        <ActionIcon.Group>
+          <BoldActionIcon editor={editor} />
+          <Tooltip label={"Italic font"}>
+            <ActionIcon
+              variant="default"
+              disabled
+            >
+              <IconItalic />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label={"Italic font"}>
+            <ActionIcon
+              variant="default"
+              disabled
+            >
+              <IconItalic />
+            </ActionIcon>
+          </Tooltip>
+        </ActionIcon.Group>
+
+        <ActionIcon.Group>
+          <ListActionIcon func={formatList} type="bullet" />
+          <ListActionIcon func={formatList} type="number" />
+        </ActionIcon.Group>
+      </div>
+
+      <div className={classes["editor-toolbar__buttons"]}>
+        <Button
+          leftSection={<IconCopy />}
+          size="sm"
+          variant="default"
+          onClick={handleClickCopyToClipboard}
+        >
+          Copy to clipboard
+        </Button>
+        <Button
+          leftSection={<IconEraser />}
+          size="sm"
+          variant="outline"
+          color="red"
+          onClick={handleClickClear}
+        >
+          Clear
+        </Button>
+      </div>
     </div>
   );
 }

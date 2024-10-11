@@ -1,6 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
 
-const baseUrl = "http://localhost:5000";
+// const baseUrl = "http://localhost:5000";
+const baseUrl = "http://localhost:5001";
+
 
 export const queryClient = new QueryClient();
 export const baseFetch = async (url: string, init?: RequestInit) => {
