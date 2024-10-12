@@ -11,7 +11,7 @@ import {
   useAddMutation,
   usePasteMutation,
   useRemoveMutation,
-} from "../lib/mutations";
+} from "../api/mutations";
 import { selectAllThunk } from "../model/select-all-thunk";
 import { explorerSlice } from "src/04_entities/explorer/model";
 
@@ -47,7 +47,7 @@ import {
   ListNode,
   ListType,
 } from "@lexical/list";
-import { BoldActionIcon, ListActionIcon } from "src/03_features";
+import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();

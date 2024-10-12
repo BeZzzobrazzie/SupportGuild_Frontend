@@ -37,9 +37,9 @@ import {
   ListItemNode,
   ListNode,
 } from "@lexical/list";
-import { BoldActionIcon, ListActionIcon } from "src/03_features";
+import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
 import { ActionIcon, Button, Tooltip } from "@mantine/core";
-import { IconCopy, IconEraser, IconItalic } from "@tabler/icons-react";
+import { IconCopy, IconEraser, IconError404, IconItalic, IconNewSection, IconSquarePlus, IconUnderline } from "@tabler/icons-react";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -206,19 +206,18 @@ function ToolbarPlugin() {
         <ActionIcon.Group>
           <BoldActionIcon editor={editor} />
           <Tooltip label={"Italic font"}>
-            <ActionIcon
-              variant="default"
-              disabled
-            >
+            <ActionIcon variant="default" disabled>
               <IconItalic />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label={"Italic font"}>
-            <ActionIcon
-              variant="default"
-              disabled
-            >
-              <IconItalic />
+          <Tooltip label={"Underline"}>
+            <ActionIcon variant="default" disabled>
+              <IconUnderline />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label={"Crossed out"}>
+            <ActionIcon variant="default" disabled>
+              <IconError404 />
             </ActionIcon>
           </Tooltip>
         </ActionIcon.Group>
@@ -230,14 +229,27 @@ function ToolbarPlugin() {
       </div>
 
       <div className={classes["editor-toolbar__buttons"]}>
-        <Button
-          leftSection={<IconCopy />}
-          size="sm"
-          variant="default"
-          onClick={handleClickCopyToClipboard}
-        >
-          Copy to clipboard
-        </Button>
+        <Button.Group>
+          <Button
+            leftSection={<IconCopy />}
+            size="sm"
+            variant="default"
+            onClick={handleClickCopyToClipboard}
+          >
+            Copy to clipboard
+          </Button>
+          <Tooltip label={"Create a card based on the content"}>
+            <Button
+              leftSection={<IconNewSection />}
+              size="sm"
+              variant="default"
+              disabled
+            >
+              Save as a card
+            </Button>
+          </Tooltip>
+        </Button.Group>
+
         <Button
           leftSection={<IconEraser />}
           size="sm"

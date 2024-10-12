@@ -1,18 +1,7 @@
-
-
 .editor-container {
   border: 2px solid var(--mantine-color-dark-4);
   border-radius: var(--mantine-radius-sm);
   /* background-color: var(--mantine-color-gray-6); */
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  /* align-items: center; */
-  min-height: 32px;
-  border-bottom: 2px solid var(--mantine-color-dark-4);
-
 }
 
 .editor-content {
@@ -23,27 +12,7 @@
   margin: 0;
 }
 
-.command-group {
-  display: flex;
-  align-items: center;
-}
-
-.divider {
-  height: 20px;
-  /* background-color: rgb(6, 59, 41); */
-}
-.divider_drop {
-  background-color: aqua;
-}
-
-.card-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 250px;
-  padding-left: 9px;
-}
-
-.editor-list-ul, .editor-list-ol {
+.editor-list-ul,
+.editor-list-ol {
   margin: 5px 0;
 }

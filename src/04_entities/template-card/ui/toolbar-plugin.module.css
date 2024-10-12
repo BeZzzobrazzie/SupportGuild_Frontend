@@ -1,0 +1,19 @@
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  /* align-items: center; */
+  min-height: 32px;
+  border-bottom: 2px solid var(--mantine-color-dark-4);
+
+}
+.command-group {
+  display: flex;
+  align-items: center;
+}
+.card-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  padding-left: 9px;
+}

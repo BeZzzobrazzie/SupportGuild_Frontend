@@ -10,20 +10,24 @@ import { ModalsProvider } from "@mantine/modals";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TemplatesPage } from "src/01_pages/templates-page";
+import { queryClient } from "src/05_shared/api";
+import { QueryProvider } from "./providers/query-provider";
 
 function App() {
   // store.dispatch(fetchExplorerItemsTh());
 
   return (
-    <MantineProvider defaultColorScheme="dark">
-      <ModalsProvider>
-        <ContextMenuProvider>
-          <DndProvider backend={HTML5Backend}>
-            <TemplatesPage />
-          </DndProvider>
-        </ContextMenuProvider>
-      </ModalsProvider>
-    </MantineProvider>
+    <QueryProvider client={queryClient}>
+      <MantineProvider defaultColorScheme="dark">
+        <ModalsProvider>
+          <ContextMenuProvider>
+            <DndProvider backend={HTML5Backend}>
+              <TemplatesPage />
+            </DndProvider>
+          </ContextMenuProvider>
+        </ModalsProvider>
+      </MantineProvider>
+    </QueryProvider>
   );
 }
 

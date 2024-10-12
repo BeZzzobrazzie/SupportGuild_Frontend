@@ -1,6 +1,6 @@
 import { explorerSlice } from "src/04_entities/explorer/model";
 import { AppThunk } from "src/05_shared/redux";
-import { getTemplateCards } from "../api/template-cards-api";
+import { getTemplateCards } from "../api/template-card-api";
 import { queryClient } from "src/05_shared/api";
 import { selectAll } from ".";
 

@@ -8,11 +8,12 @@ import {
   templateCardInitial,
   templateCardSchema,
 } from "./types";
-import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
 import { baseFetch } from "src/05_shared/api";
 
 // const baseURL = "";
 // const templateCardsUrl = `${baseURL}api/template-manager/template-cards`;
+
+export const TEMPLATE_CARDS_QUERY_KEY = "templateCards";
 
 export const getTemplateCards = () => {
   return queryOptions({
@@ -43,7 +44,6 @@ export async function addEmptyTemplateCard(initialData: templateCardInitial) {
   try {
     // return templateCardSchema.parse(data);
     return templateCardDataFromServerSchema.parse(data);
-
   } catch (e) {
     console.log(e);
     throw e;
@@ -74,7 +74,7 @@ export async function removeTemplateCard(ids: templateCardId[]) {
     headers: {
       "Content-Type": "application/json;charset=utf-8",
     },
-    body: JSON.stringify({ids}),
+    body: JSON.stringify({ ids }),
   });
   try {
     return templateCardDataFromServerSchema.parse(data);
@@ -84,9 +84,7 @@ export async function removeTemplateCard(ids: templateCardId[]) {
   }
 }
 
-export async function pasteTemplateCard(
-  dataForUpdate: pasteTemplateCardsData
-) {
+export async function pasteTemplateCard(dataForUpdate: pasteTemplateCardsData) {
   const data = await baseFetch("api/template-manager/template-cards/paste", {
     method: "PATCH",
     headers: {
@@ -102,10 +100,7 @@ export async function pasteTemplateCard(
   }
 }
 
-
-export async function moveTemplateCard(
-  initialData: moveTemplateCardData
-) {
+export async function moveTemplateCard(initialData: moveTemplateCardData) {
   const data = await baseFetch("api/template-manager/template-cards/move", {
     method: "PATCH",
     headers: {
@@ -120,7 +115,6 @@ export async function moveTemplateCard(
     throw e;
   }
 }
-
 
 // export async function addTemplateCard(initialData: templateCardInitialType) {
 //   const response = await fetch(templateCardsUrl, {

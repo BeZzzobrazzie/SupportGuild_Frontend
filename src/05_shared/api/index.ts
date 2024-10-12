@@ -1,10 +1,16 @@
 import { QueryClient } from "@tanstack/react-query";
 
-// const baseUrl = "http://localhost:5000";
-const baseUrl = "http://localhost:5001";
+const baseUrl = "http://localhost:5000";
+// const baseUrl = "http://localhost:5001";
 
-
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+    },
+  },
+});
 export const baseFetch = async (url: string, init?: RequestInit) => {
   try {
     const response = await fetch(baseUrl + "/" + url, init);

@@ -5,20 +5,20 @@ import {
   pasteTemplateCard,
   removeTemplateCard,
   updateTemplateCard,
-} from "../api/template-cards-api";
+} from "./template-card-api";
 import {
   explorerItemId,
   explorerItemParentId,
 } from "src/04_entities/explorer/api/types";
 import { queryClient } from "src/05_shared/api";
-import { TEMPLATE_CARDS_QUERY_KEY } from "src/05_shared/query-key";
+import { TEMPLATE_CARDS_QUERY_KEY } from "src/04_entities/template-card/api/template-card-api";
 import {
   dataForUpdateTemplateCard,
   moveTemplateCardData,
   templateCard,
   templateCardDataFromServer,
   templateCardId,
-} from "../api/types";
+} from "./types";
 
 export function useAddMutation() {
   return useMutation({
