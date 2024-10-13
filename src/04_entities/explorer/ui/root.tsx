@@ -20,11 +20,13 @@ import { useSort } from "../lib/use-sort";
 import { useMoveMutation, usePasteMutation } from "../lib/mutations";
 import { Folder } from "./folder";
 import { Collection } from "./collection";
+import { useTranslation } from "react-i18next";
 
 const cx = cn.bind(classes);
 
 export function Root() {
   const { showContextMenu } = useContextMenu();
+  const { t, i18n } = useTranslation();
   const {
     isPending,
     isError,
@@ -90,6 +92,7 @@ export function Root() {
   const rootOptions = [
     {
       key: "new file",
+      title: t("explorer.newCollection"),
       onClick: () => {
         console.log("new file");
         setCategoryExplorerItemCreator("file");
@@ -97,6 +100,7 @@ export function Root() {
     },
     {
       key: "new folder",
+      title: t("explorer.newFolder"),
       onClick: () => {
         console.log("new folder");
         setCategoryExplorerItemCreator("folder");
@@ -105,7 +109,7 @@ export function Root() {
     { key: "divider-1" },
     {
       key: "paste",
-      title: "Paste",
+      title: t("explorer.paste"),
       onClick: () => {
         console.log("paste");
         pasteMutation.mutate(null);

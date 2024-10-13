@@ -6,6 +6,7 @@ import {
   IconListNumbers,
 } from "@tabler/icons-react";
 import { FORMAT_TEXT_COMMAND, LexicalEditor } from "lexical";
+import { useTranslation } from "react-i18next";
 
 export function ListActionIcon({
   func,
@@ -14,14 +15,16 @@ export function ListActionIcon({
   func: (listType: "bullet" | "number" | "check") => void;
   type: "bullet" | "number" | "check";
 }) {
+  const { t, i18n } = useTranslation();
+
   return (
     <Tooltip
       label={
         type === "number"
-          ? "Numbered list"
+          ? t("editor.numberedList")
           : type === "check"
-          ? "Check list"
-          : "Bullet list"
+          ? t("editor.checkList")
+          : t("editor.bulletList")
       }
     >
       <ActionIcon variant="default" onClick={() => func(type)}>

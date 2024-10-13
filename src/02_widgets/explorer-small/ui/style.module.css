@@ -2,6 +2,7 @@
   max-width: calc(17.5rem * var(--mantine-scale));
   padding: var(--mantine-spacing-xs);
   border: 2px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
   width: 100%;
 
   min-height: 400px;

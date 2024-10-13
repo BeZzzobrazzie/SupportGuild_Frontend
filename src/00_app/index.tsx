@@ -15,20 +15,12 @@ import { QueryProvider } from "./providers/query-provider";
 import { useTranslation } from "react-i18next";
 
 function App() {
-  // store.dispatch(fetchExplorerItemsTh());
-
-  const { t, i18n } = useTranslation();
-
   return (
     <QueryProvider client={queryClient}>
       <MantineProvider defaultColorScheme="dark">
         <ModalsProvider>
           <ContextMenuProvider>
             <DndProvider backend={HTML5Backend}>
-              <button onClick={() => i18n.changeLanguage("ru")}>Русский</button>
-
-              <button onClick={() => i18n.changeLanguage("en")}>English</button>
-              <div>{t("Welcome to React")}</div>
               <TemplatesPage />
             </DndProvider>
           </ContextMenuProvider>

@@ -39,7 +39,16 @@ import {
 } from "@lexical/list";
 import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
 import { ActionIcon, Button, Tooltip } from "@mantine/core";
-import { IconCopy, IconEraser, IconError404, IconItalic, IconNewSection, IconSquarePlus, IconUnderline } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconEraser,
+  IconError404,
+  IconItalic,
+  IconNewSection,
+  IconSquarePlus,
+  IconUnderline,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -56,7 +65,7 @@ export function OutputEditor() {
     onError,
     nodes: [AutoLinkNode, ListNode, ListItemNode],
   };
-
+  const { t, i18n } = useTranslation();
   const [editorState, setEditorState] = useState<EditorState>();
   function onChange(editorState: EditorState) {
     setEditorState(editorState);
@@ -66,13 +75,19 @@ export function OutputEditor() {
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes["editor-container"]}>
         <ToolbarPlugin />
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable className={classes["editor-content"]} />
-          }
-          placeholder={<div>Enter some text...</div>}
-          ErrorBoundary={LexicalErrorBoundary}
-        />
+        <div className={classes["editor-content-wrapper"]}>
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable className={classes["editor-content"]} />
+            }
+            placeholder={
+              <div className={classes["editor-content-placeholder"]}>
+                {t("editor.placeholder")}
+              </div>
+            }
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+        </div>
         <HistoryPlugin />
         <AutoFocusPlugin />
         <OnChangePlugin onChange={onChange} />
@@ -112,6 +127,7 @@ const blockTypeToBlockName = {
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const [blockType, setBlockType] =
     useState<keyof typeof blockTypeToBlockName>("paragraph");
@@ -205,17 +221,17 @@ function ToolbarPlugin() {
       <div className={classes["editor-toolbar__action-icons"]}>
         <ActionIcon.Group>
           <BoldActionIcon editor={editor} />
-          <Tooltip label={"Italic font"}>
+          <Tooltip label={t("editor.italicFont")}>
             <ActionIcon variant="default" disabled>
               <IconItalic />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label={"Underline"}>
+          <Tooltip label={t("editor.underline")}>
             <ActionIcon variant="default" disabled>
               <IconUnderline />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label={"Crossed out"}>
+          <Tooltip label={t("editor.crossedOut")}>
             <ActionIcon variant="default" disabled>
               <IconError404 />
             </ActionIcon>
@@ -236,16 +252,16 @@ function ToolbarPlugin() {
             variant="default"
             onClick={handleClickCopyToClipboard}
           >
-            Copy to clipboard
+            {t("outputEditor.copyToClipboard")}
           </Button>
-          <Tooltip label={"Create a card based on the content"}>
+          <Tooltip label={t("outputEditor.saveAsCardLabel")}>
             <Button
               leftSection={<IconNewSection />}
               size="sm"
               variant="default"
               disabled
             >
-              Save as a card
+              {t("outputEditor.saveAsCard")}
             </Button>
           </Tooltip>
         </Button.Group>
@@ -257,7 +273,7 @@ function ToolbarPlugin() {
           color="red"
           onClick={handleClickClear}
         >
-          Clear
+          {t("outputEditor.clear")}
         </Button>
       </div>
     </div>

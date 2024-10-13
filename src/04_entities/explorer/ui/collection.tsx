@@ -23,6 +23,7 @@ import { ExplorerItemUpdateInput } from "./item-update-input";
 import { Loader } from "@mantine/core";
 import cn from "classnames/bind";
 import { copyItemsIdsThunk } from "../model/copy-items-ids";
+import { useTranslation } from "react-i18next";
 
 const cx = cn.bind(classes);
 
@@ -34,6 +35,7 @@ interface CollectionProps {
 export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
   const { showContextMenu } = useContextMenu();
   const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
 
   const {
     isPending,
@@ -76,12 +78,13 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
   const options = [
     {
       key: "cut",
+      title: t("explorer.cut"),
       onClick: () => console.log("cut"),
       disabled: true,
     },
     {
       key: "copy",
-      title: "Copy",
+      title: t("explorer.copy"),
       onClick: () => {
         console.log("copy");
         dispatch(copyItemsIdsThunk(explorerItemId));
@@ -90,6 +93,7 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
     { key: "divider-1" },
     {
       key: "rename",
+      title: t("explorer.rename"),
       onClick: () => {
         console.log("rename");
         setIsUpdating(true);
@@ -97,6 +101,8 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
     },
     {
       key: "delete",
+      title: t("explorer.delete"),
+      color: "red",
       onClick: () => {
         console.log("delete");
         idsItemsToDelete.map((id) => dispatch(resetActiveCollection(id))); // it's wrong decision. need to refactor

@@ -1,4 +1,10 @@
+import { explorerSlice } from "src/04_entities/explorer/model";
 import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import {
+  useAddMutation,
+  usePasteMutation,
+  useRemoveMutation,
+} from "../api/mutations";
 import {
   copySelected,
   resetSelected,
@@ -7,19 +13,17 @@ import {
   selectSelectedIds,
   templateCardsSlice,
 } from "../model";
-import {
-  useAddMutation,
-  usePasteMutation,
-  useRemoveMutation,
-} from "../api/mutations";
 import { selectAllThunk } from "../model/select-all-thunk";
-import { explorerSlice } from "src/04_entities/explorer/model";
 
-import classes from "./command-panel.module.css";
-import { ActionIcon, Badge, Button, Tooltip, Text } from "@mantine/core";
+import {
+  INSERT_CHECK_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+} from "@lexical/list";
+import { ActionIcon, Button, Text, Tooltip } from "@mantine/core";
 import {
   IconArrowBackUp,
-  IconBold,
   IconCheckbox,
   IconClipboard,
   IconClipboardCopy,
@@ -28,29 +32,15 @@ import {
   IconSquarePlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useCardEditor } from "../lib/context";
-import {
-  $createParagraphNode,
-  $getSelection,
-  $isParagraphNode,
-  $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
-  RangeSelection,
-} from "lexical";
 import { useState } from "react";
-import {
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-  INSERT_CHECK_LIST_COMMAND,
-  REMOVE_LIST_COMMAND,
-  ListItemNode,
-  ListNode,
-  ListType,
-} from "@lexical/list";
+import { useTranslation } from "react-i18next";
 import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
+import { useCardEditor } from "../lib/context";
+import classes from "./command-panel.module.css";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
   // const isSelectedMode = useAppSelector((state) =>
   //   templateCardsSlice.selectors.selectIsSelectedMode(state)
   // );
@@ -148,7 +138,7 @@ export function CommandPanel() {
               Selected: {amountSelected}
             </Badge> */}
               <ActionIcon.Group>
-                <Tooltip label={"Number of selected"}>
+                <Tooltip label={t("commandPanel.numberOfSelected")}>
                   <ActionIcon
                     variant="default"
                     size={36}
@@ -159,7 +149,7 @@ export function CommandPanel() {
                     <Text fw={600}>{amountSelected}</Text>
                   </ActionIcon>
                 </Tooltip>
-                <Tooltip label={"Select all"}>
+                <Tooltip label={t("commandPanel.selectAll")}>
                   <ActionIcon
                     onClick={handleClickSelectAll}
                     variant="default"
@@ -168,7 +158,7 @@ export function CommandPanel() {
                     <IconCheckbox />
                   </ActionIcon>
                 </Tooltip>
-                <Tooltip label={"Deselect"}>
+                <Tooltip label={t("commandPanel.deselect")}>
                   <ActionIcon
                     onClick={handleClickResetSelection}
                     variant="default"
@@ -186,19 +176,20 @@ export function CommandPanel() {
                   variant="default"
                   onClick={handleClickCopy}
                 >
-                  Copy
+                  {t("commandPanel.copy")}
                 </Button>
                 <Button
                   leftSection={<IconTrash />}
                   size="sm"
-                  variant="default"
+                  variant="outline"
+                  color="red"
                   onClick={handleClickDelete}
                 >
-                  Delete
+                  {t("commandPanel.delete")}
                 </Button>
               </Button.Group>
 
-              <Tooltip label={"Turn off select mode"}>
+              <Tooltip label={t("commandPanel.turnOffSelectMode")}>
                 <ActionIcon
                   onClick={handleClickSelectOff}
                   variant="default"
@@ -217,7 +208,7 @@ export function CommandPanel() {
                   variant="default"
                   onClick={handleClickAdd}
                 >
-                  Create
+                  {t("commandPanel.create")}
                 </Button>
                 <Button
                   leftSection={<IconListCheck />}
@@ -225,7 +216,7 @@ export function CommandPanel() {
                   variant="default"
                   onClick={handleClickSelect}
                 >
-                  Select
+                  {t("commandPanel.select")}
                 </Button>
                 <Button
                   leftSection={<IconClipboard />}
@@ -233,7 +224,7 @@ export function CommandPanel() {
                   variant="default"
                   onClick={handleClickPaste}
                 >
-                  Paste
+                  {t("commandPanel.paste")}
                 </Button>
               </Button.Group>
             </>

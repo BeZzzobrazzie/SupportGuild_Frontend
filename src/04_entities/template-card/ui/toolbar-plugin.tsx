@@ -35,6 +35,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { ActionIcon, Menu, rem } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 interface ToolbarCardPluginProps {
   id: templateCardId;
@@ -42,6 +43,7 @@ interface ToolbarCardPluginProps {
 }
 
 export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const [editor] = useLexicalComposerContext();
   const { editor: outputEditor } = useOutputEditor();
@@ -205,8 +207,8 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
               onChange={handleChangeName}
               placeholder="Enter a name"
             />
-            <button onClick={handleClickSave}>Save</button>
-            <button onClick={handleClickReset}>Reset</button>
+            <button onClick={handleClickSave}>{t("templateEditor.save")}</button>
+            <button onClick={handleClickReset}>{t("templateEditor.reset")}</button>
           </>
         )}
         {isReadMode && (
@@ -225,13 +227,13 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
         {isReadMode && (
           <>
             <BasicActionIcon
-              label="Add to output editor"
+              label={t("templateEditor.addToOutputEditor")}
               variant="default"
               onClick={handleClickAdd}
               icon={<IconOutbound />}
             />
             <BasicActionIcon
-              label="Copy to clipboard"
+              label={t("templateEditor.copyToClipboard")}
               variant="default"
               onClick={handleClickCopyToClipboard}
               icon={<IconCopy />}
@@ -244,14 +246,16 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label>Card actions</Menu.Label>
+                <Menu.Label>                  {t("templateEditor.cardActions")}
+                </Menu.Label>
                 <Menu.Item
                   onClick={handleClickEdit}
                   leftSection={
                     <IconEdit style={{ width: rem(16), height: rem(16) }} />
                   }
                 >
-                  Edit
+                                    {t("templateEditor.edit")}
+
                 </Menu.Item>
                 <Menu.Item
                   onClick={handleClickSelect}
@@ -259,7 +263,8 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                     <IconCheckbox style={{ width: rem(16), height: rem(16) }} />
                   }
                 >
-                  Select
+                                    {t("templateEditor.select")}
+
                 </Menu.Item>
                 <Menu.Item
                   onClick={handleClickCopy}
@@ -269,7 +274,8 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                     />
                   }
                 >
-                  Copy card
+                                    {t("templateEditor.copy")}
+
                 </Menu.Item>
                 <Menu.Item
                   disabled
@@ -280,10 +286,12 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                   //   />
                   // }
                 >
-                  Move
+                                    {t("templateEditor.move")}
+
                 </Menu.Item>
                 <Menu.Divider />
-                <Menu.Label>Danger zone</Menu.Label>
+                <Menu.Label>                  {t("templateEditor.danger")}
+                </Menu.Label>
                 <Menu.Item
                   onClick={handleClickRemove}
                   color="red"
@@ -291,7 +299,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                     <IconTrash style={{ width: rem(16), height: rem(16) }} />
                   }
                 >
-                  Delete
+                  {t("templateEditor.delete")}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

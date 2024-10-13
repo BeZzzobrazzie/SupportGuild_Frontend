@@ -1,3 +1,56 @@
 {
+  "explorer.cut": "Вырезать",
+  "explorer.copy": "Копировать",
+  "explorer.rename": "Переименовать",
+  "explorer.delete": "Удалить",
+  "explorer.newCollection": "Создать коллекцию",
+  "explorer.newFolder": "Создать папку",
+  "explorer.paste": "Вставить",
+
+  "commandPanel.numberOfSelected": "Количество выделенных",
+  "commandPanel.selectAll": "Выделить все",
+  "commandPanel.deselect": "Отменить выделение",
+  "commandPanel.copy": "Копировать",
+  "commandPanel.delete": "Удалить",
+  "commandPanel.turnOffSelectMode": "Выключить режим выделения",
+  "commandPanel.create": "Создать",
+  "commandPanel.select": "Выделить",
+  "commandPanel.paste": "Вставить",
+
+  "editor.boldFont": "Жирный шрифт",
+  "editor.italicFont": "Курсив",
+  "editor.underline": "Подчеркнутый",
+  "editor.crossedOut": "Зачеркнутый",
+  "editor.bulletList": "Маркированный список",
+  "editor.numberedList": "Нумерованный список",
+  "editor.checkList": "Список задач",
+  "editor.placeholder": "Начните печатать...",
+
+
+  "templateEditor.addToOutputEditor": "Добавить в редактор",
+  "templateEditor.copyToClipboard": "Скопировать в буфер обмена",
+  "templateEditor.cardActions": "Действия с карточкой",
+  "templateEditor.edit": "Редактировать",
+  "templateEditor.select": "Выбрать",
+  "templateEditor.copy": "Копировать",
+  "templateEditor.move": "Переместить",
+  "templateEditor.danger": "Необратимые действия",
+  "templateEditor.delete": "Удалить",
+  "templateEditor.save": "Сохранить",
+  "templateEditor.reset": "Сбросить изменения",
+
+  "outputEditor.copyToClipboard": "Скопировать",
+  "outputEditor.saveAsCardLabel": "Создать карточку на основе содержимого",
+  "outputEditor.saveAsCard": "Сохранить как карточку",
+  "outputEditor.clear": "Очистить",
+
+  "navbar.changeLanguage": "Изменить язык",
+  "navbar.backup": "Backup",
+  "navbar.restore": "Восстановить резервную копию",
+  "navbar.exportToMarkdown": "Экспорт в markdown",
+  "navbar.changeAccount": "Сменить аккаунт",
+  "navbar.logout": "Выход",
+
+
   "insteadOfTemplates": "Выберите или создайте коллекцию"
 }

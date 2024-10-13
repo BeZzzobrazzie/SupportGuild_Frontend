@@ -38,6 +38,7 @@ import { Indent } from "./indent";
 import { Collection } from "./collection";
 import { getAllChildren } from "../lib/get-all-children";
 import { copyItemsIdsThunk } from "../model/copy-items-ids";
+import { useTranslation } from "react-i18next";
 
 const cx = cn.bind(classes);
 
@@ -48,6 +49,7 @@ interface FolderProps {
 
 export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   const { showContextMenu } = useContextMenu();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
 
   const {
@@ -137,6 +139,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
   const options = [
     {
       key: "new file",
+      title: t("explorer.newCollection"),
       onClick: () => {
         console.log("new file");
         if (!isOpen) dispatch(clickOnFolder(explorerItem.id));
@@ -145,6 +148,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     },
     {
       key: "new folder",
+      title: t("explorer.newFolder"),
       onClick: () => {
         console.log("new folder");
         if (!isOpen) dispatch(clickOnFolder(explorerItem.id));
@@ -154,12 +158,13 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     { key: "divider-1" },
     {
       key: "cut",
+      title: t("explorer.cut"),
       onClick: () => console.log("cut"),
       disabled: true,
     },
     {
       key: "copy",
-      title: "Copy",
+      title: t("explorer.copy"),
       onClick: () => {
         console.log("copy");
         dispatch(copyItemsIdsThunk(explorerItemId));
@@ -167,7 +172,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     },
     {
       key: "paste",
-      title: "Paste",
+      title: t("explorer.paste"),
       onClick: () => {
         console.log("paste");
         pasteMutation.mutate(explorerItemId);
@@ -176,6 +181,7 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     { key: "divider-2" },
     {
       key: "rename",
+      title: t("explorer.rename"),
       onClick: () => {
         console.log("rename");
         setIsUpdating(true);
@@ -183,6 +189,8 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
     },
     {
       key: "delete",
+      title: t("explorer.delete"),
+      color: "red",
       onClick: () => {
         console.log("delete");
         deleteItemsMutation.mutate();

@@ -5,6 +5,7 @@ import { OutputEditor } from "src/02_widgets/output-editor";
 import { OutputEditorProvider } from "src/02_widgets/output-editor/lib/output-editor-provider";
 import { BackupOptions } from "src/02_widgets/backup-options";
 import { useEffect } from "react";
+import { Navbar } from "src/02_widgets/navbar";
 
 export function TemplatesPage() {
   useEffect(() => {
@@ -33,9 +34,9 @@ export function TemplatesPage() {
 
   return (
     <div className={classes["template-page"]}>
+      <Navbar />
       <div className={classes["template-page__left-side"]}>
         <ExplorerSmall />
-        <BackupOptions />
       </div>
       <OutputEditorProvider>
         <Templates />

@@ -21,9 +21,9 @@ i18n
   .use(LanguageDetector) // Подключаем детектор языка
   .use(initReactI18next) // Подключаем React-интеграцию
   .init({
-    fallbackLng: "en", // Язык по умолчанию, если выбранный язык отсутствует
+    fallbackLng: "ru", // Язык по умолчанию, если выбранный язык отсутствует
     debug: true, // Включить логирование для отладки
-    lng: "en", // Язык по умолчанию
+    lng: "ru", // Язык по умолчанию
     interpolation: {
       escapeValue: false, // React сам экранирует, поэтому отключаем
     },

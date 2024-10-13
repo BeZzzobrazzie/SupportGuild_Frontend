@@ -16,11 +16,24 @@
   margin: 0;
 }
 
-.editor-content {
+.editor-content-wrapper {
+  display: flex;
+  position: relative;
   min-height: 400px;
 
   flex-grow: 1;
+}
+.editor-content {
   overflow: auto;
+  flex-grow: 1;
+}
+
+.editor-content-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* padding: 5px var(--mantine-spacing-xs); */
+  opacity: 0.5;
 }
 
 .editor-toolbar {

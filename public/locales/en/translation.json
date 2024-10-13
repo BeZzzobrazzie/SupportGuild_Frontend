@@ -1,3 +1,57 @@
 {
+  "explorer.cut": "Cut",
+  "explorer.copy": "Copy",
+  "explorer.rename": "Rename",
+  "explorer.delete": "Delete",
+  "explorer.newCollection": "New collection",
+  "explorer.newFolder": "New folder",
+  "explorer.paste": "Paste",
+
+  "commandPanel.numberOfSelected": "Number of selected",
+  "commandPanel.selectAll": "Select all",
+  "commandPanel.deselect": "Deselect",
+  "commandPanel.copy": "Copy",
+  "commandPanel.delete": "Delete",
+  "commandPanel.turnOffSelectMode": "Turn off select mode",
+  "commandPanel.create": "Create",
+  "commandPanel.select": "Select",
+  "commandPanel.paste": "Paste",
+
+  "editor.boldFont": "Bold font",
+  "editor.italicFont": "Italic font",
+  "editor.underline": "Underline",
+  "editor.crossedOut": "Crossed out",
+  "editor.bulletList": "Bullet list",
+  "editor.numberedList": "Numbered list",
+  "editor.checkList": "Check list",
+  "editor.placeholder": "Enter some text...",
+
+  "templateEditor.addToOutputEditor": "Add to output editor",
+  "templateEditor.copyToClipboard": "Copy to clipboard",
+  "templateEditor.cardActions": "Card actions",
+  "templateEditor.edit": "Edit",
+  "templateEditor.select": "Select",
+  "templateEditor.copy": "Copy card",
+  "templateEditor.move": "Move",
+  "templateEditor.danger": "Danger zone",
+  "templateEditor.delete": "Delete",
+  "templateEditor.save": "Save",
+  "templateEditor.reset": "Reset",
+
+  "outputEditor.copyToClipboard": "Copy to clipboard",
+  "outputEditor.saveAsCardLabel": "Create a card based on the content",
+  "outputEditor.saveAsCard": "Save as a card",
+  "outputEditor.clear": "Clear",
+
+  "navbar.changeLanguage": "Change language",
+  "navbar.backup": "Backup",
+  "navbar.restore": "Restore",
+  "navbar.exportToMarkdown": "Export to markdown",
+  "navbar.changeAccount": "Change account",
+  "navbar.logout": "Logout",
+
+  
+
   "insteadOfTemplates": "Select or create collection"
+
 }

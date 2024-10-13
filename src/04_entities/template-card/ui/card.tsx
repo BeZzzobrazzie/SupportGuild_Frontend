@@ -27,6 +27,7 @@ import classes from "./card.module.css";
 import { ToolbarCardPlugin } from "./toolbar-plugin";
 import { Divider } from "./divider";
 import { TEMPLATE_CARD } from "../lib/dnd-const";
+import { useTranslation } from "react-i18next";
 
 const cx = cn.bind(classes);
 
@@ -53,6 +54,7 @@ function onError(error: Error) {
 }
 export function Card({ id, card }: cardProps) {
   const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
 
   const mode = useAppSelector((state) =>
     templateCardsSlice.selectors.selectMode(state)
@@ -103,16 +105,23 @@ export function Card({ id, card }: cardProps) {
           ref={isReadMode ? drag : null}
         >
           <ToolbarCardPlugin id={id} card={card} />
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className={classes["editor-content"]}
-                onKeyDown={handleKeyDown}
-              />
-            }
-            placeholder={<div>Enter some text...</div>}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
+          <div className={classes["editor-content-wrapper"]}>
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className={classes["editor-content"]}
+                  onKeyDown={handleKeyDown}
+                />
+              }
+              placeholder={
+                <div className={classes["editor-content-placeholder"]}>
+                  {t("editor.placeholder")}
+                </div>
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
+
           <HistoryPlugin />
           <OnChangePlugin onChange={onChange} />
           <AutoLinkPlugin matchers={MATCHERS} />
