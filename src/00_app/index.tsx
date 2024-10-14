@@ -12,12 +12,12 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { TemplatesPage } from "src/01_pages/templates-page";
 import { queryClient } from "src/05_shared/api";
 import { QueryProvider } from "./providers/query-provider";
-import { useTranslation } from "react-i18next";
+import { mantineTheme } from "./mantine-theme";
 
 function App() {
   return (
     <QueryProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="dark">
+      <MantineProvider defaultColorScheme="dark" theme={mantineTheme}>
         <ModalsProvider>
           <ContextMenuProvider>
             <DndProvider backend={HTML5Backend}>

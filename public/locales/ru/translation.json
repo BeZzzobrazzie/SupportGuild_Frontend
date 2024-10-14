@@ -50,6 +50,8 @@
   "navbar.exportToMarkdown": "Экспорт в markdown",
   "navbar.changeAccount": "Сменить аккаунт",
   "navbar.logout": "Выход",
+  "navbar.darkMode": "Темная тема",
+  "navbar.lightMode": "Светлая тема",
 
 
   "insteadOfTemplates": "Выберите или создайте коллекцию"

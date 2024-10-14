@@ -6,6 +6,8 @@ import {
   Stack,
   rem,
   ActionIcon,
+  useMantineColorScheme,
+  useComputedColorScheme,
 } from "@mantine/core";
 import {
   IconHome2,
@@ -21,6 +23,8 @@ import {
   IconFileUpload,
   IconFileDownload,
   IconMarkdown,
+  IconMoon,
+  IconSunHigh,
 } from "@tabler/icons-react";
 import classes from "./navbar.module.css";
 import { useTranslation } from "react-i18next";
@@ -66,32 +70,38 @@ const mockdata = [
 ];
 
 const getLanguage = (): "en" | "ru" => {
-  // Проверяем наличие localStorage
   if (typeof window !== "undefined") {
     const storedLanguage = localStorage.getItem("language");
     if (storedLanguage) {
-      return JSON.parse(storedLanguage); // Читаем из localStorage как объект
+      return JSON.parse(storedLanguage);
     }
   }
-  return "ru"; // Возвращаем "ru" по умолчанию
+  return "ru";
 };
 
 export function Navbar() {
   const [active, setActive] = useState(2);
-  const [language, setLanguage] = useState<"en" | "ru">("ru"); // Изначально задаем язык "ru"
+  const [language, setLanguage] = useState<"en" | "ru">("ru");
   const { t, i18n } = useTranslation();
+  const { colorScheme, setColorScheme } = useMantineColorScheme({
+    // keepTransitions: true,
+  });
+  const computedColorScheme = useComputedColorScheme("light");
 
   useEffect(() => {
     const initialLanguage = getLanguage();
     setLanguage(initialLanguage);
-    i18n.changeLanguage(initialLanguage); // Устанавливаем язык для i18n
+    i18n.changeLanguage(initialLanguage);
   }, []);
 
   const handleLanguageChange = () => {
     const newLanguage = language === "en" ? "ru" : "en";
     i18n.changeLanguage(newLanguage);
     setLanguage(newLanguage);
-    localStorage.setItem("language", JSON.stringify(newLanguage)); // Сохраняем язык сразу при изменении
+    localStorage.setItem("language", JSON.stringify(newLanguage));
+  };
+  const handleThemeChange = () => {
+    setColorScheme(computedColorScheme === "dark" ? "light" : "dark");
   };
 
   const links = mockdata.map((link, index) => (
@@ -132,6 +142,15 @@ export function Navbar() {
             icon={IconMarkdown}
             label={t("navbar.exportToMarkdown")}
             disabled
+          />
+          <NavbarLink
+            icon={computedColorScheme === "light" ? IconMoon : IconSunHigh}
+            label={
+              computedColorScheme === "light"
+                ? t("navbar.lightMode")
+                : t("navbar.darkMode")
+            }
+            onClick={handleThemeChange}
           />
         </Stack>
       </div>

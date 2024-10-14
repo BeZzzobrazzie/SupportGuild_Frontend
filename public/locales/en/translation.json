@@ -49,6 +49,8 @@
   "navbar.exportToMarkdown": "Export to markdown",
   "navbar.changeAccount": "Change account",
   "navbar.logout": "Logout",
+  "navbar.darkMode": "Dark mode",
+  "navbar.lightMode": "Light mode",
 
   
 
