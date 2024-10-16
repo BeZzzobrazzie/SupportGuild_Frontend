@@ -1,8 +1,9 @@
 .navbar {
   position: sticky;
-  top: 0;
+  top: 10px;
   width: rem(80px);
-  height: rem(750px);
+  height: calc(100vh - 20px);
+  /* height: 100vh; */
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;

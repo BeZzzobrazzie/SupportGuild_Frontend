@@ -1,5 +1,5 @@
 .editor-container {
-  border: 2px solid var(--mantine-color-dark-4);
+  border: 2px solid var(--mantine-color-default-border);
   border-radius: var(--mantine-radius-sm);
   /* background-color: var(--mantine-color-gray-6); */
 }

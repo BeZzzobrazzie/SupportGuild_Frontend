@@ -100,6 +100,15 @@ export function Collection({ explorerItemId, nestingLevel }: CollectionProps) {
       },
     },
     {
+      key: "share",
+      title: t("explorer.share"),
+      onClick: () => {
+        console.log("share");
+      },
+      disabled: true,
+    },
+    { key: "divider-2" },
+    {
       key: "delete",
       title: t("explorer.delete"),
       color: "red",

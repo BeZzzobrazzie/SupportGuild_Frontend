@@ -29,9 +29,11 @@ import {
   IconCheckbox,
   IconClipboardCopy,
   IconCopy,
+  IconCornerUpRight,
   IconDots,
   IconEdit,
   IconOutbound,
+  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
 import { ActionIcon, Menu, rem } from "@mantine/core";
@@ -207,8 +209,12 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
               onChange={handleChangeName}
               placeholder="Enter a name"
             />
-            <button onClick={handleClickSave}>{t("templateEditor.save")}</button>
-            <button onClick={handleClickReset}>{t("templateEditor.reset")}</button>
+            <button onClick={handleClickSave}>
+              {t("templateEditor.save")}
+            </button>
+            <button onClick={handleClickReset}>
+              {t("templateEditor.reset")}
+            </button>
           </>
         )}
         {isReadMode && (
@@ -246,16 +252,14 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label>                  {t("templateEditor.cardActions")}
-                </Menu.Label>
+                <Menu.Label> {t("templateEditor.cardActions")}</Menu.Label>
                 <Menu.Item
                   onClick={handleClickEdit}
                   leftSection={
                     <IconEdit style={{ width: rem(16), height: rem(16) }} />
                   }
                 >
-                                    {t("templateEditor.edit")}
-
+                  {t("templateEditor.edit")}
                 </Menu.Item>
                 <Menu.Item
                   onClick={handleClickSelect}
@@ -263,8 +267,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                     <IconCheckbox style={{ width: rem(16), height: rem(16) }} />
                   }
                 >
-                                    {t("templateEditor.select")}
-
+                  {t("templateEditor.select")}
                 </Menu.Item>
                 <Menu.Item
                   onClick={handleClickCopy}
@@ -274,24 +277,29 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                     />
                   }
                 >
-                                    {t("templateEditor.copy")}
-
+                  {t("templateEditor.copy")}
                 </Menu.Item>
                 <Menu.Item
                   disabled
                   // onClick={}
-                  // leftSection={
-                  //   <IconClipboardCopy
-                  //     style={{ width: rem(16), height: rem(16) }}
-                  //   />
-                  // }
+                  leftSection={
+                    <IconCornerUpRight
+                      style={{ width: rem(16), height: rem(16) }}
+                    />
+                  }
                 >
-                                    {t("templateEditor.move")}
-
+                  {t("templateEditor.move")}
+                </Menu.Item>
+                <Menu.Item
+                  disabled
+                  leftSection={
+                    <IconShare style={{ width: rem(16), height: rem(16) }} />
+                  }
+                >
+                  {t("templateEditor.share")}
                 </Menu.Item>
                 <Menu.Divider />
-                <Menu.Label>                  {t("templateEditor.danger")}
-                </Menu.Label>
+                <Menu.Label> {t("templateEditor.danger")}</Menu.Label>
                 <Menu.Item
                   onClick={handleClickRemove}
                   color="red"

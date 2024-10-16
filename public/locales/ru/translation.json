@@ -6,6 +6,7 @@
   "explorer.newCollection": "Создать коллекцию",
   "explorer.newFolder": "Создать папку",
   "explorer.paste": "Вставить",
+  "explorer.share": "Поделиться",
 
   "commandPanel.numberOfSelected": "Количество выделенных",
   "commandPanel.selectAll": "Выделить все",
@@ -33,11 +34,12 @@
   "templateEditor.edit": "Редактировать",
   "templateEditor.select": "Выбрать",
   "templateEditor.copy": "Копировать",
-  "templateEditor.move": "Переместить",
+  "templateEditor.move": "Переместить в...",
   "templateEditor.danger": "Необратимые действия",
   "templateEditor.delete": "Удалить",
   "templateEditor.save": "Сохранить",
   "templateEditor.reset": "Сбросить изменения",
+  "templateEditor.share": "Поделиться",
 
   "outputEditor.copyToClipboard": "Скопировать",
   "outputEditor.saveAsCardLabel": "Создать карточку на основе содержимого",

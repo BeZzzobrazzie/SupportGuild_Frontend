@@ -6,6 +6,7 @@
   "explorer.newCollection": "New collection",
   "explorer.newFolder": "New folder",
   "explorer.paste": "Paste",
+  "explorer.share": "Share",
 
   "commandPanel.numberOfSelected": "Number of selected",
   "commandPanel.selectAll": "Select all",
@@ -32,11 +33,12 @@
   "templateEditor.edit": "Edit",
   "templateEditor.select": "Select",
   "templateEditor.copy": "Copy card",
-  "templateEditor.move": "Move",
+  "templateEditor.move": "Move to...",
   "templateEditor.danger": "Danger zone",
   "templateEditor.delete": "Delete",
   "templateEditor.save": "Save",
   "templateEditor.reset": "Reset",
+  "templateEditor.share": "Share",
 
   "outputEditor.copyToClipboard": "Copy to clipboard",
   "outputEditor.saveAsCardLabel": "Create a card based on the content",

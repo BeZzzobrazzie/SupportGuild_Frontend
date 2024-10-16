@@ -1,11 +1,14 @@
 .explorer-small {
   max-width: calc(17.5rem * var(--mantine-scale));
+  /* margin: 10px 0; */
   padding: var(--mantine-spacing-xs);
   border: 2px solid var(--mantine-color-default-border);
   border-radius: var(--mantine-radius-sm);
   width: 100%;
 
   min-height: 400px;
+  min-width: 270px;
   /* height: 1px; */
   flex-grow: 1;
+
 }

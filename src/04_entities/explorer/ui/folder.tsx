@@ -188,6 +188,15 @@ export function Folder({ explorerItemId, nestingLevel }: FolderProps) {
       },
     },
     {
+      key: "share",
+      title: t("explorer.share"),
+      onClick: () => {
+        console.log("share");
+      },
+      disabled: true,
+    },
+    { key: "divider-3" },
+    {
       key: "delete",
       title: t("explorer.delete"),
       color: "red",

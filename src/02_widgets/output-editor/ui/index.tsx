@@ -73,32 +73,34 @@ export function OutputEditor() {
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes["editor-container"]}>
-        <ToolbarPlugin />
-        <div className={classes["editor-content-wrapper"]}>
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable className={classes["editor-content"]} />
-            }
-            placeholder={
-              <div className={classes["editor-content-placeholder"]}>
-                {t("editor.placeholder")}
-              </div>
-            }
-            ErrorBoundary={LexicalErrorBoundary}
-          />
+      <div className={classes["editor-wrapper"]}>
+        <div className={classes["editor-container"]}>
+          <ToolbarPlugin />
+          <div className={classes["editor-content-wrapper"]}>
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable className={classes["editor-content"]} />
+              }
+              placeholder={
+                <div className={classes["editor-content-placeholder"]}>
+                  {t("editor.placeholder")}
+                </div>
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
+          <HistoryPlugin />
+          <AutoFocusPlugin />
+          <OnChangePlugin onChange={onChange} />
+          <AutoLinkPlugin matchers={MATCHERS} />
+          <ListPlugin />
+          <ClearEditorPlugin />
+
+          {/* <EnterKeyPlugin /> */}
+          {false && <TreeViewPlugin />}
+
+          <EditorInitializer />
         </div>
-        <HistoryPlugin />
-        <AutoFocusPlugin />
-        <OnChangePlugin onChange={onChange} />
-        <AutoLinkPlugin matchers={MATCHERS} />
-        <ListPlugin />
-        <ClearEditorPlugin />
-
-        {/* <EnterKeyPlugin /> */}
-        {false && <TreeViewPlugin />}
-
-        <EditorInitializer />
       </div>
     </LexicalComposer>
   );
