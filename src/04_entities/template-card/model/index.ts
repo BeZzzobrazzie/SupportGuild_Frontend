@@ -13,6 +13,8 @@ const initialState: templateCardsSliceType = {
   idsCopiedTemplates: [],
   outputEditorChanged: false,
   mode: "read",
+  searchTerm: "",
+  searchArea: "current",
 };
 
 export const templateCardsSlice = createSlice({
@@ -40,6 +42,8 @@ export const templateCardsSlice = createSlice({
     selectCopiedIds: (state) => state.idsCopiedTemplates,
     // selectOutputEditorContent: (state) => state.outputEditorContent,
     selectOutputEditorChanged: (state) => state.outputEditorChanged,
+    selectSearchTerm: (state) => state.searchTerm,
+    selectSearchArea: (state) => state.searchArea,
   },
   reducers: {
     startEditing: (state, action: PayloadAction<templateCardId>) => {
@@ -70,6 +74,19 @@ export const templateCardsSlice = createSlice({
     },
     selectedModeOff: (state) => {
       state.mode = "read";
+    },
+    searchModeOn: (state) => {
+      state.mode = "search";
+    },
+    searchModeOff: (state) => {
+      state.mode = "read";
+      state.searchTerm = "";
+    },
+    changeSearchTerm: (state, action: PayloadAction<string>) => {
+      state.searchTerm = action.payload;
+    },
+    changeSearchArea: (state, action: PayloadAction<"current" | "all">) => {
+      state.searchArea = action.payload;
     },
     addToSelected: (state, action: PayloadAction<templateCardId>) => {
       state.idsSelectedTemplates[action.payload] = true;
@@ -117,6 +134,10 @@ export const {
   selectAll,
   editModeOn,
   editModeOff,
+  searchModeOn,
+  searchModeOff,
+  changeSearchTerm,
+  changeSearchArea,
   copyOne,
   copySelected,
 } = templateCardsSlice.actions;

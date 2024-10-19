@@ -9,36 +9,14 @@ import classes from "./list-cards.module.css";
 import { templateCard } from "../api/types";
 import { useTranslation } from "react-i18next";
 
-export function ListCards() {
-  const {
-    isPending,
-    isError,
-    data: allCards,
-    error,
-  } = useSuspenseQuery(getTemplateCards());
-
-  // console.log(allCards);
-
+interface ListCardsProps {
+  cards: templateCard[];
+}
+export function ListCards({ cards }: ListCardsProps) {
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
   const { t, i18n } = useTranslation();
-  const cards: templateCard[] = [];
-
-  let firstCard = allCards.ids
-    .map((id) => allCards.byId[id])
-    .find(
-      (card) => card.parentId === activeCollection && card.prevCardId === null
-    );
-
-  while (firstCard) {
-    cards.push(firstCard);
-    if (firstCard.nextCardId !== null) {
-      firstCard = allCards.byId[firstCard.nextCardId];
-    } else {
-      firstCard = undefined;
-    }
-  }
 
   return (
     <div className={classes["list-cards"]}>

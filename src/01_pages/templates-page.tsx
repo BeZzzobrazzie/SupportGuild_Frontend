@@ -6,8 +6,15 @@ import { OutputEditorProvider } from "src/02_widgets/output-editor/lib/output-ed
 import { BackupOptions } from "src/02_widgets/backup-options";
 import { useEffect } from "react";
 import { Navbar } from "src/02_widgets/navbar";
+import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
+import { templateCardsSlice } from "src/04_entities/template-card/model";
+import { explorerSlice } from "src/04_entities/explorer/model";
 
 export function TemplatesPage() {
+  const dispatch = useAppDispatch();
+  const activeCollection = useAppSelector((state) =>
+    explorerSlice.selectors.selectActiveCollection(state)
+  );
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "z") {
@@ -21,6 +28,13 @@ export function TemplatesPage() {
         // Блокируем Ctrl+Y или Ctrl+Shift+Z (или Cmd+Shift+Z на Mac)
         event.preventDefault();
       }
+      if ((event.ctrlKey || event.metaKey) && event.key === "f") {
+        event.preventDefault();
+        event.stopPropagation();
+        if (activeCollection !== null) {
+          dispatch(templateCardsSlice.actions.searchModeOn());
+        }
+      }
     };
 
     // Добавляем обработчик события при монтировании компонента
@@ -30,7 +44,7 @@ export function TemplatesPage() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [activeCollection, dispatch]);
 
   return (
     <div className={classes["template-page"]}>

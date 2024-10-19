@@ -8,6 +8,8 @@ import {
 import {
   copySelected,
   resetSelected,
+  searchModeOff,
+  searchModeOn,
   selectedModeOff,
   selectedModeOn,
   selectSelectedIds,
@@ -21,13 +23,14 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import { ActionIcon, Button, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Chip, Text, TextInput, Tooltip } from "@mantine/core";
 import {
   IconArrowBackUp,
   IconCheckbox,
   IconClipboard,
   IconClipboardCopy,
   IconListCheck,
+  IconSearch,
   IconSquare,
   IconSquarePlus,
   IconTrash,
@@ -37,6 +40,8 @@ import { useTranslation } from "react-i18next";
 import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
 import { useCardEditor } from "../lib/context";
 import classes from "./command-panel.module.css";
+import { SearchInput } from "./search-input";
+import { SearchModeSwitcher } from "./search-mode-switcher";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -50,6 +55,7 @@ export function CommandPanel() {
   const isReadMode = mode === "read";
   const isEditMode = mode === "edit";
   const isSelectedMode = mode === "select";
+  const isSearchMode = mode === "search";
   const amountSelected = useAppSelector((state) =>
     templateCardsSlice.selectors.selectAmountSelected(state)
   );
@@ -126,6 +132,13 @@ export function CommandPanel() {
   function handleClickAdd() {
     // dispatch(addCard(activeCollection));
     addMutation.mutate({ parentId: activeCollection });
+  }
+
+  function handleClickSearch() {
+    dispatch(searchModeOn());
+  }
+  function handleClickSearchOff() {
+    dispatch(searchModeOff());
   }
 
   return (
@@ -226,7 +239,30 @@ export function CommandPanel() {
                 >
                   {t("commandPanel.paste")}
                 </Button>
+                <Button
+                  leftSection={<IconSearch />}
+                  size="sm"
+                  variant="default"
+                  onClick={handleClickSearch}
+                  // disabled
+                >
+                  {t("commandPanel.search")}
+                </Button>
               </Button.Group>
+            </>
+          ) : isSearchMode ? (
+            <>
+              <SearchModeSwitcher />
+              <SearchInput />
+              <Tooltip label={t("commandPanel.turnOffSearchMode")}>
+                <ActionIcon
+                  onClick={handleClickSearchOff}
+                  variant="default"
+                  size={36}
+                >
+                  <IconArrowBackUp />
+                </ActionIcon>
+              </Tooltip>
             </>
           ) : (
             isEditMode && (

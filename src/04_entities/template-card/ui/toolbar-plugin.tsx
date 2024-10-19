@@ -68,6 +68,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
   const isReadMode = mode === "read";
   const isEditMode = mode === "edit";
   const isSelectedMode = mode === "select";
+  const isSearchMode = mode === "search";
   const isSelected = useAppSelector((state) =>
     templateCardsSlice.selectors.selectIsSelected(state, id)
   );
@@ -217,7 +218,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
             </button>
           </>
         )}
-        {isReadMode && (
+        {(isReadMode || isSearchMode) && (
           <>
             <CardName name={nameState} />
           </>

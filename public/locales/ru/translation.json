@@ -17,6 +17,10 @@
   "commandPanel.create": "Создать",
   "commandPanel.select": "Выделить",
   "commandPanel.paste": "Вставить",
+  "commandPanel.search": "Поиск",
+  "commandPanel.searchPlaceholder": "Поиск...",
+  "commandPanel.turnOffSearchMode": "Выключить режим поиска",
+
 
   "editor.boldFont": "Жирный шрифт",
   "editor.italicFont": "Курсив",

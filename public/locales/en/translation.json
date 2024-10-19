@@ -17,6 +17,9 @@
   "commandPanel.create": "Create",
   "commandPanel.select": "Select",
   "commandPanel.paste": "Paste",
+  "commandPanel.search": "Search",
+  "commandPanel.searchPlaceholder": "Search...",
+  "commandPanel.turnOffSearchMode": "Turn off search mode",
 
   "editor.boldFont": "Bold font",
   "editor.italicFont": "Italic font",

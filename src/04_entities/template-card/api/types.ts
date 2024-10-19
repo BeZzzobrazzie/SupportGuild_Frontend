@@ -70,5 +70,7 @@ export type templateCardsSliceType = {
   outputEditorChanged: boolean;
   // outputEditorContent: Descendant[];
   // selectedMode: boolean;
-  mode: "read" | "edit" | "select";
+  mode: "read" | "edit" | "select" | "search";
+  searchTerm: string;
+  searchArea: "all" | "current";
 };
