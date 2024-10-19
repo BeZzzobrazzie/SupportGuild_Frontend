@@ -28,32 +28,39 @@ export function Templates() {
   const isActiveCollection = activeCollection !== null;
 
   const cards: templateCard[] = useMemo(() => {
-    const cards: templateCard[] = [];
+    if (!allCards || !allCards.ids || allCards.ids.length === 0) {
+      return [];
+    }
 
-    if ((isSearchMode && searchArea === "all") || activeCollection === null) {
-      allCards.ids.forEach((id) => {
-        const card = allCards.byId[id];
-        cards.push(card);
-      });
-      return cards;
+    if (isSearchMode && searchArea === "all") {
+      return allCards.ids.map((id) => allCards.byId[id]);
     } else {
-      let firstCard = allCards.ids
+      const filteredCards = allCards.ids
         .map((id) => allCards.byId[id])
-        .find(
-          (card) =>
-            card.parentId === activeCollection && card.prevCardId === null
-        );
+        .filter((card) => card.parentId === activeCollection);
 
-      while (firstCard) {
-        cards.push(firstCard);
-        if (firstCard.nextCardId !== null) {
-          firstCard = allCards.byId[firstCard.nextCardId];
-        } else {
-          firstCard = undefined;
-        }
+      if (filteredCards.length === 0) {
+        return [];
       }
 
-      return cards;
+      const firstCard = filteredCards.find((card) => card.prevCardId === null);
+
+      if (!firstCard) {
+        return filteredCards;
+      }
+
+      const orderedCards: templateCard[] = [];
+      let currentCard: templateCard | undefined = firstCard;
+
+      while (currentCard) {
+        orderedCards.push(currentCard);
+        currentCard =
+          currentCard.nextCardId !== null
+            ? allCards.byId[currentCard.nextCardId]
+            : undefined;
+      }
+
+      return orderedCards;
     }
   }, [allCards, activeCollection, isSearchMode, searchArea]);
 

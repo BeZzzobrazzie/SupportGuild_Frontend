@@ -15,6 +15,8 @@ export function TemplatesPage() {
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
+  const mode = useAppSelector((state) => state.templateCards.mode);
+  const isSearchMode = mode === "search";
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "z") {
@@ -28,13 +30,40 @@ export function TemplatesPage() {
         // Блокируем Ctrl+Y или Ctrl+Shift+Z (или Cmd+Shift+Z на Mac)
         event.preventDefault();
       }
-      if ((event.ctrlKey || event.metaKey) && event.key === "f") {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        (event.key === "f" || event.key === "F" || event.code === "KeyF")
+      ) {
         event.preventDefault();
-        event.stopPropagation();
         if (activeCollection !== null) {
           dispatch(templateCardsSlice.actions.searchModeOn());
+          dispatch(templateCardsSlice.actions.changeSearchArea("current"));
         }
       }
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        (event.key === "f" || event.key === "F" || event.code === "KeyF")
+      ) {
+        event.preventDefault();
+        console.log("if");
+        if (activeCollection !== null) {
+          console.log("if2");
+          dispatch(templateCardsSlice.actions.searchModeOn());
+          dispatch(templateCardsSlice.actions.changeSearchArea("all"));
+        }
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        if (isSearchMode) {
+          dispatch(templateCardsSlice.actions.searchModeOff());
+        }
+      }
+
+      console.log("Key:", event.key);
+      console.log("Ctrl:", event.ctrlKey);
+      console.log("Meta:", event.metaKey);
+      console.log("Shift:", event.shiftKey);
     };
 
     // Добавляем обработчик события при монтировании компонента
@@ -44,7 +73,7 @@ export function TemplatesPage() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeCollection, dispatch]);
+  }, [activeCollection, dispatch, isSearchMode]);
 
   return (
     <div className={classes["template-page"]}>
