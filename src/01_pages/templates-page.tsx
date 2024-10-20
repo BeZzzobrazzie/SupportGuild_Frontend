@@ -59,11 +59,6 @@ export function TemplatesPage() {
           dispatch(templateCardsSlice.actions.searchModeOff());
         }
       }
-
-      console.log("Key:", event.key);
-      console.log("Ctrl:", event.ctrlKey);
-      console.log("Meta:", event.metaKey);
-      console.log("Shift:", event.shiftKey);
     };
 
     // Добавляем обработчик события при монтировании компонента

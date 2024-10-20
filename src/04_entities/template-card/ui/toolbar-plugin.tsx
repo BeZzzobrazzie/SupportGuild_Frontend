@@ -36,7 +36,7 @@ import {
   IconShare,
   IconTrash,
 } from "@tabler/icons-react";
-import { ActionIcon, Menu, rem } from "@mantine/core";
+import { ActionIcon, Menu, rem, Highlight } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 interface ToolbarCardPluginProps {
@@ -323,5 +323,10 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
 }
 
 function CardName({ name }: { name: string }) {
-  return <div className={classes["card-name"]}>{name}</div>;
+  const searchTerm = useAppSelector((state) => state.templateCards.searchTerm);
+  return (
+    <Highlight highlight={searchTerm} className={classes["card-name"]}>
+      {name}
+    </Highlight>
+  );
 }

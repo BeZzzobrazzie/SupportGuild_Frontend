@@ -42,8 +42,10 @@ export function Templates() {
     if (isSearchMode && searchArea === "all") {
       return allCards.ids
         .map((id) => allCards.byId[id])
-        .filter((card) =>
-          card.name.toLowerCase().includes(searchTerm.toLowerCase())
+        .filter(
+          (card) =>
+            card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            card.content.toLowerCase().includes(searchTerm.toLowerCase())
         );
     } else {
       const collectionCards = allCards.ids
@@ -73,8 +75,10 @@ export function Templates() {
             : undefined;
       }
 
-      return orderedCards.filter((card) =>
-        card.name.toLowerCase().includes(searchTerm.toLowerCase())
+      return orderedCards.filter(
+        (card) =>
+          card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          card.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
   }, [allCards, searchTerm, isSearchMode, searchArea, activeCollection]);
