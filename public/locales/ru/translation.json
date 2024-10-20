@@ -20,6 +20,8 @@
   "commandPanel.search": "Поиск",
   "commandPanel.searchPlaceholder": "Поиск...",
   "commandPanel.turnOffSearchMode": "Выключить режим поиска",
+  "commandPanel.searchAreaAll": "Все коллекции",
+  "commandPanel.searchAreaCurrent": "Текущая коллекция",
 
 
   "editor.boldFont": "Жирный шрифт",

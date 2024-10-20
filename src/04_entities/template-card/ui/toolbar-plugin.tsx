@@ -231,21 +231,24 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
       </div>
 
       <div className={classes["command-group"]}>
-        {isReadMode && (
-          <>
-            <BasicActionIcon
-              label={t("templateEditor.addToOutputEditor")}
-              variant="default"
-              onClick={handleClickAdd}
-              icon={<IconOutbound />}
-            />
-            <BasicActionIcon
-              label={t("templateEditor.copyToClipboard")}
-              variant="default"
-              onClick={handleClickCopyToClipboard}
-              icon={<IconCopy />}
-            />
-
+        <>
+          {(isReadMode || isSearchMode) && (
+            <>
+              <BasicActionIcon
+                label={t("templateEditor.addToOutputEditor")}
+                variant="default"
+                onClick={handleClickAdd}
+                icon={<IconOutbound />}
+              />
+              <BasicActionIcon
+                label={t("templateEditor.copyToClipboard")}
+                variant="default"
+                onClick={handleClickCopyToClipboard}
+                icon={<IconCopy />}
+              />
+            </>
+          )}
+          {isReadMode && (
             <Menu>
               <Menu.Target>
                 <ActionIcon variant="default">
@@ -312,8 +315,8 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
-          </>
-        )}
+          )}
+        </>
       </div>
     </div>
   );

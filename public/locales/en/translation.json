@@ -20,6 +20,8 @@
   "commandPanel.search": "Search",
   "commandPanel.searchPlaceholder": "Search...",
   "commandPanel.turnOffSearchMode": "Turn off search mode",
+  "commandPanel.searchAreaAll": "All collections",
+  "commandPanel.searchAreaCurrent": "Current collection",
 
   "editor.boldFont": "Bold font",
   "editor.italicFont": "Italic font",
