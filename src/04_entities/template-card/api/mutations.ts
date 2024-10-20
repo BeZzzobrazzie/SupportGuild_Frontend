@@ -53,7 +53,9 @@ export function useAddMutation() {
     //   );
     // },
     onSuccess: () => {
-      return queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] })
+      return queryClient.invalidateQueries({
+        queryKey: [TEMPLATE_CARDS_QUERY_KEY],
+      });
     },
     mutationKey: ["addTemplateCard"],
   });
@@ -85,12 +87,13 @@ export function useRemoveMutation() {
   return useMutation({
     mutationFn: async (ids: templateCardId[]) => await removeTemplateCard(ids),
     onSuccess: (data) => {
-      queryClient.setQueryData(
-        [TEMPLATE_CARDS_QUERY_KEY],
-        (oldData: templateCardDataFromServer) => {
-          return data;
-        }
-      );
+      // queryClient.setQueryData(
+      //   [TEMPLATE_CARDS_QUERY_KEY],
+      //   (oldData: templateCardDataFromServer) => {
+      //     return data;
+      //   }
+      // );
+      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] });
     },
     mutationKey: ["removeTemplateCard"],
   });
@@ -111,12 +114,11 @@ export function usePasteMutation() {
     //   );
     // },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] });
     },
     mutationKey: ["pasteTemplateCard"],
   });
 }
-
 
 export function useMoveMutation() {
   return useMutation({
@@ -187,7 +189,7 @@ export function useMoveMutation() {
     //   queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] });
     // },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] })
+      queryClient.invalidateQueries({ queryKey: [TEMPLATE_CARDS_QUERY_KEY] });
     },
   });
 }
