@@ -1,12 +1,14 @@
 .editor-container {
-  border: 2px solid var(--mantine-color-default-border);
-  border-radius: var(--mantine-radius-sm);
+  /* border: 2px solid var(--mantine-color-default-border); */
+  border-radius: var(--mantine-radius-md);
   /* background-color: var(--mantine-color-gray-6); */
+  background-color: var(--mantine-color-secondary-0);
+  padding: var(--mantine-spacing-md);
+  
 }
 
 .editor-content {
   /* border: 1px solid rgb(163, 108, 25); */
-  padding: 5px var(--mantine-spacing-xs);
 }
 .editor-paragraph {
   margin: 0;

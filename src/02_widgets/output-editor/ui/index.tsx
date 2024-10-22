@@ -38,7 +38,14 @@ import {
   ListNode,
 } from "@lexical/list";
 import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
-import { ActionIcon, Button, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Tooltip,
+  useComputedColorScheme,
+  useMantineColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
 import {
   IconCopy,
   IconEraser,
@@ -61,7 +68,6 @@ function onError(error: Error) {
 export function OutputEditor() {
   const initialConfig = {
     namespace: "OutputEditor",
-    theme,
     onError,
     nodes: [AutoLinkNode, ListNode, ListItemNode],
   };
@@ -70,11 +76,20 @@ export function OutputEditor() {
   function onChange(editorState: EditorState) {
     setEditorState(editorState);
   }
+  const theme = useMantineTheme();
+  const computedColorScheme = useComputedColorScheme();
+  const backgroundColor =
+    computedColorScheme === "dark" ? theme.colors.surface[0] : undefined;
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes["editor-wrapper"]}>
-        <div className={classes["editor-container"]}>
+        <div
+          className={classes["editor-container"]}
+          // style={{
+          //   backgroundColor,
+          // }}
+        >
           <ToolbarPlugin />
           <div className={classes["editor-content-wrapper"]}>
             <RichTextPlugin

@@ -26,17 +26,28 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import classes from "./toolbar-plugin.module.css";
 import { BasicActionIcon } from "src/05_shared/ui/basic-action-icon";
 import {
+  IconArrowBackUp,
   IconCheckbox,
   IconClipboardCopy,
   IconCopy,
   IconCornerUpRight,
+  IconDeviceFloppy,
   IconDots,
   IconEdit,
   IconOutbound,
   IconShare,
   IconTrash,
 } from "@tabler/icons-react";
-import { ActionIcon, Menu, rem, Highlight } from "@mantine/core";
+import {
+  ActionIcon,
+  Menu,
+  rem,
+  Highlight,
+  Button,
+  ButtonGroup,
+  TextInput,
+  ActionIconGroup,
+} from "@mantine/core";
 import { useTranslation } from "react-i18next";
 
 interface ToolbarCardPluginProps {
@@ -192,7 +203,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
 
   return (
     <div className={classes.toolbar}>
-      <div className={classes["command-group"]}>
+      <div className={classes["command-group__left"]}>
         {isSelectedMode && (
           <>
             <input
@@ -204,8 +215,15 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
           </>
         )}
         {isEditing && (
-          <>
-            <input
+          <div className={classes["command-group__edit-mode"]}>
+            <TextInput
+              placeholder="Enter a name"
+              value={nameState}
+              onChange={handleChangeName}
+              size="xs"
+              className={classes["command-group__input"]}
+            />
+            {/* <input
               value={nameState}
               onChange={handleChangeName}
               placeholder="Enter a name"
@@ -215,8 +233,26 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
             </button>
             <button onClick={handleClickReset}>
               {t("templateEditor.reset")}
-            </button>
-          </>
+            </button> */}
+            {/* <ButtonGroup>
+              <Button
+                onClick={handleClickSave}
+                size="sm"
+                variant="default"
+                leftSection={<IconDeviceFloppy />}
+              >
+                {t("templateEditor.save")}
+              </Button>
+              <Button
+                onClick={handleClickReset}
+                size="sm"
+                variant="default"
+                leftSection={<IconArrowBackUp />}
+              >
+                {t("templateEditor.reset")}
+              </Button>
+            </ButtonGroup> */}
+          </div>
         )}
         {(isReadMode || isSearchMode) && (
           <>
@@ -230,8 +266,25 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
         )}
       </div>
 
-      <div className={classes["command-group"]}>
+      <div className={classes["command-group__right"]}>
         <>
+          {isEditing && (
+            <>
+              <ActionIconGroup>
+                <BasicActionIcon
+                  variant="default"
+                  onClick={handleClickSave}
+                  icon={<IconDeviceFloppy />}
+                />
+                <BasicActionIcon
+                  variant="default"
+                  onClick={handleClickReset}
+                  icon={<IconArrowBackUp />}
+                />
+              </ActionIconGroup>
+            </>
+          )}
+
           {(isReadMode || isSearchMode) && (
             <>
               <BasicActionIcon

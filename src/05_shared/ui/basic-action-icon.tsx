@@ -27,6 +27,6 @@ function BasicTooltip({
   children: ReactNode;
 }) {
   return (
-    <>{label ? <Tooltip label={label}>{children}</Tooltip> : { children }}</>
+    <>{label ? <Tooltip label={label}>{children}</Tooltip> : <>{children}</>}</>
   );
 }

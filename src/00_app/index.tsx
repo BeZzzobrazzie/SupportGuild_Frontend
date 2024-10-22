@@ -4,7 +4,7 @@ import { ContextMenuProvider } from "mantine-contextmenu";
 import "@mantine/core/styles.layer.css";
 import "@mantine/tiptap/styles.css";
 import "mantine-contextmenu/styles.layer.css";
-// import "./style.module.css";
+import "./style.module.css";
 
 import { ModalsProvider } from "@mantine/modals";
 import { DndProvider } from "react-dnd";

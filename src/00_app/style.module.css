@@ -1,5 +1,18 @@
 
-*, *::before, *::after {
+
+
+/* For light mode */
+:root[data-mantine-color-scheme="light"] {
+  --mantine-color-body: #faf7f5 !important;
+}
+
+/* For dark mode */
+:root[data-mantine-color-scheme="dark"] {
+  --mantine-color-body: #1a191b !important;
+}
+
+
+/* *, *::before, *::after {
   box-sizing: border-box;
 }
 * {
@@ -21,4 +34,4 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 #root, #__next {
   isolation: isolate;
-}
+} */
