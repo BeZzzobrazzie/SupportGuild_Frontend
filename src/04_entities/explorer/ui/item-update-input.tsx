@@ -32,25 +32,18 @@ export function ExplorerItemUpdateInput({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        {/* <input
-          className={classes["explorer-item__input"]}
-          type="text"
-          autoFocus
-          required
-          value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
-          onBlur={handleBlur}
-        /> */}
+      <form onSubmit={handleSubmit} className={classes["explorer-item__form"]}>
         <TextInput
-          className={classes["explorer-item__input"]}
+          classNames={{
+            input: classes["explorer-item__input"],
+          }}
           autoFocus
           required
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           onBlur={handleBlur}
-          variant="unstyled"
-          size="md"
+          // variant="unstyled"
+          size="xs"
         />
       </form>
     </>

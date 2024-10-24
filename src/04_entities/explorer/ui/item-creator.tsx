@@ -1,7 +1,9 @@
 import { IconChevronRight, IconFile } from "@tabler/icons-react";
 import { useContextMenu } from "mantine-contextmenu";
 import { useState } from "react";
-import classes from "./item-creator.module.css";
+// import classes from "./item-creator.module.css";
+import classes from "./explorer-item.module.css";
+
 import { explorerSlice } from "../model";
 import {
   explorerItem,
@@ -14,7 +16,7 @@ import { useAppDispatch, useAppSelector } from "src/05_shared/redux";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addExplorerItem } from "../api/explorer-api";
 import { queryClient } from "src/05_shared/api";
-import { Loader } from "@mantine/core";
+import { Loader, TextInput } from "@mantine/core";
 
 type ExplorerItemCreator = {
   parentId: explorerItemParentId;
@@ -40,7 +42,7 @@ export function ExplorerItemCreator({
   return (
     <li>
       <div
-        className={classes["explorer-item_header"]}
+        className={classes["explorer-item__header"]}
         onContextMenu={showContextMenu([])}
       >
         {indent}
@@ -110,15 +112,18 @@ function ExplorerItemCreatorInput({
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
+      <form onSubmit={handleSubmit} className={classes["explorer-item__form"]}>
+        <TextInput
+          classNames={{
+            input: classes["explorer-item__input"],
+          }}
           autoFocus
           required
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           onBlur={handleBlur}
           disabled={!canSave}
+          size="xs"
         />
 
         {mutation.isPending && <Loader color="yellow" size="xs" />}

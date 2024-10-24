@@ -30,6 +30,9 @@
   height: 32px;
   background-color: var(--mantine-color-default-border);
 }
+.explorer-item_indent {
+  width: 24px;
+}
 
 .explorer-item__header {
   display: flex;
@@ -39,6 +42,7 @@
   height: 30px;
   align-items: center;
   padding: 5px;
+  padding-right: 0;
   margin: 1px 0;
 
   border-left: 3px solid transparent;
@@ -54,10 +58,25 @@
 }
 .explorer-item__label {
   border-left: 1px solid transparent;
+  /* padding: 0 5px; */
+  padding-left: 2px;
+}
+.explorer-item__form {
+  flex-grow: 1;
 }
 .explorer-item__input {
   width: 100%;
+  font-size: var(--mantine-font-size-md);
+  padding-left: 2px;
+  /* &:focus {
+    border-bottom: 1px solid red;
+  } */
 }
+
+/* .explorer-item__input_focus {
+  border-bottom: 1px solid red;
+  background-color: yellow;
+} */
 
 .children-list {
   list-style-type: none;

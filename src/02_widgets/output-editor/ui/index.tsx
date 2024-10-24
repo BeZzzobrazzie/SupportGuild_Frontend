@@ -25,7 +25,7 @@ import { EnterKeyPlugin } from "src/05_shared/lexical-plugins/enter-key-plugin";
 import TreeViewPlugin from "src/05_shared/lexical-plugins/tree-view-plugin";
 import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { MATCHERS } from "src/05_shared/lexical-plugins/auto-link-matcher";
-import { AutoLinkNode } from "@lexical/link";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -56,6 +56,8 @@ import {
   IconUnderline,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -69,7 +71,7 @@ export function OutputEditor() {
   const initialConfig = {
     namespace: "OutputEditor",
     onError,
-    nodes: [AutoLinkNode, ListNode, ListItemNode],
+    nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode],
   };
   const { t, i18n } = useTranslation();
   const [editorState, setEditorState] = useState<EditorState>();
@@ -108,6 +110,7 @@ export function OutputEditor() {
           <AutoFocusPlugin />
           <OnChangePlugin onChange={onChange} />
           <AutoLinkPlugin matchers={MATCHERS} />
+          <LinkPlugin />
           <ListPlugin />
           <ClearEditorPlugin />
 
@@ -292,6 +295,8 @@ function ToolbarPlugin() {
         >
           {t("outputEditor.clear")}
         </Button>
+
+        <LinkActionIcon editor={editor}/>
       </div>
     </div>
   );
