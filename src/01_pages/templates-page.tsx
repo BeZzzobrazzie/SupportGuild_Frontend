@@ -15,7 +15,9 @@ export function TemplatesPage() {
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
-  const mode = useAppSelector((state) => state.templateCards.mode);
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
   const isSearchMode = mode === "search";
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

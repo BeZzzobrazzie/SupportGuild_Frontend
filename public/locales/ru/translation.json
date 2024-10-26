@@ -31,7 +31,15 @@
   "editor.bulletList": "Маркированный список",
   "editor.numberedList": "Нумерованный список",
   "editor.checkList": "Список задач",
+  "editor.link": "Создать ссылку",
+  "editor.unlink": "Убрать ссылку",
   "editor.placeholder": "Начните печатать...",
+  "editor.linkModalTitle": "Укажите URL-адрес",
+  "editor.linkModalPlaceholder": "Введите URL-адрес здесь...",
+  "editor.linkModalButton": "Добавить ссылку",
+  "editor.linkModalError": "Недопустимый URL-адрес",
+
+
 
 
   "templateEditor.addToOutputEditor": "Добавить в редактор",

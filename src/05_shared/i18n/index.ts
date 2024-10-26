@@ -22,7 +22,7 @@ i18n
   .use(initReactI18next) // Подключаем React-интеграцию
   .init({
     fallbackLng: "ru", // Язык по умолчанию, если выбранный язык отсутствует
-    debug: true, // Включить логирование для отладки
+    debug: false, // Включить логирование для отладки
     lng: "ru", // Язык по умолчанию
     interpolation: {
       escapeValue: false, // React сам экранирует, поэтому отключаем

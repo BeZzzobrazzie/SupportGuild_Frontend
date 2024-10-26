@@ -30,7 +30,13 @@
   "editor.bulletList": "Bullet list",
   "editor.numberedList": "Numbered list",
   "editor.checkList": "Check list",
+  "editor.link": "Add link",
+  "editor.unlink": "Unlink",
   "editor.placeholder": "Enter some text...",
+  "editor.linkModalTitle": "Specify the URL",
+  "editor.linkModalPlaceholder": "Enter the URL here...",
+  "editor.linkModalButton": "Add link",
+  "editor.linkModalError": "Invalid URL",
 
   "templateEditor.addToOutputEditor": "Add to output editor",
   "templateEditor.copyToClipboard": "Copy to clipboard",

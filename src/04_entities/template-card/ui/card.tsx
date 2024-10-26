@@ -6,7 +6,7 @@ import { useMoveMutation } from "../api/mutations";
 import { templateCard, templateCardId } from "../api/types";
 import { templateCardsSlice } from "../model";
 
-import { AutoLinkNode } from "@lexical/link";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -28,6 +28,7 @@ import { ToolbarCardPlugin } from "./toolbar-plugin";
 import { Divider } from "./divider";
 import { TEMPLATE_CARD } from "../lib/dnd-const";
 import { useTranslation } from "react-i18next";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 
 const cx = cn.bind(classes);
 
@@ -70,7 +71,7 @@ export function Card({ id, card }: cardProps) {
     onError,
     editable: false,
     editorState: card.content,
-    nodes: [AutoLinkNode, ListNode, ListItemNode],
+    nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode],
   };
 
   const [editorState, setEditorState] = useState<EditorState>();
@@ -126,6 +127,7 @@ export function Card({ id, card }: cardProps) {
           <OnChangePlugin onChange={onChange} />
           <AutoLinkPlugin matchers={MATCHERS} />
           <ListPlugin />
+          <LinkPlugin />
           {/* <EnterKeyPlugin /> */}
           <EditorInitializer isEditing={isEditing} />
         </div>

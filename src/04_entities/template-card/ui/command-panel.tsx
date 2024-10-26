@@ -42,6 +42,7 @@ import { useCardEditor } from "../lib/context";
 import classes from "./command-panel.module.css";
 import { SearchInput } from "./search-input";
 import { SearchModeSwitcher } from "./search-mode-switcher";
+import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -271,6 +272,9 @@ export function CommandPanel() {
                 <ActionIcon.Group>
                   <ListActionIcon func={formatList} type="bullet" />
                   <ListActionIcon func={formatList} type="number" />
+                </ActionIcon.Group>
+                <ActionIcon.Group>
+                  <LinkActionIcon editor={editor} />
                 </ActionIcon.Group>
               </>
             )

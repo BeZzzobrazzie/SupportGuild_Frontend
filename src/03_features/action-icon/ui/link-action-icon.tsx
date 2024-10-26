@@ -1,4 +1,4 @@
-import { ActionIcon, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, TextInput, Tooltip } from "@mantine/core";
 import { IconLinkPlus } from "@tabler/icons-react";
 import {
   $getSelection,
@@ -10,60 +10,90 @@ import {
 import { useTranslation } from "react-i18next";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { $createLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FormEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { ContextModalProps, modals } from "@mantine/modals";
 
-export function LinkActionIcon({ editor }: { editor: LexicalEditor | null }) {
+export function LinkActionIcon({
+  editor,
+  keyCombination,
+}: {
+  editor: LexicalEditor | null;
+  keyCombination?: boolean;
+}) {
   const { t, i18n } = useTranslation();
 
-  // async function handleClick() {
-  //   const value = await navigator.clipboard.readText()
-  //   console.log(value)
-  // }
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        (event.key === "k" || event.key === "K" || event.code === "KeyK") &&
+        keyCombination !== false
+      ) {
+        event.preventDefault();
+        handleClick();
+      }
+    };
 
-  // async function handleClick() {
-  //   try {
-  //     // Чтение текста из буфера обмена (Clipboard API)
-  //     const clipboardContent = await navigator.clipboard.readText();
+    document.addEventListener("keydown", handleKeyDown);
 
-  //     if (isUrl(clipboardContent)) {
-  //       // Вставляем ссылку в Lexical редактор
-  //       editor?.update(() => {
-  //         const linkNode = $createLinkNode(clipboardContent);
-  //         $insertNodes([linkNode]);
-  //       });
-  //     } else {
-  //       console.log('Clipboard content is not a URL:', clipboardContent);
-  //     }
-  //   } catch (error) {
-  //     // Если возникает ошибка, например, из-за отсутствия разрешений
-  //     console.error('Ошибка при чтении буфера обмена:', error);
-  //     alert('Не удалось получить содержимое буфера обмена. Проверьте разрешения на использование буфера.');
-  //   }
-  // }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  });
 
-  // function isUrl(text: string): boolean {
-  //   const urlPattern = /^(https?:\/\/[^\s$.?#].[^\s]*)$/i;
-  //   return urlPattern.test(text);
-  // }
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  // Функция для проверки, является ли текст URL
+    const formData = new FormData(event.target as HTMLFormElement);
+    const url = formData.get("url")?.toString();
 
+    if (!url) {
+      return;
+    }
+    if (!isValidUrl(url)) {
+      return;
+    }
 
-  const destination = document.getElementById("one");
-  destination && destination.addEventListener("click", () => {
-  navigator.clipboard
-    .readText()
-    .then((clipText) => (console.log(clipText)));
-});
+    editor &&
+      editor.update(() => {
+        const selection = $getSelection();
 
+        if ($isRangeSelection(selection)) {
+          const selectedText = selection.getTextContent();
+
+          if (selectedText.length > 0) {
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
+          } else {
+            const linkNode = $createLinkNode(url);
+            const textNode = new TextNode(url);
+            linkNode.append(textNode);
+            selection.insertNodes([linkNode]);
+          }
+        }
+      });
+
+    modals.closeAll();
+  }
+  function handleClick() {
+    modals.openContextModal({
+      modal: "createLinkModal",
+      title: t("editor.linkModalTitle"),
+      innerProps: {
+        handleSubmit,
+      },
+    });
+  }
 
   return (
     <>
-      <Tooltip label={t("editor.boldFont")}>
-        <ActionIcon variant="default" 
-        // onClick={handleClick}
-        id="one"
-        >
+      <Tooltip label={t("editor.link")}>
+        <ActionIcon variant="default" onClick={handleClick} id="one">
           <IconLinkPlus />
         </ActionIcon>
       </Tooltip>
@@ -71,38 +101,39 @@ export function LinkActionIcon({ editor }: { editor: LexicalEditor | null }) {
   );
 }
 
-// Попробуем использовать clipboard API синхронно через Promise
-// navigator.clipboard.readText()
-//   .then((clipboardValue) => {
-//     console.log(clipboardValue)
+export function CreateLinkModal({
+  context,
+  id,
+  innerProps,
+}: ContextModalProps<{
+  modalBody: string;
+  handleSubmit(event: React.FormEvent<HTMLFormElement>): void;
+}>) {
+  const { t, i18n } = useTranslation();
+  const [value, setVaue] = useState("");
+  return (
+    <>
+      <form onSubmit={innerProps.handleSubmit}>
+        <TextInput
+          name="url"
+          placeholder={t("editor.linkModalPlaceholder")}
+          data-autofocus
+          value={value}
+          onChange={(event) => setVaue(event.target.value)}
+          error={!isValidUrl(value) && t("editor.linkModalError")}
+        />
+        <Button fullWidth type="submit" mt="md">
+          {t("editor.linkModalButton")}
+        </Button>
+      </form>
+    </>
+  );
+}
 
-//     // Проверка на случай, если буфер обмена пуст или не содержит ссылку
-//     // if (!clipboardValue.startsWith('http')) {
-//     //   alert("Буфер обмена не содержит ссылку");
-//     //   return;
-//     // }
-
-//     // // Продолжаем с обычным обновлением редактора
-//     // editor && editor.update(() => {
-//     //   const selection = $getSelection();
-
-//     //   if ($isRangeSelection(selection)) {
-//     //     const selectedText = selection.getTextContent();
-
-//     //     if (selectedText.length > 0) {
-//     //       // Если есть выделенный текст, оборачиваем его в ссылку
-//     //       editor.dispatchCommand(TOGGLE_LINK_COMMAND, clipboardValue);
-//     //     } else {
-//     //       // Если текста нет, создаем ссылку и вставляем ее
-//     //       const linkNode = $createLinkNode(clipboardValue);
-//     //       const textNode = new TextNode(clipboardValue); // Текст ссылки
-//     //       linkNode.append(textNode);
-//     //       selection.insertNodes([linkNode]);
-//     //     }
-//     //   }
-//     // });
-//   })
-//   .catch((error) => {
-//     console.error("Ошибка при чтении буфера обмена:", error);
-//     alert("Не удалось получить данные из буфера обмена");
-//   });
+const isValidUrl = (str: string) => {
+  try {
+    return !!new URL(str);
+  } catch (_) {
+    return false;
+  }
+};

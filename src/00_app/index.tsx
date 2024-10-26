@@ -13,12 +13,13 @@ import { TemplatesPage } from "src/01_pages/templates-page";
 import { queryClient } from "src/05_shared/api";
 import { QueryProvider } from "./providers/query-provider";
 import { mantineTheme } from "./mantine-theme";
+import { CreateLinkModal } from "src/03_features/action-icon/ui/link-action-icon";
 
 function App() {
   return (
     <QueryProvider client={queryClient}>
       <MantineProvider defaultColorScheme="dark" theme={mantineTheme}>
-        <ModalsProvider>
+        <ModalsProvider modals={{ createLinkModal: CreateLinkModal }}>
           <ContextMenuProvider>
             <DndProvider backend={HTML5Backend}>
               <TemplatesPage />

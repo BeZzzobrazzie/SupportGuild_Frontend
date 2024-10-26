@@ -58,6 +58,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
+import { useAppSelector } from "src/05_shared/redux";
+import { templateCardsSlice } from "src/04_entities/template-card/model";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -72,16 +74,17 @@ export function OutputEditor() {
     namespace: "OutputEditor",
     onError,
     nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode],
+    theme,
   };
   const { t, i18n } = useTranslation();
   const [editorState, setEditorState] = useState<EditorState>();
   function onChange(editorState: EditorState) {
     setEditorState(editorState);
   }
-  const theme = useMantineTheme();
-  const computedColorScheme = useComputedColorScheme();
-  const backgroundColor =
-    computedColorScheme === "dark" ? theme.colors.surface[0] : undefined;
+  // const theme = useMantineTheme();
+  // const computedColorScheme = useComputedColorScheme();
+  // const backgroundColor =
+  //   computedColorScheme === "dark" ? theme.colors.surface[0] : undefined;
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
@@ -96,7 +99,10 @@ export function OutputEditor() {
           <div className={classes["editor-content-wrapper"]}>
             <RichTextPlugin
               contentEditable={
-                <ContentEditable className={classes["editor-content"]} />
+                <ContentEditable
+                  className={classes["editor-content"]}
+                  // onFocus={() => console.log('focus')}
+                />
               }
               placeholder={
                 <div className={classes["editor-content-placeholder"]}>
@@ -148,6 +154,9 @@ function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
   const { t, i18n } = useTranslation();
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
 
   const [blockType, setBlockType] =
     useState<keyof typeof blockTypeToBlockName>("paragraph");
@@ -262,6 +271,9 @@ function ToolbarPlugin() {
           <ListActionIcon func={formatList} type="bullet" />
           <ListActionIcon func={formatList} type="number" />
         </ActionIcon.Group>
+        <ActionIcon.Group>
+          <LinkActionIcon editor={editor} keyCombination={!(mode === "edit")} />
+        </ActionIcon.Group>
       </div>
 
       <div className={classes["editor-toolbar__buttons"]}>
@@ -295,8 +307,6 @@ function ToolbarPlugin() {
         >
           {t("outputEditor.clear")}
         </Button>
-
-        <LinkActionIcon editor={editor}/>
       </div>
     </div>
   );
