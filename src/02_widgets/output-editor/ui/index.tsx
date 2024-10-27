@@ -60,6 +60,7 @@ import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
 import { useAppSelector } from "src/05_shared/redux";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
+import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -273,6 +274,7 @@ function ToolbarPlugin() {
         </ActionIcon.Group>
         <ActionIcon.Group>
           <LinkActionIcon editor={editor} keyCombination={!(mode === "edit")} />
+          <UnlinkActionIcon editor={editor} />
         </ActionIcon.Group>
       </div>
 

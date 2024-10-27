@@ -23,7 +23,14 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import { ActionIcon, Button, Chip, Text, TextInput, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Chip,
+  Text,
+  TextInput,
+  Tooltip,
+} from "@mantine/core";
 import {
   IconArrowBackUp,
   IconCheckbox,
@@ -43,6 +50,7 @@ import classes from "./command-panel.module.css";
 import { SearchInput } from "./search-input";
 import { SearchModeSwitcher } from "./search-mode-switcher";
 import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
+import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
 
 export function CommandPanel() {
   const dispatch = useAppDispatch();
@@ -275,6 +283,7 @@ export function CommandPanel() {
                 </ActionIcon.Group>
                 <ActionIcon.Group>
                   <LinkActionIcon editor={editor} />
+                  <UnlinkActionIcon editor={editor} />
                 </ActionIcon.Group>
               </>
             )
