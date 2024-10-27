@@ -40,12 +40,14 @@
 .editor-content {
   overflow: auto;
   flex-grow: 1;
+
+  padding: var(--mantine-spacing-xs);
 }
 
 .editor-content-placeholder {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: var(--mantine-spacing-xs);
+  left: var(--mantine-spacing-xs);
   /* padding: 5px var(--mantine-spacing-xs); */
   opacity: 0.5;
 }

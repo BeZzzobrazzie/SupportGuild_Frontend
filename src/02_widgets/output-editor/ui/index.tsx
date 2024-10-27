@@ -61,6 +61,7 @@ import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon"
 import { useAppSelector } from "src/05_shared/redux";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
 import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
+// import CustomListPlugin, { CustomListNode, TOGGLE_BULLET_LIST_COMMAND } from "./list-node";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
@@ -119,7 +120,11 @@ export function OutputEditor() {
           <AutoLinkPlugin matchers={MATCHERS} />
           <LinkPlugin />
           <ListPlugin />
+          
+          {/* <CustomListPlugin /> */}
+          
           <ClearEditorPlugin />
+
 
           {/* <EnterKeyPlugin /> */}
           {false && <TreeViewPlugin />}
@@ -309,6 +314,11 @@ function ToolbarPlugin() {
         >
           {t("outputEditor.clear")}
         </Button>
+
+        {/* <button onClick={() => {
+          editor.dispatchCommand(TOGGLE_BULLET_LIST_COMMAND, undefined);
+          console.log('list')
+        }}>list</button> */}
       </div>
     </div>
   );
