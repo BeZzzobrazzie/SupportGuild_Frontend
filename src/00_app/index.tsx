@@ -14,6 +14,7 @@ import { queryClient } from "src/05_shared/api";
 import { QueryProvider } from "./providers/query-provider";
 import { mantineTheme } from "./mantine-theme";
 import { CreateLinkModal } from "src/03_features/action-icon/ui/link-action-icon";
+import { OperatorsPage } from "src/01_pages/operators-page";
 
 function App() {
   
@@ -23,7 +24,8 @@ function App() {
         <ModalsProvider modals={{ createLinkModal: CreateLinkModal }}>
           <ContextMenuProvider>
             <DndProvider backend={HTML5Backend}>
-              <TemplatesPage />
+              {/* <TemplatesPage /> */}
+              <OperatorsPage />
             </DndProvider>
           </ContextMenuProvider>
         </ModalsProvider>

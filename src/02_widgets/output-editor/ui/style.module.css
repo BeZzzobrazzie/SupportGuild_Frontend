@@ -29,6 +29,15 @@
 .editor-paragraph {
   margin: 0;
 }
+.editor-list-ul {
+  list-style-type: none;
+}
+.editor-listItem {
+  
+}
+.editor-listItem::before {
+  content: "-"
+}
 
 .editor-content-wrapper {
   display: flex;

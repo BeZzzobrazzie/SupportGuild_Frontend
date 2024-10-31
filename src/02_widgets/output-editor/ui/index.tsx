@@ -61,10 +61,21 @@ import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon"
 import { useAppSelector } from "src/05_shared/redux";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
 import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
+import CustomListPlugin, { CustomListItemNode, CustomListNode, TOGGLE_CUSTOM_BULLET_LIST_COMMAND } from "./list-node";
 // import CustomListPlugin, { CustomListNode, TOGGLE_BULLET_LIST_COMMAND } from "./list-node";
 
 const theme = {
   paragraph: classes["editor-paragraph"],
+  // list: {
+  //   nested: {
+  //     listitem: 'editor-nested-listitem',
+  //   },
+  //   ol: 'editor-list-ol',
+  //   ul: classes['editor-list-ul'],
+  //   listitem: classes['editor-listItem'],
+  //   listitemChecked: 'editor-listItemChecked',
+  //   listitemUnchecked: 'editor-listItemUnchecked',
+  // },
 };
 
 function onError(error: Error) {
@@ -75,7 +86,9 @@ export function OutputEditor() {
   const initialConfig = {
     namespace: "OutputEditor",
     onError,
-    nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode],
+    nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode,
+      //  CustomListNode, CustomListItemNode
+      ],
     theme,
   };
   const { t, i18n } = useTranslation();
@@ -130,6 +143,8 @@ export function OutputEditor() {
           {false && <TreeViewPlugin />}
 
           <EditorInitializer />
+          {/* <TreeViewPlugin /> */}
+
         </div>
       </div>
     </LexicalComposer>
@@ -281,6 +296,10 @@ function ToolbarPlugin() {
           <LinkActionIcon editor={editor} keyCombination={!(mode === "edit")} />
           <UnlinkActionIcon editor={editor} />
         </ActionIcon.Group>
+        {/* <button onClick={() => {
+          editor.dispatchCommand(TOGGLE_CUSTOM_BULLET_LIST_COMMAND, undefined);
+          console.log('list')
+        }}>list</button> */}
       </div>
 
       <div className={classes["editor-toolbar__buttons"]}>
@@ -315,10 +334,7 @@ function ToolbarPlugin() {
           {t("outputEditor.clear")}
         </Button>
 
-        {/* <button onClick={() => {
-          editor.dispatchCommand(TOGGLE_BULLET_LIST_COMMAND, undefined);
-          console.log('list')
-        }}>list</button> */}
+
       </div>
     </div>
   );
