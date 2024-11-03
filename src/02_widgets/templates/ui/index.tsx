@@ -7,6 +7,7 @@ import { templateCard } from "src/04_entities/template-card/api/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTemplateCards } from "src/04_entities/template-card/api/template-card-api";
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { templateCardsSlice } from "src/04_entities/template-card/model";
 
 export function Templates() {
   const {
@@ -16,9 +17,9 @@ export function Templates() {
     error,
   } = useSuspenseQuery(getTemplateCards());
 
-  const searchTerm = useAppSelector((state) => state.templateCards.searchTerm);
-  const searchArea = useAppSelector((state) => state.templateCards.searchArea);
-  const mode = useAppSelector((state) => state.templateCards.mode);
+  const searchTerm = useAppSelector((state) => templateCardsSlice.selectors.selectSearchTerm(state));
+  const searchArea = useAppSelector((state) => templateCardsSlice.selectors.selectSearchArea(state));
+  const mode = useAppSelector((state) => templateCardsSlice.selectors.selectMode(state));
   const isSearchMode = mode === "search";
 
   const activeCollection = useAppSelector((state) =>

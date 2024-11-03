@@ -8,6 +8,7 @@ import {
   ActionIcon,
   useMantineColorScheme,
   useComputedColorScheme,
+  Divider,
 } from "@mantine/core";
 import {
   IconHome2,
@@ -25,9 +26,12 @@ import {
   IconMarkdown,
   IconMoon,
   IconSunHigh,
+  IconTemplate,
+  IconNotes,
 } from "@tabler/icons-react";
 import classes from "./navbar.module.css";
 import { useTranslation } from "react-i18next";
+import { Link, useMatch } from "@tanstack/react-router";
 
 interface NavbarLinkProps {
   icon: typeof IconHome2;
@@ -113,6 +117,12 @@ export function Navbar() {
     />
   ));
 
+  const templatesPageMatch = useMatch({ from: "/", shouldThrow: false });
+  const operatorsPageMatch = useMatch({
+    from: "/operators",
+    shouldThrow: false,
+  });
+
   return (
     <nav className={classes.navbar}>
       <Center>
@@ -123,12 +133,32 @@ export function Navbar() {
       <div className={classes.navbarMain}>
         <Stack justify="center" gap={0}>
           {/* {links} */}
+
+          <Link to="/">
+            <NavbarLink
+              active={templatesPageMatch !== undefined}
+              icon={IconTemplate}
+              label={t("navbar.templatePage")}
+              // onClick={}
+            />
+          </Link>
+
+          <Link to="/operators">
+            <NavbarLink
+              active={operatorsPageMatch !== undefined}
+              icon={IconNotes}
+              label={t("navbar.operatorsPage")}
+              // onClick={}
+            />
+          </Link>
+          <Divider size="sm" style={{ margin: "5px 0" }} />
           <NavbarLink
             icon={IconLanguage}
             label={t("navbar.changeLanguage")}
             onClick={handleLanguageChange}
           />
-          <NavbarLink
+
+          {/* <NavbarLink
             icon={IconFileDownload}
             label={t("navbar.backup")}
             disabled
@@ -142,7 +172,7 @@ export function Navbar() {
             icon={IconMarkdown}
             label={t("navbar.exportToMarkdown")}
             disabled
-          />
+          /> */}
           <NavbarLink
             icon={computedColorScheme === "light" ? IconMoon : IconSunHigh}
             label={

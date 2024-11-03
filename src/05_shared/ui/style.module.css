@@ -1,0 +1,9 @@
+.layout {
+  /* display: flex; */
+  height: 100%;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  display: grid;
+  grid-template-columns: calc(5rem * var(--mantine-scale)) 1fr;
+}

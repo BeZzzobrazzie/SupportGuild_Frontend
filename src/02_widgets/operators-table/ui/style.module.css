@@ -1,0 +1,34 @@
+.table__container {
+  max-width: 700px;
+}
+
+.table {
+  /* table-layout: fixed; */
+  table-layout: auto;
+  width: 100%;
+}
+
+.cell-icon {
+  width: 48px;
+  vertical-align: middle;
+}
+
+.cell-prefix {
+  /* max-width: 120px;
+  width: 100%; */
+  white-space: nowrap;
+  width: 1%;
+}
+.cell-name {
+  /* width: 100%; */
+  white-space: nowrap;
+  width: 1%;
+}
+.cell-email {
+  /* white-space: nowrap;
+  width: 1%; */
+}
+
+.btn-wrapper {
+  display: flex;
+}

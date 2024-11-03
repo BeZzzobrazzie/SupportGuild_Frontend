@@ -15,22 +15,27 @@ import { QueryProvider } from "./providers/query-provider";
 import { mantineTheme } from "./mantine-theme";
 import { CreateLinkModal } from "src/03_features/action-icon/ui/link-action-icon";
 import { OperatorsPage } from "src/01_pages/operators-page";
+import { Outlet, RouterProvider } from "@tanstack/react-router";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 function App() {
-  
   return (
-    <QueryProvider client={queryClient}>
-      <MantineProvider defaultColorScheme="dark" theme={mantineTheme}>
-        <ModalsProvider modals={{ createLinkModal: CreateLinkModal }}>
-          <ContextMenuProvider>
-            <DndProvider backend={HTML5Backend}>
-              {/* <TemplatesPage /> */}
-              <OperatorsPage />
-            </DndProvider>
-          </ContextMenuProvider>
-        </ModalsProvider>
-      </MantineProvider>
-    </QueryProvider>
+    <Provider store={store}>
+      <QueryProvider client={queryClient}>
+        <MantineProvider defaultColorScheme="dark" theme={mantineTheme}>
+          <ModalsProvider modals={{ createLinkModal: CreateLinkModal }}>
+            <ContextMenuProvider>
+              <DndProvider backend={HTML5Backend}>
+                {/* <TemplatesPage /> */}
+                {/* <OperatorsPage /> */}
+                <Outlet />
+              </DndProvider>
+            </ContextMenuProvider>
+          </ModalsProvider>
+        </MantineProvider>
+      </QueryProvider>
+    </Provider>
   );
 }
 
