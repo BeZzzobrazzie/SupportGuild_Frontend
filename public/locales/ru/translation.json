@@ -23,7 +23,6 @@
   "commandPanel.searchAreaAll": "Все коллекции",
   "commandPanel.searchAreaCurrent": "Текущая коллекция",
 
-
   "editor.boldFont": "Жирный шрифт",
   "editor.italicFont": "Курсив",
   "editor.underline": "Подчеркнутый",
@@ -38,9 +37,6 @@
   "editor.linkModalPlaceholder": "Введите URL-адрес здесь...",
   "editor.linkModalButton": "Добавить ссылку",
   "editor.linkModalError": "Недопустимый URL-адрес",
-
-
-
 
   "templateEditor.addToOutputEditor": "Добавить в редактор",
   "templateEditor.copyToClipboard": "Скопировать в буфер обмена",
@@ -68,7 +64,33 @@
   "navbar.logout": "Выход",
   "navbar.darkMode": "Темная тема",
   "navbar.lightMode": "Светлая тема",
+  "navbar.templatePage": "Шаблоны",
+  "navbar.operatorsPage": "Операторы",
 
+  "insteadOfTemplates": "Выберите или создайте коллекцию",
 
-  "insteadOfTemplates": "Выберите или создайте коллекцию"
+  "operators.index": "Порядковый номер",
+  "operators.name": "Наименование",
+  "operators.inn": "ИНН",
+  "operators.kpp": "КПП",
+  "operators.status": "Статус",
+  "operators.validity-period": "Срок действия",
+  "operators.prefix": "Префикс",
+  "operators.email": "Email",
+  "operators.phone-number": "Телефон",
+  "operators.address": "Сайт",
+
+  "operators.copied": "Значение скопировано",
+  "operators.copied-message": "скопировано",
+  "operators.info.title": "Немного об этой странице",
+  "operators.info.p1": "Источником информации для данных на этой странице является exel таблица доступная для скачивания на следующем ресурсе:",
+  "operators.info.p2": "Сверка данных с источником происходит каждый час. При спорных ситуациях используйте информацию непосредственно из источника.",
+  "operators.info.p3": "На данный момент в таблицу не попадают данные об операторах со статусами \"Услуга не оказывается\" и \"Исключен\", а также об операторах налоговой отчетности.",
+  "operators.table.prefix": "Префикс",
+  "operators.table.name": "Наименование",
+  "operators.table.email": "Email",
+  "operators.commandPanel.favorites": "Избранное",
+  "operators.commandPanel.filter": "Фильтр",
+  "operators.commandPanel.info": "Информация",
+  "operators.commandPanel.search": "Поиск"
 }

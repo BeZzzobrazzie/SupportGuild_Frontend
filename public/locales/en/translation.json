@@ -64,9 +64,34 @@
   "navbar.logout": "Logout",
   "navbar.darkMode": "Dark mode",
   "navbar.lightMode": "Light mode",
+  "navbar.templatePage": "Templates",
+  "navbar.operatorsPage": "Operators",
 
-  
+  "insteadOfTemplates": "Select or create collection",
 
-  "insteadOfTemplates": "Select or create collection"
+  "operators.index": "Sequence number",
+  "operators.name": "Name",
+  "operators.inn": "INN",
+  "operators.kpp": "KPP",
+  "operators.status": "Status",
+  "operators.validity-period": "Validity period",
+  "operators.prefix": "Prefix",
+  "operators.email": "Email",
+  "operators.phone-number": "Phone",
+  "operators.address": "Website",
+
+  "operators.copied": "Copied",
+  "operators.copied-message": "has been copied",
+  "operators.info.title": "A little bit about this page",
+  "operators.info.p1": "The source of information for the data on this page is an excel spreadsheet available for download on the following resource:",
+  "operators.info.p2": "The data is checked with the source every hour. In case of disputes, use information directly from the source.",
+  "operators.info.p3": "At the moment, the table does not include data on operators with the statuses \"Услуга не оказывается\" and \"Исключен\", as well as on tax reporting operators.",
+  "operators.table.prefix": "Prefix",
+  "operators.table.name": "Name",
+  "operators.table.email": "Email",
+  "operators.commandPanel.favorites": "Favorites",
+  "operators.commandPanel.filter": "Filter",
+  "operators.commandPanel.info": "Info",
+  "operators.commandPanel.search": "Search"
 
 }

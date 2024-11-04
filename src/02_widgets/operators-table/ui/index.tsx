@@ -1,14 +1,27 @@
-import { ActionIcon, Container, Modal, Table } from "@mantine/core";
+import { ActionIcon, Button, Container, Modal, Table } from "@mantine/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getOperatorsData } from "../api";
-import { IconCopy, IconDotsVertical, IconStar } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconDotsVertical,
+  IconFilter,
+  IconInfoSquare,
+  IconStar,
+  IconZoom,
+} from "@tabler/icons-react";
 import classes from "./style.module.css";
 import { operatorData } from "../api/types";
 import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { useTranslation } from "react-i18next";
+import { CommandPanelBase } from "src/05_shared/ui/command-panel-base";
+import { Info } from "../../../01_pages/operators-page/info/info";
+import { useState } from "react";
 
 export function OperatorsTable() {
   const { isPending, isError, data, error } =
     useSuspenseQuery(getOperatorsData());
+  const { t, i18n } = useTranslation();
 
   const rows = data.map((element) => (
     <OperatorRow operatorData={element} key={element.index} />
@@ -16,24 +29,28 @@ export function OperatorsTable() {
 
   return (
     // <div className={classes["table__container"]}>
-    <Container>
+    <>
       <Table highlightOnHover className={classes["table"]}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th className={classes["cell-icon"]}></Table.Th>
             <Table.Th className={classes["cell-prefix"]}>
-              Prefix
+              {t("operators.table.prefix")}
               {/* <div className={classes["cell-prefix"]}>Prefix</div> */}
             </Table.Th>
-            <Table.Th className={classes["cell-name"]}>Name</Table.Th>
-            <Table.Th className={classes["cell-email"]}>Email</Table.Th>
+            <Table.Th className={classes["cell-name"]}>
+              {t("operators.table.name")}
+            </Table.Th>
+            <Table.Th className={classes["cell-email"]}>
+              {t("operators.table.email")}
+            </Table.Th>
             <Table.Th className={classes["cell-icon"]}></Table.Th>
             <Table.Th className={classes["cell-icon"]}></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
-    </Container>
+    </>
     // {/* </div> */}
   );
 }
@@ -97,7 +114,12 @@ function OperatorRow({ operatorData }: OperatorRowProps) {
         {/* <Table.Td>{element.address}</Table.Td> */}
       </Table.Tr>
 
-      <OperatorCard opened={opened} open={open} close={close} operatorData={operatorData}/>
+      <OperatorCard
+        opened={opened}
+        open={open}
+        close={close}
+        operatorData={operatorData}
+      />
     </>
   );
 }
@@ -107,13 +129,27 @@ interface OperatorCardProps {
   open: () => void;
   close: () => void;
   operatorData: operatorData;
-
 }
-function OperatorCard({ opened, open, close, operatorData }: OperatorCardProps) {
+function OperatorCard({
+  opened,
+  open,
+  close,
+  operatorData,
+}: OperatorCardProps) {
+  const { t, i18n } = useTranslation();
+
   return (
     <>
-      <Modal opened={opened} onClose={close} title={<>{operatorData.prefix} | {operatorData.name}</>}>
-        <div>Порядковый номер: {operatorData.index}</div>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title={
+          <>
+            {operatorData.prefix} | {operatorData.name}
+          </>
+        }
+      >
+        {/* <div>Порядковый номер: {operatorData.index}</div>
         <div>Наименование: {operatorData.name}</div>
         <div>ИНН: {operatorData.inn}</div>
         <div>КПП: {operatorData.kpp}</div>
@@ -122,11 +158,86 @@ function OperatorCard({ opened, open, close, operatorData }: OperatorCardProps) 
         <div>Префикс: {operatorData.prefix}</div>
         <div>Email: {operatorData.email}</div>
         <div>Телефон: {operatorData["phone number"]}</div>
-        <div>Сайт: {operatorData.address}</div>
+        <div>Сайт: {operatorData.address}</div> */}
 
-
-
+        <Table highlightOnHover withRowBorders={false}>
+          <Table.Tbody>
+            <OperatorCardRow
+              nameProperty={t("operators.index")}
+              valueProperty={operatorData.index}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.name")}
+              valueProperty={operatorData.name}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.inn")}
+              valueProperty={operatorData.inn}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.kpp")}
+              valueProperty={operatorData.kpp}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.status")}
+              valueProperty={operatorData.status}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.validity-period")}
+              valueProperty={operatorData["validity period"]}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.prefix")}
+              valueProperty={operatorData.prefix}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.email")}
+              valueProperty={operatorData.email}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.phone-number")}
+              valueProperty={operatorData["phone number"]}
+            />
+            <OperatorCardRow
+              nameProperty={t("operators.address")}
+              valueProperty={operatorData.address}
+            />
+          </Table.Tbody>
+        </Table>
       </Modal>
+    </>
+  );
+}
+
+interface OperatorCardRowProps {
+  nameProperty: string;
+  valueProperty?: string | number;
+}
+function OperatorCardRow({
+  nameProperty,
+  valueProperty,
+}: OperatorCardRowProps) {
+  const { t, i18n } = useTranslation();
+
+  function handleClick() {
+    if (navigator.clipboard) {
+      const item = new ClipboardItem({
+        "text/plain": String(valueProperty),
+      });
+      navigator.clipboard.write([item]);
+      notifications.show({
+        title: t("operators.copied"),
+        message: `${nameProperty} ${t("operators.copied-message")}`,
+      });
+    }
+  }
+
+  return (
+    <>
+      <Table.Tr onClick={handleClick}>
+        <Table.Td>{nameProperty}:</Table.Td>
+        <Table.Td>{valueProperty}</Table.Td>
+      </Table.Tr>
     </>
   );
 }

@@ -4,6 +4,7 @@ import { ContextMenuProvider } from "mantine-contextmenu";
 import "@mantine/core/styles.layer.css";
 import "@mantine/tiptap/styles.css";
 import "mantine-contextmenu/styles.layer.css";
+import '@mantine/notifications/styles.css';
 import "./style.css";
 
 import { ModalsProvider } from "@mantine/modals";
@@ -18,6 +19,7 @@ import { OperatorsPage } from "src/01_pages/operators-page";
 import { Outlet, RouterProvider } from "@tanstack/react-router";
 import { Provider } from "react-redux";
 import { store } from "./store";
+import { Notifications } from '@mantine/notifications';
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
           <ModalsProvider modals={{ createLinkModal: CreateLinkModal }}>
             <ContextMenuProvider>
               <DndProvider backend={HTML5Backend}>
+                <Notifications />
                 {/* <TemplatesPage /> */}
                 {/* <OperatorsPage /> */}
                 <Outlet />
