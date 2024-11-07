@@ -1,66 +1,98 @@
-import { ActionIcon, Button, Container, Modal, Table } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Divider,
+  Modal,
+  Table,
+} from "@mantine/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getOperatorsData } from "../api";
+import { getOperatorsData } from "../../../04_entities/operators/api";
 import {
   IconCopy,
   IconDotsVertical,
   IconFilter,
   IconInfoSquare,
   IconStar,
+  IconStarFilled,
   IconZoom,
 } from "@tabler/icons-react";
 import classes from "./style.module.css";
-import { operatorData } from "../api/types";
+import { operatorData } from "../../../04_entities/operators/api/types";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
 import { CommandPanelBase } from "src/05_shared/ui/command-panel-base";
 import { Info } from "../../../01_pages/operators-page/info/info";
-import { useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { OperatorsTableBase } from "src/05_shared/ui";
+import { OperatorCard } from "src/04_entities/operators";
 
-export function OperatorsTable() {
+interface OperatorsTableProps {
+  favoriteOperators: string[];
+  setFavoriteOperators: Dispatch<SetStateAction<string[]>>;
+}
+export function OperatorsTable({
+  favoriteOperators,
+  setFavoriteOperators,
+}: OperatorsTableProps) {
   const { isPending, isError, data, error } =
     useSuspenseQuery(getOperatorsData());
   const { t, i18n } = useTranslation();
 
-  const rows = data.map((element) => (
-    <OperatorRow operatorData={element} key={element.index} />
-  ));
+  const rows = data.map((operator) => {
+    const isFavorite =
+      operator.prefix && favoriteOperators.includes(operator.prefix)
+        ? true
+        : false;
+    return (
+      <OperatorRow
+        operatorData={operator}
+        key={operator.index}
+        isFavorite={isFavorite}
+        setFavoriteOperators={setFavoriteOperators}
+      />
+    );
+  });
 
   return (
-    // <div className={classes["table__container"]}>
     <>
-      <Table highlightOnHover className={classes["table"]}>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th className={classes["cell-icon"]}></Table.Th>
-            <Table.Th className={classes["cell-prefix"]}>
-              {t("operators.table.prefix")}
-              {/* <div className={classes["cell-prefix"]}>Prefix</div> */}
-            </Table.Th>
-            <Table.Th className={classes["cell-name"]}>
-              {t("operators.table.name")}
-            </Table.Th>
-            <Table.Th className={classes["cell-email"]}>
-              {t("operators.table.email")}
-            </Table.Th>
-            <Table.Th className={classes["cell-icon"]}></Table.Th>
-            <Table.Th className={classes["cell-icon"]}></Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
+      <Divider size="md" label={"All operators"} labelPosition={"left"} />
+      <OperatorsTableBase content={rows} />
     </>
-    // {/* </div> */}
   );
 }
 
 interface OperatorRowProps {
   operatorData: operatorData;
+  setFavoriteOperators: Dispatch<SetStateAction<string[]>>;
+  isFavorite: boolean;
 }
-
-function OperatorRow({ operatorData }: OperatorRowProps) {
+function OperatorRow({
+  operatorData,
+  isFavorite,
+  setFavoriteOperators,
+}: OperatorRowProps) {
   const [opened, { open, close }] = useDisclosure(false);
+
+  function handleClickStar() {
+    setFavoriteOperators((prevFavorites) => {
+      if (operatorData.prefix) {
+        const isFavorite = prevFavorites.includes(operatorData.prefix);
+        const updatedFavorites = isFavorite
+          ? prevFavorites.filter((prefix) => prefix !== operatorData.prefix)
+          : [...prevFavorites, operatorData.prefix];
+        return updatedFavorites;
+      }
+      return prevFavorites;
+    });
+  }
 
   function handleClickCopy() {
     if (operatorData.email && navigator.clipboard) {
@@ -71,13 +103,14 @@ function OperatorRow({ operatorData }: OperatorRowProps) {
       navigator.clipboard.write([item]);
     }
   }
+
   return (
     <>
       <Table.Tr key={operatorData.name}>
         <Table.Td className={classes["cell-icon"]}>
           <div className={classes["btn-wrapper"]}>
-            <ActionIcon variant="subtle" color="gray">
-              <IconStar />
+            <ActionIcon variant="subtle" color="gray" onClick={handleClickStar}>
+              {isFavorite ? <IconStarFilled /> : <IconStar />}
             </ActionIcon>
           </div>
         </Table.Td>
@@ -104,14 +137,6 @@ function OperatorRow({ operatorData }: OperatorRowProps) {
             </ActionIcon>
           </div>
         </Table.Td>
-
-        {/* <Table.Td>{element.index}</Table.Td> */}
-        {/* <Table.Td>{element.inn}</Table.Td>
-    <Table.Td>{element.kpp}</Table.Td> */}
-        {/* <Table.Td>{element.status}</Table.Td> */}
-        {/* <Table.Td>{element["validity period"]}</Table.Td> */}
-        {/* <Table.Td>{element["phone number"]}</Table.Td> */}
-        {/* <Table.Td>{element.address}</Table.Td> */}
       </Table.Tr>
 
       <OperatorCard
@@ -124,120 +149,37 @@ function OperatorRow({ operatorData }: OperatorRowProps) {
   );
 }
 
-interface OperatorCardProps {
-  opened: boolean;
-  open: () => void;
-  close: () => void;
-  operatorData: operatorData;
+interface OperatorsTableFavoritesProps {
+  favoriteOperators: string[];
+  setFavoriteOperators: Dispatch<SetStateAction<string[]>>;
 }
-function OperatorCard({
-  opened,
-  open,
-  close,
-  operatorData,
-}: OperatorCardProps) {
-  const { t, i18n } = useTranslation();
+export function OperatorsTableFavorites({
+  favoriteOperators,
+  setFavoriteOperators,
+}: OperatorsTableFavoritesProps) {
+  const { isPending, isError, data, error } =
+    useSuspenseQuery(getOperatorsData());
+
+  const content = data
+    .filter(
+      (operator) =>
+        operator.prefix && favoriteOperators.includes(operator.prefix)
+    )
+    .map((operator) => {
+      return (
+        <OperatorRow
+          operatorData={operator}
+          key={operator.index}
+          isFavorite={true}
+          setFavoriteOperators={setFavoriteOperators}
+        />
+      );
+    });
 
   return (
     <>
-      <Modal
-        opened={opened}
-        onClose={close}
-        title={
-          <>
-            {operatorData.prefix} | {operatorData.name}
-          </>
-        }
-      >
-        {/* <div>Порядковый номер: {operatorData.index}</div>
-        <div>Наименование: {operatorData.name}</div>
-        <div>ИНН: {operatorData.inn}</div>
-        <div>КПП: {operatorData.kpp}</div>
-        <div>Статус: {operatorData.status}</div>
-        <div>Срок действия: {operatorData["validity period"]}</div>
-        <div>Префикс: {operatorData.prefix}</div>
-        <div>Email: {operatorData.email}</div>
-        <div>Телефон: {operatorData["phone number"]}</div>
-        <div>Сайт: {operatorData.address}</div> */}
-
-        <Table highlightOnHover withRowBorders={false}>
-          <Table.Tbody>
-            <OperatorCardRow
-              nameProperty={t("operators.index")}
-              valueProperty={operatorData.index}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.name")}
-              valueProperty={operatorData.name}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.inn")}
-              valueProperty={operatorData.inn}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.kpp")}
-              valueProperty={operatorData.kpp}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.status")}
-              valueProperty={operatorData.status}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.validity-period")}
-              valueProperty={operatorData["validity period"]}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.prefix")}
-              valueProperty={operatorData.prefix}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.email")}
-              valueProperty={operatorData.email}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.phone-number")}
-              valueProperty={operatorData["phone number"]}
-            />
-            <OperatorCardRow
-              nameProperty={t("operators.address")}
-              valueProperty={operatorData.address}
-            />
-          </Table.Tbody>
-        </Table>
-      </Modal>
-    </>
-  );
-}
-
-interface OperatorCardRowProps {
-  nameProperty: string;
-  valueProperty?: string | number;
-}
-function OperatorCardRow({
-  nameProperty,
-  valueProperty,
-}: OperatorCardRowProps) {
-  const { t, i18n } = useTranslation();
-
-  function handleClick() {
-    if (navigator.clipboard) {
-      const item = new ClipboardItem({
-        "text/plain": String(valueProperty),
-      });
-      navigator.clipboard.write([item]);
-      notifications.show({
-        title: t("operators.copied"),
-        message: `${nameProperty} ${t("operators.copied-message")}`,
-      });
-    }
-  }
-
-  return (
-    <>
-      <Table.Tr onClick={handleClick}>
-        <Table.Td>{nameProperty}:</Table.Td>
-        <Table.Td>{valueProperty}</Table.Td>
-      </Table.Tr>
+      <Divider size="md" label={"Favorite operators"} labelPosition={"left"} />
+      <OperatorsTableBase content={content} />
     </>
   );
 }

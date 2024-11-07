@@ -1,1 +1,1 @@
-export {OperatorsTable} from "./ui"
+export { OperatorsTable, OperatorsTableFavorites } from "./ui";

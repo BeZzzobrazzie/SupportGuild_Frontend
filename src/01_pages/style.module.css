@@ -6,6 +6,8 @@
   padding-bottom: 10px;
   display: grid;
   grid-template-columns: calc(5rem * var(--mantine-scale)) auto 1fr 1fr;
+  /* display: flex; */
+
 }
 
 .template-page__left-side {
