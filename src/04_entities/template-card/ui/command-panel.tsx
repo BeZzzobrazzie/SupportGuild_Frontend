@@ -42,7 +42,7 @@ import {
   IconSquarePlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { MutableRefObject, RefObject, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BoldActionIcon, ListActionIcon } from "src/03_features/action-icon";
 import { useCardEditor } from "../lib/context";
@@ -52,7 +52,10 @@ import { SearchModeSwitcher } from "./search-mode-switcher";
 import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon";
 import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
 
-export function CommandPanel() {
+interface CommandPanelProps {
+  widgetRef: RefObject<HTMLInputElement>;
+}
+export function CommandPanel({ widgetRef }: CommandPanelProps) {
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
   // const isSelectedMode = useAppSelector((state) =>
@@ -141,6 +144,9 @@ export function CommandPanel() {
   function handleClickAdd() {
     // dispatch(addCard(activeCollection));
     addMutation.mutate({ parentId: activeCollection });
+    // if (widgetRef.current) {
+    //   widgetRef.current.scrollIntoView({behavior: "smooth", block: "end"});
+    // }
   }
 
   function handleClickSearch() {

@@ -49,6 +49,7 @@ import {
   ActionIconGroup,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { handleClickCopyToClipboard } from "src/05_shared/lib/handle-click-copy-to-clipboard";
 
 interface ToolbarCardPluginProps {
   id: templateCardId;
@@ -178,17 +179,6 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
     console.log("copyOne");
     dispatch(copyOne(card.id));
   }
-  function handleClickCopyToClipboard() {
-    editor.update(() => {
-      const htmlString = $generateHtmlFromNodes(editor);
-      const html = new Blob([htmlString], { type: "text/html" });
-      const text = new Blob([$getRoot().getTextContent()], {
-        type: "text/plain",
-      });
-      const item = new ClipboardItem({ "text/plain": text, "text/html": html });
-      navigator.clipboard.write([item]);
-    });
-  }
 
   function handleChangeName(e: ChangeEvent<HTMLInputElement>) {
     setNameState(e.target.value);
@@ -296,7 +286,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
               <BasicActionIcon
                 label={t("templateEditor.copyToClipboard")}
                 variant="default"
-                onClick={handleClickCopyToClipboard}
+                onClick={() => handleClickCopyToClipboard({ editor })}
                 icon={<IconCopy />}
               />
             </>

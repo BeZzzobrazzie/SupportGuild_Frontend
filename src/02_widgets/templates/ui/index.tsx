@@ -6,8 +6,9 @@ import { CardEditorProvider } from "src/04_entities/template-card/lib/card-edito
 import { templateCard } from "src/04_entities/template-card/api/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTemplateCards } from "src/04_entities/template-card/api/template-card-api";
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
+import { ScrollToTopButton } from "src/03_features/scrollToTop";
 
 export function Templates() {
   const {
@@ -17,15 +18,23 @@ export function Templates() {
     error,
   } = useSuspenseQuery(getTemplateCards());
 
-  const searchTerm = useAppSelector((state) => templateCardsSlice.selectors.selectSearchTerm(state));
-  const searchArea = useAppSelector((state) => templateCardsSlice.selectors.selectSearchArea(state));
-  const mode = useAppSelector((state) => templateCardsSlice.selectors.selectMode(state));
+  const searchTerm = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectSearchTerm(state)
+  );
+  const searchArea = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectSearchArea(state)
+  );
+  const mode = useAppSelector((state) =>
+    templateCardsSlice.selectors.selectMode(state)
+  );
   const isSearchMode = mode === "search";
 
   const activeCollection = useAppSelector((state) =>
     explorerSlice.selectors.selectActiveCollection(state)
   );
   const isActiveCollection = activeCollection !== null;
+
+  const widgetRef = useRef<HTMLInputElement>(null);
 
   // Состояние для ленивой загрузки
   const [visibleCards, setVisibleCards] = useState<templateCard[]>([]);
@@ -126,11 +135,12 @@ export function Templates() {
   }, [isLoadingMore, visibleCards, filteredCards, loadMoreCards]);
 
   return (
-    <div className={classes["templates"]}>
+    <div className={classes["templates"]} ref={widgetRef}>
       <CardEditorProvider>
-        {isActiveCollection && <CommandPanel />}
+        {isActiveCollection && <CommandPanel widgetRef={widgetRef} />}
         <ListCards cards={visibleCards} />
         {isLoadingMore && <div>Загрузка...</div>}
+        <ScrollToTopButton />
       </CardEditorProvider>
     </div>
   );

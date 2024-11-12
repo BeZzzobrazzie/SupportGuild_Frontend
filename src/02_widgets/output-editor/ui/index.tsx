@@ -61,7 +61,12 @@ import { LinkActionIcon } from "src/03_features/action-icon/ui/link-action-icon"
 import { useAppSelector } from "src/05_shared/redux";
 import { templateCardsSlice } from "src/04_entities/template-card/model";
 import { UnlinkActionIcon } from "src/03_features/action-icon/ui/unlink-action-icon";
-import CustomListPlugin, { CustomListItemNode, CustomListNode, TOGGLE_CUSTOM_BULLET_LIST_COMMAND } from "./list-node";
+import CustomListPlugin, {
+  CustomListItemNode,
+  CustomListNode,
+  TOGGLE_CUSTOM_BULLET_LIST_COMMAND,
+} from "./list-node";
+import { handleClickCopyToClipboard } from "src/05_shared/lib/handle-click-copy-to-clipboard";
 // import CustomListPlugin, { CustomListNode, TOGGLE_BULLET_LIST_COMMAND } from "./list-node";
 
 const theme = {
@@ -86,9 +91,13 @@ export function OutputEditor() {
   const initialConfig = {
     namespace: "OutputEditor",
     onError,
-    nodes: [AutoLinkNode, ListNode, ListItemNode, LinkNode,
+    nodes: [
+      AutoLinkNode,
+      ListNode,
+      ListItemNode,
+      LinkNode,
       //  CustomListNode, CustomListItemNode
-      ],
+    ],
     theme,
   };
   const { t, i18n } = useTranslation();
@@ -133,18 +142,16 @@ export function OutputEditor() {
           <AutoLinkPlugin matchers={MATCHERS} />
           <LinkPlugin />
           <ListPlugin />
-          
-          {/* <CustomListPlugin /> */}
-          
-          <ClearEditorPlugin />
 
+          {/* <CustomListPlugin /> */}
+
+          <ClearEditorPlugin />
 
           {/* <EnterKeyPlugin /> */}
           {false && <TreeViewPlugin />}
 
           <EditorInitializer />
           {/* <TreeViewPlugin /> */}
-
         </div>
       </div>
     </LexicalComposer>
@@ -210,17 +217,6 @@ function ToolbarPlugin() {
     // });
 
     editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
-  }
-  function handleClickCopyToClipboard() {
-    editor.update(() => {
-      const htmlString = $generateHtmlFromNodes(editor);
-      const html = new Blob([htmlString], { type: "text/html" });
-      const text = new Blob([$getRoot().getTextContent()], {
-        type: "text/plain",
-      });
-      const item = new ClipboardItem({ "text/plain": text, "text/html": html });
-      navigator.clipboard.write([item]);
-    });
   }
 
   const $updateToolbar = useCallback(() => {
@@ -308,7 +304,7 @@ function ToolbarPlugin() {
             leftSection={<IconCopy />}
             size="sm"
             variant="default"
-            onClick={handleClickCopyToClipboard}
+            onClick={() => handleClickCopyToClipboard({ editor })}
           >
             {t("outputEditor.copyToClipboard")}
           </Button>
@@ -333,8 +329,6 @@ function ToolbarPlugin() {
         >
           {t("outputEditor.clear")}
         </Button>
-
-
       </div>
     </div>
   );

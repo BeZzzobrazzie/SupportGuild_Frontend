@@ -1,5 +1,18 @@
-.button {
+.button-wrapper {
+  display: flex;
+  flex-direction: row-reverse;
   position: sticky;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+}
+
+.button {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  box-shadow: 
+  5px 0px 10px rgb(37, 37, 37),
+  0px 5px 10px rgb(37, 37, 37),
+  0px -5px 10px rgb(37, 37, 37),
+  -5px 0px 10px rgb(37, 37, 37);
+  background-color: var(--mantine-color-accent-0);
 }
