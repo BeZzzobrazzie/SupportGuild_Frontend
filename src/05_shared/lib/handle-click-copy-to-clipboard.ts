@@ -1,14 +1,32 @@
-import { LexicalEditor } from "lexical";
+import { $getSelection, LexicalEditor } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 
 interface handleClickCopyToClipboardProps {
   editor: LexicalEditor;
+  source: "contextMenu" | "button" | "shortcutKey";
 }
+
+function func({ editor }: handleClickCopyToClipboardProps) {
+  editor.update(() => {
+    const selection = $getSelection();
+    if (selection) {
+      const htmlString = $generateHtmlFromNodes(editor, selection);
+    }
+  });
+}
+
 export function handleClickCopyToClipboard({
   editor,
+  source,
 }: handleClickCopyToClipboardProps) {
-  editor.update(() => {
-    const htmlString = $generateHtmlFromNodes(editor);
+  editor.update(async() => {
+    const selection = $getSelection();
+    const htmlString =
+      source === "button"
+        ? $generateHtmlFromNodes(editor)
+        : $generateHtmlFromNodes(editor, selection);
+
+    // const htmlString = $generateHtmlFromNodes(editor);
 
     const html = new Blob([htmlString], { type: "text/html" });
 
@@ -47,6 +65,6 @@ export function handleClickCopyToClipboard({
     const plainText = processLists(tempDiv);
     const text = new Blob([plainText], { type: "text/plain" });
     const item = new ClipboardItem({ "text/plain": text, "text/html": html });
-    navigator.clipboard.write([item]);
+    await navigator.clipboard.write([item]);
   });
 }

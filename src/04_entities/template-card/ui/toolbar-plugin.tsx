@@ -286,7 +286,7 @@ export function ToolbarCardPlugin({ id, card }: ToolbarCardPluginProps) {
               <BasicActionIcon
                 label={t("templateEditor.copyToClipboard")}
                 variant="default"
-                onClick={() => handleClickCopyToClipboard({ editor })}
+                onClick={() => handleClickCopyToClipboard({ editor, source: "button"})}
                 icon={<IconCopy />}
               />
             </>

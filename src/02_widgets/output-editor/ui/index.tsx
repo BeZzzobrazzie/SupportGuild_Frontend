@@ -261,6 +261,16 @@ function ToolbarPlugin() {
     );
   }, [editor, $updateToolbar]);
 
+  // useEffect(() => {
+  //   document.addEventListener("copy", async(e) =>
+  //   {
+  //     e.preventDefault();
+  //     await navigator.clipboard.write( [new ClipboardItem({ "text/plain": new Blob(['plainText'], { type: "text/plain" }) }) ])
+  //     // handleClickCopyToClipboard({ editor, source: "contextMenu" })
+  //   }
+  //   );
+  // }, [editor]);
+
   return (
     <div className={classes["editor-toolbar"]}>
       {/* <button onClick={handleClickEdit}>Toggle editable</button> */}
@@ -304,7 +314,9 @@ function ToolbarPlugin() {
             leftSection={<IconCopy />}
             size="sm"
             variant="default"
-            onClick={() => handleClickCopyToClipboard({ editor })}
+            onClick={() =>
+              handleClickCopyToClipboard({ editor, source: "button" })
+            }
           >
             {t("outputEditor.copyToClipboard")}
           </Button>
