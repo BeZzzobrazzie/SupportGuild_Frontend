@@ -4,15 +4,20 @@ import {
   Container,
   Divider,
   Modal,
+  Paper,
   Table,
+  Text,
 } from "@mantine/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getOperatorsData } from "../../../04_entities/operators/api";
 import {
   IconCopy,
   IconDotsVertical,
+  IconFileDots,
+  IconFileText,
   IconFilter,
   IconInfoSquare,
+  IconInfoSquareRounded,
   IconStar,
   IconStarFilled,
   IconZoom,
@@ -32,7 +37,10 @@ import {
   useState,
 } from "react";
 import { OperatorsTableBase } from "src/05_shared/ui";
-import { OperatorCard } from "src/04_entities/operators";
+import {
+  FavoriteOperatorsBanner,
+  OperatorCard,
+} from "src/04_entities/operators";
 
 interface OperatorsTableProps {
   favoriteOperators: string[];
@@ -63,7 +71,11 @@ export function OperatorsTable({
 
   return (
     <>
-      <Divider size="md" label={"All operators"} labelPosition={"left"} />
+      <Divider
+        size="md"
+        label={t("operators.tableTitle.all")}
+        labelPosition={"left"}
+      />
       <OperatorsTableBase content={rows} />
     </>
   );
@@ -133,7 +145,7 @@ function OperatorRow({
         <Table.Td className={classes["cell-icon"]}>
           <div className={classes["btn-wrapper"]}>
             <ActionIcon variant="subtle" color="gray" onClick={open}>
-              <IconDotsVertical />
+              <IconInfoSquareRounded />
             </ActionIcon>
           </div>
         </Table.Td>
@@ -157,6 +169,7 @@ export function OperatorsTableFavorites({
   favoriteOperators,
   setFavoriteOperators,
 }: OperatorsTableFavoritesProps) {
+  const { t, i18n } = useTranslation();
   const { isPending, isError, data, error } =
     useSuspenseQuery(getOperatorsData());
 
@@ -178,8 +191,18 @@ export function OperatorsTableFavorites({
 
   return (
     <>
-      <Divider size="md" label={"Favorite operators"} labelPosition={"left"} />
-      <OperatorsTableBase content={content} />
+      <Divider
+        size="md"
+        label={t("operators.tableTitle.favorites")}
+        labelPosition={"left"}
+      />
+      <div className={classes["favorite-operators-content"]}>
+        {content.length === 0 ? (
+          <FavoriteOperatorsBanner />
+        ) : (
+          <OperatorsTableBase content={content} />
+        )}
+      </div>
     </>
   );
 }
