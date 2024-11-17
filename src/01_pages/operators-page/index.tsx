@@ -15,6 +15,7 @@ import { Info } from "./info/info";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OperatorsTableFavorites } from "src/02_widgets/operators-table";
+import { ScrollToTopButton } from "src/03_features/scrollToTop";
 
 export function OperatorsPage() {
   const { t, i18n } = useTranslation();
@@ -139,6 +140,12 @@ export function OperatorsPage() {
             favoriteOperators={favoriteOperators}
             setFavoriteOperators={setFavoriteOperators}
           />
+        </div>
+
+        <div className={classes["wrap-scroll-btn-sticky"]}>
+          <div className={classes["wrap-scroll-btn-relative"]}>
+            <ScrollToTopButton />
+          </div>
         </div>
       </Container>
     </PageLayout>

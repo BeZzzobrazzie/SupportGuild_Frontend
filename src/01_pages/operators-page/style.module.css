@@ -13,3 +13,18 @@
   flex-direction: column;
   gap: 20px 0;
 }
+
+.wrap-scroll-btn-sticky {
+  position: sticky;
+  bottom: 0;
+}
+.wrap-scroll-btn-relative {
+  position: relative;
+
+  @media (min-width: em(1220px)) {
+    left: 100px;
+  }
+  @media (max-width: em(1220px)) {
+    right: 70px;
+  }
+}
