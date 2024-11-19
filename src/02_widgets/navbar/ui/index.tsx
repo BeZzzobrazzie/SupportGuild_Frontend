@@ -28,6 +28,8 @@ import {
   IconSunHigh,
   IconTemplate,
   IconNotes,
+  IconAffiliate,
+  IconBuildingSkyscraper,
 } from "@tabler/icons-react";
 import classes from "./navbar.module.css";
 import { useTranslation } from "react-i18next";
@@ -122,6 +124,10 @@ export function Navbar() {
     from: "/operators",
     shouldThrow: false,
   });
+  const organizationInfoPageMatch = useMatch({
+    from: "/organization-info",
+    shouldThrow: false,
+  });
 
   return (
     <nav className={classes.navbar}>
@@ -148,6 +154,14 @@ export function Navbar() {
               active={operatorsPageMatch !== undefined}
               icon={IconNotes}
               label={t("navbar.operatorsPage")}
+              // onClick={}
+            />
+          </Link>
+          <Link to="/organization-info">
+            <NavbarLink
+              active={organizationInfoPageMatch !== undefined}
+              icon={IconBuildingSkyscraper}
+              label={"organization info"}
               // onClick={}
             />
           </Link>

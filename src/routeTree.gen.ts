@@ -11,10 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as OrganizationInfoImport } from './routes/organization-info'
 import { Route as OperatorsImport } from './routes/operators'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const OrganizationInfoRoute = OrganizationInfoImport.update({
+  id: '/organization-info',
+  path: '/organization-info',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const OperatorsRoute = OperatorsImport.update({
   id: '/operators',
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OperatorsImport
       parentRoute: typeof rootRoute
     }
+    '/organization-info': {
+      id: '/organization-info'
+      path: '/organization-info'
+      fullPath: '/organization-info'
+      preLoaderRoute: typeof OrganizationInfoImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/operators': typeof OperatorsRoute
+  '/organization-info': typeof OrganizationInfoRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/operators': typeof OperatorsRoute
+  '/organization-info': typeof OrganizationInfoRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/operators': typeof OperatorsRoute
+  '/organization-info': typeof OrganizationInfoRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/operators'
+  fullPaths: '/' | '/operators' | '/organization-info'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/operators'
-  id: '__root__' | '/' | '/operators'
+  to: '/' | '/operators' | '/organization-info'
+  id: '__root__' | '/' | '/operators' | '/organization-info'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OperatorsRoute: typeof OperatorsRoute
+  OrganizationInfoRoute: typeof OrganizationInfoRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OperatorsRoute: OperatorsRoute,
+  OrganizationInfoRoute: OrganizationInfoRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/operators"
+        "/operators",
+        "/organization-info"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/operators": {
       "filePath": "operators.tsx"
+    },
+    "/organization-info": {
+      "filePath": "organization-info.tsx"
     }
   }
 }

@@ -4,7 +4,6 @@ import { operatorsSchema } from "./types";
 
 
 
-
 export const getOperatorsData = () => {
   return queryOptions({
     queryKey: ["operatorsData"],
