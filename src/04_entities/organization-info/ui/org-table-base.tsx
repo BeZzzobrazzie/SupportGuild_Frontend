@@ -13,9 +13,9 @@ export function OrgTableBase({ content }: OrgTableBase) {
       <Table.Thead>
         <Table.Tr>
           <Table.Th className={classes["cell"]}>КПП</Table.Th>
-          <Table.Th className={classes["cell"]}>Название
-          </Table.Th>
           <Table.Th className={classes["cell"]}>Идентификатор
+          </Table.Th>
+          <Table.Th className={classes["cell"]}>Наименование организации
           </Table.Th>
           {/* <Table.Th className={classes["cell"]}>
           </Table.Th>
