@@ -66,6 +66,7 @@
   "navbar.lightMode": "Светлая тема",
   "navbar.templatePage": "Шаблоны",
   "navbar.operatorsPage": "Операторы",
+  "navbar.organizationInfo": "Информация об организации",
 
   "insteadOfTemplates": "Выберите или создайте коллекцию",
 
@@ -96,5 +97,24 @@
   "operators.commandPanel.favorites": "Избранное",
   "operators.commandPanel.filter": "Фильтр",
   "operators.commandPanel.info": "Информация",
-  "operators.commandPanel.search": "Поиск"
+  "operators.commandPanel.search": "Поиск",
+
+  "commandPanel.inn": "Укажите ИНН",
+  "commandPanel.filter": "Фильтр",
+  "commandPanel.input.innPlaceholder": "Укажите ИНН",
+  "commandPandel.input.innError": "Некорректный ИНН",
+
+  "organizationInfo.emptyBanner.title": "Укажите ИНН организации",
+  "organizationInfo.emptyBanner.text": "На данный момент список идентификаторов организации пуст. Для выполнения запроса укажите ИНН организации",
+  "organizationInfo.info.inn": "ИНН организации",
+  "organizationInfo.info.loadResult": "Скачать результаты запроса",
+  "organizationInfo.info.source": "Источник информации",
+
+  "organizationInfo.table.kpp": "КПП",
+  "organizationInfo.table.id": "Идентификатор",
+  "organizationInfo.table.name": "Наименование организации",
+  "organizationInfo.table.status": "Статус организации",
+
+  "organizationInfo.notification.copied": "Скопировано"  
+
 }

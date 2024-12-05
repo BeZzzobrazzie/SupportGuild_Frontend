@@ -66,6 +66,7 @@
   "navbar.lightMode": "Light mode",
   "navbar.templatePage": "Templates",
   "navbar.operatorsPage": "Operators",
+  "navbar.organizationInfo": "Information about organization",
 
   "insteadOfTemplates": "Select or create collection",
 
@@ -96,6 +97,24 @@
   "operators.commandPanel.favorites": "Favorites",
   "operators.commandPanel.filter": "Filter",
   "operators.commandPanel.info": "Info",
-  "operators.commandPanel.search": "Search"
+  "operators.commandPanel.search": "Search",
 
+  "commandPanel.inn": "Specify INN",
+  "commandPanel.filter": "Filter",
+  "commandPanel.input.innPlaceholder": "Specify the INN",
+  "commandPandel.input.innError": "Incorrect INN",
+
+  "organizationInfo.emptyBanner.title": "Specify the organization's INN",
+  "organizationInfo.emptyBanner.text": "At the moment, the list of organization IDs is empty. To complete the request, specify the INN of the organization",
+  "organizationInfo.info.inn": "organization INN",
+  "organizationInfo.info.loadResult": "Download the query results",
+  "organizationInfo.info.source": "Data source",
+
+  "organizationInfo.table.kpp": "KPP",
+  "organizationInfo.table.id": "ID",
+  "organizationInfo.table.name": "Name of the organization",
+  "organizationInfo.table.status": "The status of the organization",
+
+  "organizationInfo.notification.copied": "Copied"  
+  
 }

@@ -161,7 +161,7 @@ export function Navbar() {
             <NavbarLink
               active={organizationInfoPageMatch !== undefined}
               icon={IconBuildingSkyscraper}
-              label={"organization info"}
+              label={t("navbar.organizationInfo")}
               // onClick={}
             />
           </Link>

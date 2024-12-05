@@ -1,0 +1,4 @@
+.paper {
+  padding: var(--mantine-spacing-xl);
+  padding-left: calc(var(--mantine-spacing-xl) * 2);
+}

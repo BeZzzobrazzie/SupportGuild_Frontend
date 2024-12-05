@@ -12,4 +12,17 @@
 
 .page-content {
   width: 100%;
+  
+}
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wrapper-loader {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: center;
 }

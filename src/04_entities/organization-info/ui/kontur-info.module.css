@@ -1,0 +1,13 @@
+.paper {
+  padding: var(--mantine-spacing-xl);
+  /* padding-left: calc(var(--mantine-spacing-xl) * 2); */
+  display: flex;
+  min-width: 700px;
+}
+
+.paper__left {
+  width: 50%;
+}
+.paper__right {
+  width: 50%;
+}

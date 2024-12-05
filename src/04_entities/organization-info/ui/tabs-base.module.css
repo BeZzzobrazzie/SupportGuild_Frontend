@@ -1,0 +1,11 @@
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tabs-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
