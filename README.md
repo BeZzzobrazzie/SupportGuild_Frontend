@@ -1,30 +1,118 @@
-# React + TypeScript + Vite
+# README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Описание
 
-Currently, two official plugins are available:
+Web-приложение предоставляет функционал для работы с шаблонами ответов, операторами электронного документооборота (ЭДО) и поиска идентификаторов ЭДО организаций по ИНН.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Страницы приложения
 
-## Expanding the ESLint configuration
+### 1. Страница с шаблонами ответов
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+#### Explorer
+Explorer в левой части окна предоставляет возможность:
+- создавать папки и коллекции шаблонов;
+- управлять элементами через контекстное меню.
 
-- Configure the top-level `parserOptions` property like this:
+![Explorer](images/explorer.png)
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+**Доступные действия:**
+- **В корне Explorer:** создание коллекций и папок, вставка скопированных элементов.
+- **Для коллекций:** копирование, переименование, удаление.
+- **Для папок:** все действия, доступные для коллекций, плюс управление вложениями.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Элементы Explorer можно перемещать, удерживая ЛКМ, а также выделять несколько элементов с помощью Ctrl + ЛКМ.
+
+#### Список шаблонов
+В центральной части отображается список шаблонов активной коллекции.
+
+![Список шаблонов](images/templatesList.png)
+
+**Опции для карточки шаблона:**
+- перенести текст шаблона в редактор;
+- копировать содержимое в буфер обмена;
+- редактировать шаблон;
+- выделить/скопировать/удалить карточку.
+
+**Панель инструментов:**
+- создание новой карточки;
+- выбор нескольких карточек для массовой обработки;
+- вставка скопированных карточек;
+- поиск по карточкам активной коллекции или всем карточкам системы.
+
+#### Редактор
+В правой части страницы расположен текстовый редактор для комбинирования текстов шаблонов.
+
+![Редактор](images/outputEditor.png)
+
+**Основные опции:**
+- копирование текста;
+- очистка редактора.
+
+### 2. Страница с информацией об операторах ЭДО
+
+![Операторы ЭДО](images/operators.png)
+
+**Источник данных:**
+Данные на этой странице берутся из Excel-таблицы, доступной по [ссылке](https://www.nalog.gov.ru/rn77/taxation/submission_statements/el_count/#t2).
+
+**Панель инструментов:**
+- отобразить/скрыть список избранных операторов;
+- отобразить/скрыть информацию о странице.
+
+**Функционал для каждого оператора:**
+- добавление в избранное;
+- копирование email;
+- просмотр подробной информации.
+
+### 3. Страница для поиска идентификаторов ЭДО по ИНН
+
+**Описание функционала:**
+Эта страница позволяет получать данные об организации от СКБ Контур без ручной обработки файлов.
+
+![Начальный вид страницы](images/organizationInfo_start.png)
+
+После ввода ИНН и выполнения запроса отображается таблица с информацией об организации (КПП, ID ЭДО, наименование, статус).
+
+![Результаты поиска](images/organizationInfo_searchResult.png)
+
+**Дополнительные возможности:**
+- Копирование содержимого ячеек таблицы в буфер обмена по клику.
+
+![Копирование данных](images/organizationInfo_copy.png)
+
+## Комбинации клавиш
+
+### Поиск:
+- `Ctrl + F` - поиск по активной коллекции.
+- `Ctrl + Shift + F` - поиск по всем коллекциям.
+- `Esc` - выход из режима поиска.
+
+### Редактор:
+- `Ctrl + K` - вставка ссылки.
+- `Esc` - выход из режима создания ссылки.
+
+### Страница "Информация об организации":
+- `Alt + I` - активация поля для ввода ИНН.
+- `Enter` - отправка запроса с указанным ИНН.
+- `Esc` - выход из режима редактирования ИНН.
+
+<!-- ## Системные требования
+- Современный веб-браузер (Google Chrome, Mozilla Firefox, Microsoft Edge).
+- Подключение к интернету.
+
+## Установка и запуск
+1. Склонируйте репозиторий:
+   ```bash
+   git clone https://github.com/your-repo-name.git
+   ```
+2. Установите зависимости (если применимо):
+   ```bash
+   npm install
+   ```
+3. Запустите приложение:
+   ```bash
+   npm start
+   ``` -->
+
+<!-- ## Лицензия -->
+
