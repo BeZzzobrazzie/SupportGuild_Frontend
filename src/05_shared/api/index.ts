@@ -1,8 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 
 // const baseUrl = "http://localhost:5000";
-const baseUrl = "http://localhost:5001";
+// const baseUrl = "http://localhost:5001";
 // const baseUrl = "http://192.168.0.190:5000"
+const baseUrl = "https://flying-squirrel.duckdns.org"
 
 export const queryClient = new QueryClient({
   defaultOptions: {
